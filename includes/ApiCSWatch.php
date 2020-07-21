@@ -21,6 +21,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// namespace MediaWiki\Extension\CommentStreams;
+
 class ApiCSWatch extends ApiCSBase {
 
 	/**
@@ -42,7 +44,7 @@ class ApiCSWatch extends ApiCSBase {
 				'commentstreams-api-error-watch-notloggedin' );
 		}
 
-		if ( !is_null( $this->comment->getParentId() ) ) {
+		if ( $this->comment->getParentId() !== null ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-watch-nowatchonreply' );
 		}

@@ -21,6 +21,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// namespace MediaWiki\Extension\CommentStreams;
+
+use ApiBase;
+
 class ApiCSVote extends ApiCSBase {
 
 	/**
@@ -44,7 +48,7 @@ class ApiCSVote extends ApiCSBase {
 
 		$vote = $this->getMain()->getVal( 'vote' );
 
-		if ( !is_null( $this->comment->getParentId() ) ) {
+		if ( $this->comment->getParentId() !== null ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-vote-novoteonreply' );
 		}

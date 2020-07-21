@@ -21,6 +21,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// namespace MediaWiki\Extension\CommentStreams;
+
+// use ApiBase;
+// use ApiMessage;
+// use EchoEvent;
+// use ExtensionRegistry;
+// use ManualLogEntry;
+// use WikiPage;
+
 class ApiCSPostComment extends ApiBase {
 
 	/**
@@ -46,19 +55,19 @@ class ApiCSPostComment extends ApiBase {
 		$comment_title = $this->getMain()->getVal( 'commenttitle' );
 		$wikitext = $this->getMain()->getVal( 'wikitext' );
 
-		if ( is_null( $parentid ) && is_null( $comment_title ) ) {
+		if ( $parentid === null && $comment_title === null ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-missingcommenttitle' );
 		}
 
-		if ( !is_null( $parentid ) && !is_null( $comment_title ) ) {
+		if ( $parentid !== null && $comment_title !== null ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-post-parentandtitle' );
 		}
 
-		if ( !is_null( $parentid ) ) {
+		if ( $parentid !== null ) {
 			$parent_page = WikiPage::newFromId( $parentid );
-			if ( is_null( $parent_page ) || !$parent_page->getTitle()->exists() ) {
+			if ( $parent_page === null || !$parent_page->getTitle()->exists() ) {
 				$this->dieCustomUsageMessage(
 					'commentstreams-api-error-post-parentpagedoesnotexist' );
 			}
@@ -70,7 +79,7 @@ class ApiCSPostComment extends ApiBase {
 		}
 
 		$associated_page = WikiPage::newFromId( $associatedid );
-		if ( is_null( $associated_page ) ||
+		if ( $associated_page === null ||
 			!$associated_page->getTitle()->exists() ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-post-associatedpagedoesnotexist' );
@@ -83,7 +92,7 @@ class ApiCSPostComment extends ApiBase {
 		}
 
 		$title = $comment->getWikiPage()->getTitle();
-		if ( is_null( $comment->getParentId() ) ) {
+		if ( $comment->getParentId() === null ) {
 			$this->logAction( 'comment-create', $title );
 		} else {
 			$this->logAction( 'reply-create', $title );
@@ -91,7 +100,7 @@ class ApiCSPostComment extends ApiBase {
 
 		$json = $comment->getJSON();
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) &&
-			is_null( $comment->getParentId() )
+			$comment->getParentId() === null
 		) {
 			$json['watching'] = 1;
 		}
@@ -144,15 +153,15 @@ class ApiCSPostComment extends ApiBase {
 		}
 
 		$parent_id = $comment->getParentId();
-		if ( is_null( $parent_id ) ) {
+		if ( $parent_id === null ) {
 			$comment_title = $comment->getCommentTitle();
 		} else {
 			$parent_page = WikiPage::newFromId( $parent_id );
-			if ( is_null( $parent_page ) ) {
+			if ( $parent_page === null ) {
 				return;
 			}
 			$parent_comment = Comment::newFromWikiPage( $parent_page );
-			if ( is_null( $parent_comment ) ) {
+			if ( $parent_comment === null ) {
 				return;
 			} else {
 				$comment_title = $parent_comment->getCommentTitle();
@@ -163,7 +172,7 @@ class ApiCSPostComment extends ApiBase {
 			$associated_page->getTitle()->getPrefixedText();
 		if ( class_exists( 'PageProps' ) ) {
 			$associated_title = $associated_page->getTitle();
-			$values = PageProps::getInstance()->getProperties( $associated_title,
+			$values = \PageProps::getInstance()->getProperties( $associated_title,
 				'displaytitle' );
 			if ( array_key_exists( $associated_title->getArticleID(), $values ) ) {
 				$associated_page_display_title =
@@ -181,7 +190,7 @@ class ApiCSPostComment extends ApiBase {
 			'comment_wikitext' => $comment->getWikitext()
 		];
 
-		if ( !is_null( $parent_id ) ) {
+		if ( $parent_id !== null ) {
 			EchoEvent::create( [
 				'type' => 'commentstreams-reply-on-watched-page',
 				'title' => $associated_page->getTitle(),

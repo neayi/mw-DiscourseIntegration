@@ -21,6 +21,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// namespace MediaWiki\Extension\CommentStreams;
+
 class ApiCSDeleteComment extends ApiCSBase {
 
 	/**
@@ -37,7 +39,8 @@ class ApiCSDeleteComment extends ApiCSBase {
 	 * @return result of API request
 	 */
 	protected function executeBody() {
-		if ( $this->getUser()->isAnon() ) {
+		$user = $this->getUser();
+		if ( $user->isAnon() ) {
 			$this->dieCustomUsageMessage(
 				'commentstreams-api-error-delete-notloggedin' );
 		}
@@ -50,10 +53,21 @@ class ApiCSDeleteComment extends ApiCSBase {
 			$action = 'cs-moderator-delete';
 		}
 
-		if ( !$this->comment->getWikiPage()->getTitle()->userCan( $action,
-			$this->getUser() ) ) {
-			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-delete-permissions' );
+		$title = $this->comment->getWikiPage()->getTitle();
+		if ( class_exists( 'MediaWiki\Permissions\PermissionManager' ) ) {
+			// MW 1.33+
+			if ( !\MediaWiki\MediaWikiServices::getInstance()
+				->getPermissionManager()
+				->userCan( $action, $user, $title )
+			) {
+				$this->dieCustomUsageMessage(
+					'commentstreams-api-error-delete-permissions' );
+			}
+		} else {
+			if ( !$title->userCan( $action, $user ) ) {
+				$this->dieCustomUsageMessage(
+					'commentstreams-api-error-delete-permissions' );
+			}
 		}
 
 		$childCount = $this->comment->getNumReplies();
@@ -65,15 +79,15 @@ class ApiCSDeleteComment extends ApiCSBase {
 					'commentstreams-api-error-delete-haschildren' );
 			}
 		} else {
-			$result = $this->comment->delete();
+			$result = $this->comment->delete( $user );
 			if ( $action === 'cs-comment' ) {
-				if ( is_null( $this->comment->getParentId() ) ) {
+				if ( $this->comment->getParentId() === null ) {
 					$this->logAction( 'comment-delete' );
 				} else {
 					$this->logAction( 'reply-delete' );
 				}
 			} else {
-				if ( is_null( $this->comment->getParentId() ) ) {
+				if ( $this->comment->getParentId() === null ) {
 					$this->logAction( 'comment-moderator-delete' );
 				} else {
 					$this->logAction( 'reply-moderator-delete' );
@@ -93,6 +107,7 @@ class ApiCSDeleteComment extends ApiCSBase {
 	 * recursively delete comment and replies
 	 *
 	 * @param Comment $comment the comment to recursively delete
+	 * @return bool
 	 */
 	private function recursiveDelete( $comment ) {
 		$replies = Comment::getReplies( $comment->getId() );
@@ -102,9 +117,9 @@ class ApiCSDeleteComment extends ApiCSBase {
 				return $result;
 			}
 		}
-		$result = $comment->delete();
+		$result = $comment->delete( $this->getUser() );
 		$title = $comment->getWikiPage()->getTitle();
-		if ( is_null( $comment->getParentId() ) ) {
+		if ( $comment->getParentId() === null ) {
 			$this->logAction( 'comment-moderator-delete', $title );
 		} else {
 			$this->logAction( 'reply-moderator-delete', $title );
