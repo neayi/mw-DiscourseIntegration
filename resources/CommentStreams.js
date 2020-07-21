@@ -226,35 +226,6 @@ var commentstreams_controller = ( function( mw, $ ) {
 				var streamFooter = $( '<div>' )
 					.addClass( 'cs-stream-footer' );
 				comment.append( streamFooter );
-
-				if ( this.canComment ) {
-					var replyButton = $( '<button>' )
-						.addClass( 'cs-button' )
-						.addClass( 'cs-reply-button' )
-						.attr( {
-							type: 'button',
-							'data-stream-id': commentData.pageid,
-							title: mw.message( 'commentstreams-buttontext-reply' ),
-							'data-toggle': 'tooltip'
-						} );
-					var replyImage = $( '<img>' )
-						.attr( {
-							title: mw.message( 'commentstreams-buttontooltip-reply' ),
-							src: this.imagepath + 'comment_reply.png'
-						} );
-					replyButton.append( replyImage );
-					if ( this.showLabels ) {
-						var replyLabel = $( '<span>' )
-							.text( mw.message( 'commentstreams-buttontext-reply' ) )
-							.addClass( 'cs-comment-button-label' )
-						replyButton.append( replyLabel );
-					}
-					streamFooter.append( replyButton );
-					replyButton.click( function() {
-						var pageId = $( this ).attr( 'data-stream-id' );
-						self.showNewReplyBox( $( this ), pageId );
-					} );
-				}
 			}
 
 			return comment;
@@ -262,7 +233,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 		formatCommentInner: function( commentData ) {
 			var self = this;
 			var commentHeader = $( '<div>' )
-				.addClass( 'cs-comment-header' );
+				.addClass( 'cs-comment-header d-flex  flex-wrap' )
 
 			var leftDiv = $( '<div>' )
 				.addClass( 'cs-comment-header-left' );
@@ -314,53 +285,69 @@ var commentstreams_controller = ( function( mw, $ ) {
 				centerDiv.append( modified );
 			}
 
-			var divider = this.createDivider();
-			centerDiv.append( divider );
+			commentHeader.append( centerDiv );
 
+// Reply
+
+			if ( this.canComment ) {
+
+				var streamFooter2 = $( '<div>' )
+				.addClass( 'ml-auto cs-comment-header-reply ' );
+				commentHeader.append( streamFooter2 );
+		
+				var replyButton = $( '<button>' )
+					.addClass( 'cs-button' )
+					.addClass( 'cs-reply-button' )
+					.attr( {
+						type: 'button',
+						'data-stream-id': commentData.pageid,
+						title: mw.message( 'commentstreams-buttontext-reply' ),
+						'data-toggle': 'tooltip'
+					} );
+				var replyImage = $( '<i>' )
+				.addClass( 'fas fa-reply' );
+				replyButton.append( replyImage );
+				if ( this.showLabels ) {
+					var replyLabel = $( '<span>' )
+						.text( mw.message( 'commentstreams-buttontext-reply' ) )
+						.addClass( 'cs-comment-button-label' )
+					replyButton.append( replyLabel );
+				}
+				streamFooter2.append( replyButton );
+				replyButton.click( function() {
+					var pageId = $( this ).attr( 'data-stream-id' );
+					self.showNewReplyBox( $( this ), pageId );
+				} );
+
+			}
+
+// Menu
+
+			var menulinks = Array();
 			if ( this.canEdit( commentData ) ) {
-				centerDiv.append( this.createEditButton( commentData.username) );
+				menulinks.push( this.createEditButton( commentData.username) );
 			}
 
 			if ( this.canDelete( commentData ) ) {
-				centerDiv.append( this.createDeleteButton( commentData.username) );
+				menulinks.push( this.createDeleteButton( commentData.username) );
 			}
+			menulinks.push(this.createPermalinkButton( commentData.pageid ));
 
-			centerDiv.append( this.createPermalinkButton( commentData.pageid ) );
+			this.addEllipsisMenu(commentHeader, 'dropdownMenuButton' + commentData.pageid, menulinks);
+			
 
-			commentHeader.append( centerDiv );
+// Vote
 
 			var rightDiv = $( '<div>' )
 				.addClass( 'cs-comment-header-right' );
 
 			if ( commentData.parentid === null && this.enableWatchlist &&
-				!mw.user.isAnon() ) {
+				!this.isLoggedIn ) {
 				rightDiv.append( this.createWatchButton( commentData ) );
 			}
 
 			if ( commentData.parentid === null && this.enableVoting ) {
 				rightDiv.append( this.createVotingButtons( commentData ) );
-			}
-
-			if ( commentData.parentid === null ) {
-				var collapseButton = $( '<button>' )
-					.addClass( 'cs-button' )
-					.addClass( 'cs-toggle-button' )
-					.attr( 'type', 'button' );
-				var collapseimage = $( '<img>' )
-					.attr( {
-						title: mw.message( 'commentstreams-buttontooltip-collapse' ),
-						src: this.imagepath + 'collapse.png'
-					} );
-				collapseButton.append( collapseimage );
-				rightDiv.append( collapseButton );
-				collapseButton.click( function() {
-					var stream = $( this ).closest( '.cs-stream' );
-					if ( stream.hasClass( 'cs-expanded' ) ) {
-						self.collapseStream( stream, this );
-					} else {
-						self.expandStream( stream, this );
-					}
-				} );
 			}
 
 			commentHeader.append( rightDiv );
@@ -437,7 +424,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 					'data-toggle': 'tooltip'
 				} );
 			var editimage = $( '<img>' );
-			if ( mw.user.getName() !== username ) {
+			if ( mw.config.get( 'wgUserName' ) !== username ) {
 				editimage
 					.attr( {
 						title: mw.message( 'commentstreams-buttontooltip-moderator-edit' ),
@@ -471,7 +458,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 					'data-toggle': 'tooltip'
 				} );
 			var deleteimage = $( '<img>' );
-			if ( mw.user.getName() !== username ) {
+			if ( mw.config.get( 'wgUserName' ) !== username ) {
 				deleteimage
 					.attr( {
 						title: mw.message( 'commentstreams-buttontooltip-moderator-delete' ),
@@ -553,10 +540,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 			var self = this;
 
 			var upButton;
-			if ( mw.user.isAnon() ) {
-				upButton = $( '<span>' )
-					.addClass( 'cs-button' );
-			} else {
+			if ( this.isLoggedIn ) {
 				upButton = $( '<button>' )
 					.addClass( 'cs-button' )
 					.addClass( 'cs-vote-button' )
@@ -564,16 +548,13 @@ var commentstreams_controller = ( function( mw, $ ) {
 						self.vote( $( this ), commentData.pageid, true,
 							commentData.created_timestamp );
 					} );
-			}
-			var upimage = $( '<img>' )
-				.attr( 'title', mw.message( 'commentstreams-buttontooltip-upvote' ) )
-				.addClass( 'cs-vote-upimage' );
-			if ( commentData.vote > 0 ) {
-				upimage.attr( 'src', this.imagepath + 'upvote-enabled.png' );
-				upimage.addClass( 'cs-vote-enabled' );
 			} else {
-				upimage.attr( 'src', this.imagepath + 'upvote-disabled.png' );
+				upButton = $( '<span>' )
+					.addClass( 'cs-button' );
 			}
+			var upimage = $( '<i>' )
+				.addClass( 'fas fa-chevron-up' );
+
 			var upcountspan = $( '<span>' )
 				.addClass( 'cs-vote-upcount' )
 				.text( commentData.numupvotes );
@@ -581,10 +562,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 			upButton.append( upcountspan );
 
 			var downButton;
-			if ( mw.user.isAnon() ) {
-				downButton = $( '<span>' )
-					.addClass( 'cs-button' );
-			} else {
+			if ( this.isLoggedIn ) {
 				downButton = $( '<button>' )
 					.addClass( 'cs-button' )
 					.addClass( 'cs-vote-button' )
@@ -592,16 +570,13 @@ var commentstreams_controller = ( function( mw, $ ) {
 						self.vote( $( this ), commentData.pageid, false,
 							commentData.created_timestamp );
 					} );
-			}
-			var downimage = $( '<img>' )
-				.attr( 'title', mw.message( 'commentstreams-buttontooltip-downvote' ) )
-				.addClass( 'cs-vote-downimage' );
-			if ( commentData.vote < 0 ) {
-				downimage.attr( 'src', this.imagepath + 'downvote-enabled.png' );
-				downimage.addClass( 'cs-vote-enabled' );
 			} else {
-				downimage.attr( 'src', this.imagepath + 'downvote-disabled.png' );
+				downButton = $( '<span>' )
+					.addClass( 'cs-button' );
 			}
+			var downimage = $( '<i>' )
+				.addClass( 'fas fa-chevron-down' );
+
 			var downcountspan = $( '<span>' )
 				.addClass( 'cs-vote-downcount' )
 				.text( commentData.numdownvotes );
@@ -983,8 +958,9 @@ var commentstreams_controller = ( function( mw, $ ) {
 		showNewReplyBox: function( element, topCommentId ) {
 			var self = this;
 			var editBox = this.formatEditBox( false );
+
 			$( editBox )
-				.insertBefore( element.closest( '.cs-stream-footer' ) )
+				.insertBefore( element.closest( '.cs-stream' ).children( ".cs-stream-footer" ) )
 				.hide()
 				.slideDown();
 
@@ -1392,7 +1368,7 @@ var commentstreams_controller = ( function( mw, $ ) {
 		},
 		canEdit: function( comment ) {
 			var username = comment.username;
-			if ( !mw.user.isAnon() && ( mw.user.getName() === username ||
+			if ( this.isLoggedIn && ( mw.config.get( 'wgUserName' ) === username ||
 				this.moderatorEdit ) ) {
 				return true;
 			}
@@ -1400,8 +1376,8 @@ var commentstreams_controller = ( function( mw, $ ) {
 		},
 		canDelete: function( comment ) {
 			var username = comment.username;
-			if ( !mw.user.isAnon() &&
-				( mw.user.getName() === username || this.moderatorDelete ) &&
+			if ( this.isLoggedIn && ( mw.config.get( 'wgUserName' ) === username ||
+				this.moderatorDelete ) &&
 				( comment.numreplies === 0 || this.moderatorFastDelete ) ) {
 				return true;
 			}
@@ -1422,6 +1398,45 @@ var commentstreams_controller = ( function( mw, $ ) {
 					flags: 'primary'
 				} ]
 			} );
+		},
+		addEllipsisMenu: function(parentElement, menuID, menulinks)
+		{
+			var menuDiv = $( '<div>' )
+			.addClass( 'cs-head-comment-div-menu btn-group' );
+
+			var subMenuButton = $( '<button>' )
+			.addClass( 'cs-button' )
+			.attr( {
+				'id': menuID,
+				'data-toggle': "dropdown",
+				'aria-haspopup': true,
+				'aria-expanded': false
+			} );
+			var ellipsis = $( '<i>' )
+			.addClass( 'fas fa-ellipsis-v' );
+			subMenuButton.append( ellipsis );
+
+			menuDiv.append( subMenuButton );
+
+			var submenuDiv = $( '<div>' )
+			.addClass( 'dropdown-menu' )
+			.attr( {
+				'aria-labelledby': menuID
+			} );
+			menuDiv.append( submenuDiv );
+			
+			menulinks.forEach(item => submenuDiv.append(item));
+
+			parentElement.append( menuDiv );
+
+// 	<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+// 	Dropdown button
+//   </button>
+//   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+// 	<a class="dropdown-item" href="#">Action</a>
+// 	<a class="dropdown-item" href="#">Another action</a>
+// 	<a class="dropdown-item" href="#">Something else here</a>
+//   </div>
 		}
 	};
 }( mediaWiki, jQuery ) );

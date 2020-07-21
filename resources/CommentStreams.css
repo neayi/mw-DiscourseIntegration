@@ -107,7 +107,7 @@
 	padding-left: 5px;
 }
 
-button:hover {
+.cs-button:hover {
 	background-color: #8eddf5;
 }
 
@@ -200,7 +200,7 @@ button:hover {
 	font-size: 14px;
 }
 
-// VisualEditor/VEForAll CSS
+/* VisualEditor/VEForAll CSS */
 .ve-area-wrapper, .ve-ce-documentNode {
 	width: auto !important;
 }
@@ -215,3 +215,105 @@ div.ve-ce-branchNode {
 	margin-bottom: 5px;
 }
 
+
+
+
+
+
+/** à compresser dans un scss */
+
+div#cs-comments {
+    background-color:white;
+	padding: 5px;
+}    
+.cs-comment
+{
+	overflow: visible;
+}
+
+.cs-expanded div.cs-comment-header {
+    background-color: #f2f3f6;
+    border-top: none;
+    padding: 0;
+    margin-bottom: 5px;
+}
+
+div.cs-comment-header > div {
+    border-left: 2px solid white;
+    background-color: #f2f3f6;
+    color: #878c9e;  
+    height: 55px;  
+    padding: 5px;
+}
+
+.cs-comment-header-center {
+    line-height: 115%;
+}
+
+.cs-comment-header-left .cs-avatar {
+    float: right;
+    border-radius: 50%;
+}
+
+div.cs-comment-header div.cs-comment-header-reply {
+    text-align: center;
+    width: 130px;
+    float: right;
+}
+div.cs-comment-header div.cs-comment-header-reply button {
+    color: #878c9e;
+    width: 100%;
+    height: 100%;
+}
+div.cs-comment-header div.cs-comment-header-reply button img { 
+    display: none;
+}
+
+div.cs-comment-header div.cs-head-comment-div-menu { 
+    width: 40px;
+}
+div.cs-comment-header div.cs-head-comment-div-menu button { 
+    height: 100%;
+	width: 100%;
+	color: #878c9e;
+}
+
+div.cs-comment-header div.cs-comment-header-right {
+    width: 52px;
+    text-align: center;
+}
+div.cs-comment-header span.cs-voting-span button.cs-vote-button, 
+div.cs-comment-header span.cs-voting-span button.cs-vote-button span {
+    color: #878c9e; 
+}
+div.cs-comment-header span.cs-voting-span button.cs-vote-button {
+    display: block;
+    width: 45px;
+    padding: 0px;
+}
+div.cs-comment-header span.cs-voting-span button.cs-vote-button img {
+    display: none;
+}
+
+div.cs-comment-header div.cs-head-comment-total-div {
+    width: 60px;
+    border: 1px solid #f2f3f6; 
+    background-color: white;    
+    padding-top: 3px;
+}
+div.cs-comment-header div.cs-head-comment-total-div div {
+    line-height: 100%;
+    text-align: center;  
+}
+div.cs-comment-header div.cs-head-comment-total-div div.count {
+    font-size: 26px;
+    font-weight: bold;
+}
+div.cs-comment-header div.cs-head-comment-total-div div.votes {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.cs-stream-footer {
+	height: 30px;
+}
