@@ -126,7 +126,7 @@ abstract class ApiCSBase extends ApiBase {
 	 */
 	protected function dieCustomUsageMessage( $message_name ) {
 		$error_message = wfMessage( $message_name );
-		$this->dieUsageMsg(
+		$this->dieWithError(
 			[
 				ApiMessage::create( $error_message )
 			]

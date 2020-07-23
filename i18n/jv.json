@@ -11,7 +11,7 @@
 	"commentstreams-api-error-vote-notloggedin": "Panjenengan kudu mlebu log saperlu awèh swara.",
 	"commentstreams-api-error-vote-novoteonreply": "Ora diidinaké awèh swara ing wangsulan.",
 	"commentstreams-validation-error-nocommenttext": "Panjenengan kudu ngisèni tulisan tanggapan.",
-	"commentstreams-buttontooltip-delete": "busak",
+	"commentstreams-buttontext-delete": "busak",
 	"commentstreams-dialog-buttontext-yes": "Ya",
 	"commentstreams-dialog-buttontext-no": "Ora",
 	"commentstreams-title-field-placeholder": "Isi sesirah...",

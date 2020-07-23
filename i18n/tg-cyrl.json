@@ -4,8 +4,8 @@
 			"Vashgird"
 		]
 	},
-	"commentstreams-buttontooltip-edit": "вироиш",
-	"commentstreams-buttontooltip-delete": "ҳазф",
+	"commentstreams-buttontext-edit": "вироиш",
+	"commentstreams-buttontext-delete": "ҳазф",
 	"commentstreams-dialog-buttontext-yes": "бале",
 	"commentstreams-dialog-buttontext-no": "не",
 	"grouppage-csmoderator": "{{ns:project}}:Мудирон(CommentStreams)",
