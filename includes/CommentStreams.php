@@ -232,7 +232,7 @@ class CommentStreams {
 			'enableVoting' =>
 				$GLOBALS['wgCommentStreamsEnableVoting'] ? 1 : 0,
 			'enableWatchlist' =>
-				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0,
+				$GLOBALS['wgCommentStreamsEnableWatchlist'] && ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0,
 			'comments' => $comments
 		];
 		$output->addJsConfigVars( 'CommentStreams', $commentStreamsParams );
