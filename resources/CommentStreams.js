@@ -148,6 +148,45 @@ var commentstreams_controller = ( function( mw, $ ) {
 					self.showNewCommentStreamBox();
 				} );
 			}
+			else
+			{
+
+				var addButtonDiv = $( '<div> ')
+					.addClass( 'cs-add-div' );
+
+				var addButton = $( '<button>' )
+					.attr( {
+						type: 'button',
+						id: 'cs-add-button',
+						title: mw.message( 'commentstreams-buttontext-connecttocomment' ),
+						'data-toggle': 'tooltip'
+					} )
+					.addClass( 'cs-button rounded' );
+
+				var addCommentFA = $( '<i>' )
+					.addClass( 'fas fa-comment' );
+				addButton.append( addCommentFA );
+
+				if ( this.showLabels ) {
+					var addLabel = $( '<span>' )
+						.text( mw.message( 'commentstreams-buttontext-connecttocomment' ) )
+						.addClass( 'cs-comment-button-label' )
+					addButton.append( addLabel );
+				}
+				
+				addButtonDiv.append( addButton );
+
+				if ( this.newestStreamsOnTop ) {
+					headerDiv.append( addButtonDiv );
+				} else {
+					footerDiv.append( addButtonDiv );
+				}
+				
+				addButton.click( function() {
+					window.location = mediaWiki.util.getUrl("Special:UserLogin", { 'returnto': wgPageName });
+				} );
+
+			}
 		},
 		addInitialComments: function() {
 			var self = this;
