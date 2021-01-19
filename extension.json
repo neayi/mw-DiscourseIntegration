@@ -99,7 +99,14 @@
 				"commentstreams-datetext-moderated",
 				"commentstreams-title-field-placeholder",
 				"commentstreams-body-field-placeholder",
-				"commentstreams-ve-conversion-error"
+				"commentstreams-ve-conversion-error",
+
+
+				"commentstreams-buttontext-Neayi-askquestion",
+				"commentstreams-buttontext-Neayi-connecttocomment",
+				"commentstreams-buttontext-Neayi-edit",
+				"commentstreams-buttontext-Neayi-delete",
+				"commentstreams-buttontext-Neayi-permalink"
 			]
 		},
 		"ext.CommentStreamsAllComments": {

@@ -248,6 +248,12 @@ class CommentStreams {
 				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0,
 			'comments' => $comments
 		];
+
+		// Neayi: $wgCommentStreamsEnableWatchlist was not tested
+		$commentStreamsParams['enableWatchlist'] = $GLOBALS['wgCommentStreamsEnableWatchlist'] 
+													&& ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0;
+		// End Neayi
+
 		$output->addJsConfigVars( 'CommentStreams', $commentStreamsParams );
 		$output->addModules( 'ext.CommentStreams' );
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {

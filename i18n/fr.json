@@ -157,5 +157,14 @@
 	"commentstreams-allcomments-label-lastedited": "Dernière modification",
 	"commentstreams-allcomments-button-next": "Suivant",
 	"commentstreams-allcomments-button-previous": "Précédent",
-	"commentstreams-ve-conversion-error": "Erreur de conversion entre le wikitexte et le code HTML pour l’ÉditeurVisuel"
+	"commentstreams-ve-conversion-error": "Erreur de conversion entre le wikitexte et le code HTML pour l’ÉditeurVisuel",
+
+	"commentstreams-buttontext-Neayi-askquestion": "Poser une question",
+	"commentstreams-buttontext-Neayi-connecttocomment": "Connectez-vous pour poser une question",
+	"commentstreams-buttontext-Neayi-edit": "Modifier",
+	"commentstreams-buttontext-Neayi-delete": "Supprimer",
+	"commentstreams-buttontext-Neayi-permalink": "Lien permanent"
 }
+
+
+

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2016 The MITRE Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -122,6 +122,9 @@ var commentstreams_controller = ( function () {
 				commentDiv.append( footerDiv );
 
 				if ( self.canComment ) {
+					
+					/* START Neayi - we create a special addButton zone, and we put it always at the bottom					
+
 					var addButton = $( '<button>' )
 						.attr( {
 							type: 'button',
@@ -153,10 +156,59 @@ var commentstreams_controller = ( function () {
 						footerDiv.append( addButton );
 					}
 
+					END Neayi */
+
+									
+					var addButton = self.createNeayiAddButton();
+
+					// For backwards compatibility. Please remove in ver 6.0
+					if ( commentDiv.attr( 'id' ) === 'cs-comments' ) {
+						addButton.attr( 'id', 'cs-add-button' );
+					}
+
+					footerDiv.append( addButton );
+
 					addButton.click( function () {
 						self.showNewCommentStreamBox( this );
 					} );
+				} 
+				
+				// Start Neayi : When the user is not connected, we show a button anyway
+				else {
+					var addButtonDiv = $( '<div> ' )
+						.addClass( 'cs-add-div' );
+
+					var addButton = $( '<button>' )
+						.attr( {
+							type: 'button',
+							id: 'cs-add-button',
+							title: mw.message( 'commentstreams-buttontext-Neayi-connecttocomment' ),
+							'data-toggle': 'tooltip'
+						} )
+						.addClass( 'cs-button rounded' );
+
+					var addCommentFA = $( '<i>' )
+						.addClass( 'fas fa-comment' );
+					addButton.append( addCommentFA );
+
+					if ( self.showLabels ) {
+						var addLabel = $( '<span>' )
+							.text( mw.message( 'commentstreams-buttontext-Neayi-connecttocomment' ) )
+							.addClass( 'cs-comment-button-label' );
+						addButton.append( addLabel );
+					}
+
+					addButtonDiv.append( addButton );
+
+					footerDiv.append( addButtonDiv );
+
+					addButton.click( function () {
+						var wgPageName = mw.config.get( 'wgPageName' );
+						window.location = mediaWiki.util.getUrl( "Special:Connexion", { returnto: wgPageName } );
+					} );
+
 				}
+				// END Neayi
 			} );
 		},
 		addInitialComments: function () {
@@ -264,7 +316,9 @@ var commentstreams_controller = ( function () {
 							.addClass( 'cs-comment-button-label' );
 						replyButton.append( replyLabel );
 					}
+					/* START Neayi : Don't use this.
 					streamFooter.append( replyButton );
+					END Neayi */
 					replyButton.click( function () {
 						var pageId = $( this ).attr( 'data-stream-id' );
 						self.showNewReplyBox( $( this ), pageId );
@@ -279,6 +333,10 @@ var commentstreams_controller = ( function () {
 			var commentHeader = $( '<div>' )
 				.addClass( 'cs-comment-header' );
 
+			// Start Neayi: Add a few more classes
+			commentHeader.addClass( 'd-flex flex-wrap row' );
+			// End Neayi
+			
 			var leftDiv = $( '<div>' )
 				.addClass( 'cs-comment-header-left' );
 			if ( commentData.avatar !== null && commentData.avatar.length > 0 ) {
@@ -300,7 +358,10 @@ var commentstreams_controller = ( function () {
 						title: commentData.commenttitle,
 						'data-toggle': 'tooltip'
 					} );
+					
+				/* START Neayi: Don't use this
 				centerDiv.append( title );
+				END Neayi */
 			}
 
 			var author = $( '<span>' )
@@ -312,8 +373,11 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-details' )
 				.text( mw.message( 'commentstreams-datetext-postedon' ) +
 				' ' + commentData.created );
+				
+			/* START Neayi: Don't use this
 			centerDiv.append( this.createDivider() );
 			centerDiv.append( created );
+			END Neayi */
 
 			if ( commentData.modified !== null ) {
 				var text = mw.message( 'commentstreams-datetext-lasteditedon' ) +
@@ -329,6 +393,7 @@ var commentstreams_controller = ( function () {
 				centerDiv.append( modified );
 			}
 
+			/* START Neayi: We'll build a special version of the contextual menu:
 			var divider = this.createDivider();
 			centerDiv.append( divider );
 
@@ -341,6 +406,20 @@ var commentstreams_controller = ( function () {
 			}
 
 			centerDiv.append( this.createPermalinkButton( commentData.pageid ) );
+			END Neayi */
+
+			// Neayi: our context menu:
+			var menulinks = Array();
+			if ( this.canEdit( commentData ) ) {
+				menulinks.push( this.createEditNeayiLink( commentData.username ) );
+			}
+
+			if ( this.canDelete( commentData ) ) {
+				menulinks.push( this.createDeleteNeayiLink( commentData.username ) );
+			}
+			menulinks.push( this.createPermalinkNeayiLink( commentData.pageid ) );
+
+
 
 			commentHeader.append( centerDiv );
 
@@ -348,13 +427,15 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-header-right' );
 
 			if ( commentData.parentid === null && this.enableWatchlist &&
-				!this.isLoggedIn ) {
+				this.isLoggedIn ) { // NEAYI : This was probably a bug. The user should be logged in in order to watch
 				rightDiv.append( this.createWatchButton( commentData ) );
 			}
 
+			/* START Neayi: Remove the voting buttons from here
 			if ( commentData.parentid === null && this.enableVoting ) {
 				rightDiv.append( this.createVotingButtons( commentData ) );
 			}
+			END Neayi */
 
 			if ( commentData.parentid === null ) {
 				var collapseButton = $( '<button>' )
@@ -367,7 +448,9 @@ var commentstreams_controller = ( function () {
 						src: this.imagepath + 'collapse.png'
 					} );
 				collapseButton.append( collapseimage );
+				/* START Neayi: We don't collapse
 				rightDiv.append( collapseButton );
+				END Neayi */
 				collapseButton.click( function () {
 					var stream = $( this ).closest( '.cs-stream' );
 					if ( stream.hasClass( 'cs-expanded' ) ) {
@@ -385,6 +468,51 @@ var commentstreams_controller = ( function () {
 				.html( commentData.html );
 			var commentFooter = $( '<div>' )
 				.addClass( 'cs-comment-footer' );
+
+
+			// Neayi Comment Footer:
+			commentFooter.addClass('row');
+
+			// Neayi reply button
+			if (this.canComment) {
+				var replyButton = $('<a>')
+					.addClass('btn mr-2')
+					.attr({
+						'data-stream-id': commentData.pageid,
+						title: mw.message('commentstreams-buttontext-reply'),
+						'data-toggle': 'tooltip'
+					});
+					//
+				if ( commentData.parentid === null ) {
+					replyButton.addClass( 'btn btn-dark-green text-white mr-2' );
+				} else {
+					replyButton.addClass( 'btn btn btn-outline-gray mr-2 mb-md-0 mb-2' );
+				}
+		
+
+				replyButton.append( this.createMaterialIcon('reply', '') );
+				
+				if (this.showLabels) {
+					var replyLabel = $('<span>')
+						.text(mw.message('commentstreams-buttontext-reply'))
+						.addClass('cs-comment-button-label');
+					replyButton.append(replyLabel);
+				}
+
+				commentFooter.append(replyButton);
+				replyButton.click(function () {
+					var pageId = $(this).attr('data-stream-id');
+					self.showNewReplyBox($(this), pageId);
+				});
+			}
+
+			// Neayi Ellipsis Menu
+			this.addNeayiEllipsisMenu( commentFooter, 'dropdownMenuButton' + commentData.pageid, menulinks );
+
+			if ( commentData.parentid === null && this.enableVoting ) {
+				commentFooter.append( this.createNeayiVotingButtons( commentData ) );
+			}
+			// End Neayi Comment Footer
 
 			var commentClass;
 			if ( commentData.parentid !== null ) {
@@ -407,9 +535,16 @@ var commentstreams_controller = ( function () {
 				comment
 					.addClass( 'cs-target-comment' );
 			}
+			
+			/* START Neayi: We use our own order
 			comment
 				.append( [ commentHeader, commentBody, commentFooter ] );
-
+			END Neayi */
+			// START Neayi
+			comment
+				.append( [ commentHeader, created, title, commentBody, commentFooter ] );
+			// END Neayi
+			
 			return comment;
 		},
 		showUrlDialog: function ( id ) {
@@ -454,6 +589,7 @@ var commentstreams_controller = ( function () {
 					title: mw.message( 'commentstreams-buttontooltip-edit' ),
 					'data-toggle': 'tooltip'
 				} );
+			
 			var editimage = $( '<img>' );
 			if ( mw.config.get( 'wgUserName' ) !== username ) {
 				editimage
@@ -957,6 +1093,9 @@ var commentstreams_controller = ( function () {
 		showNewCommentStreamBox: function ( addButton ) {
 			var self = this;
 			var editBox = this.formatEditBox( true );
+
+			/* START Neayi
+			
 			if ( this.newestStreamsOnTop ) {
 				$( addButton ).parent( '.cs-header' ).append( editBox );
 				$( '#cs-edit-box' )
@@ -968,6 +1107,16 @@ var commentstreams_controller = ( function () {
 					.hide()
 					.slideDown();
 			}
+
+			END Neayi */
+
+			// Neayi : Always at the bottom
+			$( addButton ).parent( '.cs-footer' ).prepend( editBox );
+			$( '#cs-edit-box' )
+				.hide()
+				.slideDown();
+			// END Neayi
+
 			if ( $.fn.applyVisualEditor ) {
 				// VEForAll is installed.
 				var editField = $( '#cs-body-edit-field' );
@@ -988,11 +1137,20 @@ var commentstreams_controller = ( function () {
 		showNewReplyBox: function ( element, topCommentId ) {
 			var self = this;
 			var editBox = this.formatEditBox( false );
+			
+			/* START Neayi
 			$( editBox )
 				.insertBefore( element.closest( '.cs-stream-footer' ) )
 				.hide()
 				.slideDown();
-
+			END Neayi */
+			// Start Neayi:
+			$( editBox )
+				.insertBefore( element.closest( '.cs-stream' ).children( ".cs-stream-footer" ) )
+				.hide()
+				.slideDown();
+			// END Neayi
+			
 			$( '#cs-submit-button' ).on( 'click', function () {
 				self.postComment( topCommentId, '0' );
 			} );
@@ -1420,7 +1578,224 @@ var commentstreams_controller = ( function () {
 					flags: 'primary'
 				} ]
 			} );
+		},
+
+		// Neayi functions
+
+		addNeayiEllipsisMenu: function ( parentElement, menuID, menulinks, addMarginOnLeft ) {
+			var menuDiv = $( '<div>' )
+				.addClass( 'dropdown d-inline-block mr-2' );
+
+			var subMenuButton = $( '<button>' )
+				.addClass( 'btn btn-outline-darkgreen dropdown-toggle text-dark-green no-caret px-2' )
+				.attr( {
+					id: menuID,
+					'type': "button",
+					'data-toggle': "dropdown",
+					'aria-haspopup': true,
+					'aria-expanded': false
+				} );
+
+			subMenuButton.append( this.createMaterialIcon('more_vert', '') );
+
+			menuDiv.append( subMenuButton );
+
+			var submenuDiv = $( '<div>' )
+				.addClass( 'dropdown-menu' )
+				.attr( {
+					'aria-labelledby': menuID
+				} );
+			menuDiv.append( submenuDiv );
+
+			menulinks.forEach(item => submenuDiv.append(item));
+
+			parentElement.append( menuDiv );
+		},		
+		createNeayiAddButton: function ()
+		{
+			var self = this;
+
+			var addButtonDiv = $( '<div> ' )
+			.addClass( 'cs-add-div' );
+
+			var addButton = $( '<button>' )
+				.attr( {
+					type: 'button',
+					class: 'cs-add-button',
+					title: mw.message( 'commentstreams-buttontext-Neayi-askquestion' ),
+					'data-toggle': 'tooltip'
+				} )
+				.addClass( 'cs-button rounded' );
+			
+			var addCommentFA = $( '<i>' )
+				.addClass( 'fas fa-comment' );
+			addButton.append( addCommentFA );
+
+			if ( self.showLabels ) {
+				var addLabel = $( '<span>' )
+					.text( mw.message( 'commentstreams-buttontext-Neayi-askquestion' ) )
+					.addClass( 'cs-comment-button-label' );
+				addButton.append( addLabel );
+			}
+
+			addButtonDiv.append( addButton );
+
+			return addButtonDiv;
+		},
+		createEditNeayiLink: function ( username ) {
+			var self = this;
+			var editButton = $( '<a>' )
+				.addClass( 'dropdown-item' );
+
+			editButton.append( this.createMaterialIcon('edit', 'mr-2') );
+
+			var editText = $( '<span>' )
+				.text( mw.message( 'commentstreams-buttontext-Neayi-edit' ) );
+			editButton.append( editText );
+
+			editButton.click( function () {
+				var comment = $( this ).closest( '.cs-comment' );
+				var pageId = $( comment ).attr( 'data-id' );
+				self.editComment( $( comment ), pageId );
+			} );
+			return editButton;
+		},
+
+		createDeleteNeayiLink: function ( username ) {
+			var self = this;
+			var deleteButton = $( '<a>' )
+				.addClass( 'dropdown-item' );
+
+			deleteButton.append( this.createMaterialIcon('delete', 'mr-2') );
+
+			var deleteText = $( '<span>' )
+				.text( mw.message( 'commentstreams-buttontext-Neayi-delete' ) );
+			deleteButton.append( deleteText );
+
+			deleteButton.click( function () {
+				var comment = $( this ).closest( '.cs-comment' );
+				var pageId = $( comment ).attr( 'data-id' );
+				self.deleteComment( $( comment ), pageId );
+			} );
+			return deleteButton;
+		},
+		
+
+		createPermalinkNeayiLink: function ( pageid ) {
+			var self = this;
+			var id = 'cs-comment-' + pageid;
+			var permalinkButton = $( '<a>' )
+				.addClass( 'dropdown-item' )
+				.on( "click", function () {
+					$( '.cs-target-comment' )
+						.removeClass( 'cs-target-comment' );
+					self.scrollToAnchor( id );
+					var comment = $( this ).closest( '.cs-comment' );
+					comment
+						.addClass( 'cs-target-comment' );
+					self.showUrlDialog( id );
+					window.location.hash = '#' + id;
+				} );
+
+			permalinkButton.append( this.createMaterialIcon('link', 'mr-2') );
+
+			var getLinkText = $( '<span>' )
+				.text( mw.message( 'commentstreams-buttontext-Neayi-permalink' ) );
+			permalinkButton.append( getLinkText );
+
+			return permalinkButton;
+		},
+		createMaterialIcon: function ( iconId, additionalClasses ) {
+			var iconSpan = $( '<span>' )
+			.addClass( 'material-icons' )
+			.addClass( additionalClasses )
+			.attr( {
+				'aria-hidden': 'true'
+			} )
+			.text(iconId);
+
+			return iconSpan;
+		},
+		createNeayiVotingButtons: function ( commentData ) {
+			var self = this;
+
+/*
+	<div class="btn-group cs-voting-span" role="group" aria-label="">
+		<button type="button" class="btn btn-outline-gray">
+			<span class="material-icons cs-vote-upimage" aria-hidden="true">keyboard_arrow_up</span>
+			<span class="cs-vote-upcount">1</span>
+		</button>
+		<button type="button" class="btn btn-outline-gray">
+			<span class="material-icons cs-vote-downimage" aria-hidden="true">keyboard_arrow_down</span>
+			<span class="cs-vote-downcount">0</span>
+		</button>
+	</div>
+
+*/
+
+			var upButton;
+			if ( this.isLoggedIn ) {
+				upButton = $( '<button>' )
+					.addClass( 'btn btn-outline-gray' )
+					.on( 'click', function () {
+						self.vote( $( this ), commentData.pageid, true,
+							commentData.created_timestamp );
+					} );
+			} else {
+				upButton = $( '<span>' )
+					.addClass( 'btn btn-outline-gray' );
+			}
+
+			if ( commentData.vote < 0 ) {
+				upButton.append( this.createMaterialIcon( 'keyboard_arrow_up', 'cs-vote-upimage cs-vote-enabled') );
+			}
+			else {
+				upButton.append( this.createMaterialIcon( 'keyboard_arrow_up', 'cs-vote-upimage') );
+			}
+
+			var upcountspan = $( '<span>' )
+				.addClass( 'cs-vote-upcount' )
+				.text( commentData.numupvotes );
+			upButton.append( upcountspan );
+
+			var downButton;
+			if ( this.isLoggedIn ) {
+				downButton = $( '<button>' )
+					.addClass( 'btn btn-outline-gray' )
+					.on( 'click', function () {
+						self.vote( $( this ), commentData.pageid, false,
+							commentData.created_timestamp );
+					} );
+			} else {
+				downButton = $( '<span>' )
+					.addClass( 'btn btn-outline-gray' );
+			}
+			
+			if ( commentData.vote < 0 ) {
+				downButton.append( this.createMaterialIcon( 'keyboard_arrow_down', 'cs-vote-upimage cs-vote-enabled') );
+			}
+			else {
+				downButton.append( this.createMaterialIcon( 'keyboard_arrow_down', 'cs-vote-upimage') );
+			}
+
+			var downcountspan = $( '<span>' )
+				.addClass( 'cs-vote-downcount' )
+				.text( commentData.numdownvotes );
+			downButton.append( downcountspan );
+
+			var votingDiv = $( '<div>' )
+				.addClass( 'btn-group cs-voting-span' )
+				.attr( {
+					'role': 'group',
+					'aria-label': ''
+				} );
+
+			votingDiv.append( upButton );
+			votingDiv.append( downButton );
+			return votingDiv;
 		}
+		
+					
 	};
 }() );
 

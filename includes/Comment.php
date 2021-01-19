@@ -470,6 +470,9 @@ class Comment {
 			} else {
 				$this->avatar = self::getAvatarFromUser( $this->getUser() );
 			}
+
+			// Todo:
+			$this->avatar = 'https://insights.dev.tripleperformance.fr/storage/users/986d0a76-821f-4178-9486-26d63cbb0479.jpg';
 		}
 		return $this->avatar;
 	}
