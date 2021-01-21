@@ -158,7 +158,7 @@ var commentstreams_controller = ( function () {
 
 					END Neayi */
 
-									
+					// START Neayi
 					var addButton = self.createNeayiAddButton();
 
 					// For backwards compatibility. Please remove in ver 6.0
@@ -167,6 +167,7 @@ var commentstreams_controller = ( function () {
 					}
 
 					footerDiv.append( addButton );
+					// END Neayi
 
 					addButton.click( function () {
 						self.showNewCommentStreamBox( this );
@@ -334,7 +335,7 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-header' );
 
 			// Start Neayi: Add a few more classes
-			commentHeader.addClass( 'd-flex flex-wrap row' );
+			commentHeader.addClass( 'd-flex flex-wrap' );
 			// End Neayi
 			
 			var leftDiv = $( '<div>' )
@@ -468,10 +469,6 @@ var commentstreams_controller = ( function () {
 				.html( commentData.html );
 			var commentFooter = $( '<div>' )
 				.addClass( 'cs-comment-footer' );
-
-
-			// Neayi Comment Footer:
-			commentFooter.addClass('row');
 
 			// Neayi reply button
 			if (this.canComment) {
@@ -1092,10 +1089,12 @@ var commentstreams_controller = ( function () {
 		},
 		showNewCommentStreamBox: function ( addButton ) {
 			var self = this;
-			var editBox = this.formatEditBox( true );
+			var editBox = this.formatNeayiEditBox( true );
 
 			/* START Neayi
-			
+
+			var editBox = this.formatEditBox( true );
+
 			if ( this.newestStreamsOnTop ) {
 				$( addButton ).parent( '.cs-header' ).append( editBox );
 				$( '#cs-edit-box' )
@@ -1136,9 +1135,10 @@ var commentstreams_controller = ( function () {
 		},
 		showNewReplyBox: function ( element, topCommentId ) {
 			var self = this;
-			var editBox = this.formatEditBox( false );
+			var editBox = this.formatNeayiEditBox( false );
 			
 			/* START Neayi
+			var editBox = this.formatEditBox( false );
 			$( editBox )
 				.insertBefore( element.closest( '.cs-stream-footer' ) )
 				.hide()
@@ -1390,7 +1390,11 @@ var commentstreams_controller = ( function () {
 
 					if ( result.error === undefined ) {
 						var is_stream = element.hasClass( 'cs-head-comment' );
-						var commentBox = self.formatEditBox( is_stream );
+						// var commentBox = self.formatEditBox( is_stream );
+
+						// NEAYI
+						var commentBox = self.formatNeayiEditBox( is_stream );
+
 						commentBox.insertAfter( element );
 						element.hide();
 						commentBox.slideDown();
@@ -1793,8 +1797,112 @@ var commentstreams_controller = ( function () {
 			votingDiv.append( upButton );
 			votingDiv.append( downButton );
 			return votingDiv;
-		}
-		
+		},
+		formatNeayiEditBox: function ( is_stream ) {
+
+/* 
+<div class="cs-comment cs-head-comment" id="" data-id="">
+	<div class="cs-comment-header row d-flex flex-wrap">
+		<div class="cs-comment-header-center col-md-4 col-5">
+			<div class="d-flex align-items-center">
+				<img src="https://wiki.tripleperformance.fr/images/b/b6/Georges-Joya.jpg" alt="Avatar auteur" class="rounded-circle avatar ml-2 mr-2">
+				<span class="cs-comment-author d-inline-block">Vous</span>
+			</div>
+		</div>
+		<div class="cs-comment-header-right col-md-7 col-6 caracteristiques">
+			<div class="row">
+				<div class="mr-1">
+					<img src="assets/SAU.png" alt="" class="d-inline-block" style="height: 60px;">
+					<span>83 ha</span>
+				</div>
+				<div class="mr-1">
+					<img src="assets/UTH.png" alt="" class="d-inline-block" style="height: 60px;">
+					<span>1</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-1 text-right show-all d-none">
+			<a href="javascript:void(0)">
+				<span class="material-icons mt-3">keyboard_arrow_down</span>
+			</a>
+		</div>
+	</div>
+	<div class="cs-comment-body row">
+		<textarea id="cs-body-edit-field" rows="10" placeholder="Poser une question sur ce retour d’expérience"></textarea>
+	</div>
+	<div class="cs-comment-footer row">
+		<div class="col-12 text-right pr-0">
+			<button class="btn btn-gray" id="cs-cancel-button" type="button">Annuler</button>
+			<button class="btn btn-dark-green text-white" id="cs-submit-button" type="button">Envoyer</button>
+		</div>
+	</div>
+</div>
+
+*/
+
+			var commentBox = $( '<div>' )
+				.addClass( 'cs-edit-box px-2' )
+				.attr( 'id', 'cs-edit-box' );
+
+			if ( is_stream ) {
+				var titleField = $( '<input>' )
+					.attr( {
+						id: 'cs-title-edit-field',
+						type: 'text',
+						placeholder: mw.message( 'commentstreams-title-field-placeholder' )
+					} );
+				commentBox.append( titleField );
+			} else {
+				commentBox.addClass( 'cs-reply-edit-box' );
+			}
+
+			if ( $.fn.applyVisualEditor ) {
+				// VEForAll is installed.
+				commentBox.addClass( 've-area-wrapper' );
+			}
+
+			var bodyField = $( '<textarea>' )
+				.attr( {
+					id: 'cs-body-edit-field',
+					rows: 10,
+					placeholder: mw.message( 'commentstreams-body-field-placeholder' )
+				} );
+			commentBox.append( bodyField );
+
+			var submitButton = $( '<button>' )
+				.addClass( 'cs-button' )
+				.addClass( 'cs-submit-button' )
+				.attr( {
+					id: 'cs-submit-button',
+					type: 'button'
+				} );
+			var submitimage = $( '<img>' )
+				.attr( {
+					title: mw.message( 'commentstreams-buttontooltip-submit' ),
+					src: this.imagepath + 'submit.png'
+				} );
+			submitButton.append( submitimage );
+
+			commentBox.append( submitButton );
+
+			var cancelButton = $( '<button>' )
+				.addClass( 'cs-button' )
+				.addClass( 'cs-cancel-button' )
+				.attr( {
+					id: 'cs-cancel-button',
+					type: 'button'
+				} );
+			var cancelimage = $( '<img>' )
+				.attr( {
+					title: mw.message( 'commentstreams-buttontooltip-cancel' ),
+					src: this.imagepath + 'cancel.png'
+				} );
+			cancelButton.append( cancelimage );
+
+			commentBox.append( cancelButton );
+
+			return commentBox;
+		},		
 					
 	};
 }() );
