@@ -360,7 +360,7 @@ var commentstreams_controller = ( function () {
 						'data-toggle': 'tooltip'
 					} );
 					
-				/* START Neayi: Don't use this
+				/* START Neayi: We'll move the title a little further down, just before the comment
 				centerDiv.append( title );
 				END Neayi */
 			}
@@ -375,7 +375,7 @@ var commentstreams_controller = ( function () {
 				.text( mw.message( 'commentstreams-datetext-postedon' ) +
 				' ' + commentData.created );
 				
-			/* START Neayi: Don't use this
+			/* START Neayi: We'll move the creation date a little further down, just before the title
 			centerDiv.append( this.createDivider() );
 			centerDiv.append( created );
 			END Neayi */
@@ -387,11 +387,19 @@ var commentstreams_controller = ( function () {
 					text += ' (' + mw.message( 'commentstreams-datetext-moderated' ) +
 						')';
 				}
+
+				// Start Neayi
+				text = ' - ' + text;
+				// End Neayi
+
 				var modified = $( '<span>' )
 					.addClass( 'cs-comment-details' )
 					.text( text );
+
+				/* START Neayi: We'll move the modification date a little further down, just before the title
 				centerDiv.append( this.createDivider() );
 				centerDiv.append( modified );
+				END Neayi */
 			}
 
 			/* START Neayi: We'll build a special version of the contextual menu:
@@ -462,7 +470,15 @@ var commentstreams_controller = ( function () {
 				} );
 			}
 
+			// START Neayi
+			self.addCaracteristics( rightDiv, JSON.parse(commentData.caracteristics) );
+			// END Neayi
+
 			commentHeader.append( rightDiv );
+
+			// START Neayi
+			commentHeader.append( self.createCaracteristicsExpandToggle( ) );
+			// END Neayi
 
 			var commentBody = $( '<div>' )
 				.addClass( 'cs-comment-body' )
@@ -539,7 +555,7 @@ var commentstreams_controller = ( function () {
 			END Neayi */
 			// START Neayi
 			comment
-				.append( [ commentHeader, created, title, commentBody, commentFooter ] );
+				.append( [ commentHeader, created, modified, title, commentBody, commentFooter ] );
 			// END Neayi
 			
 			return comment;
@@ -1723,20 +1739,6 @@ var commentstreams_controller = ( function () {
 		createNeayiVotingButtons: function ( commentData ) {
 			var self = this;
 
-/*
-	<div class="btn-group cs-voting-span" role="group" aria-label="">
-		<button type="button" class="btn btn-outline-gray">
-			<span class="material-icons cs-vote-upimage" aria-hidden="true">keyboard_arrow_up</span>
-			<span class="cs-vote-upcount">1</span>
-		</button>
-		<button type="button" class="btn btn-outline-gray">
-			<span class="material-icons cs-vote-downimage" aria-hidden="true">keyboard_arrow_down</span>
-			<span class="cs-vote-downcount">0</span>
-		</button>
-	</div>
-
-*/
-
 			var upButton;
 			if ( this.isLoggedIn ) {
 				upButton = $( '<button>' )
@@ -1799,46 +1801,6 @@ var commentstreams_controller = ( function () {
 			return votingDiv;
 		},
 		formatNeayiEditBox: function ( is_stream ) {
-
-/* 
-<div class="cs-comment cs-head-comment" id="" data-id="">
-	<div class="cs-comment-header row d-flex flex-wrap">
-		<div class="cs-comment-header-center col-md-4 col-5">
-			<div class="d-flex align-items-center">
-				<img src="https://wiki.tripleperformance.fr/images/b/b6/Georges-Joya.jpg" alt="Avatar auteur" class="rounded-circle avatar ml-2 mr-2">
-				<span class="cs-comment-author d-inline-block">Vous</span>
-			</div>
-		</div>
-		<div class="cs-comment-header-right col-md-7 col-6 caracteristiques">
-			<div class="row">
-				<div class="mr-1">
-					<img src="assets/SAU.png" alt="" class="d-inline-block" style="height: 60px;">
-					<span>83 ha</span>
-				</div>
-				<div class="mr-1">
-					<img src="assets/UTH.png" alt="" class="d-inline-block" style="height: 60px;">
-					<span>1</span>
-				</div>
-			</div>
-		</div>
-		<div class="col-1 text-right show-all d-none">
-			<a href="javascript:void(0)">
-				<span class="material-icons mt-3">keyboard_arrow_down</span>
-			</a>
-		</div>
-	</div>
-	<div class="cs-comment-body row">
-		<textarea id="cs-body-edit-field" rows="10" placeholder="Poser une question sur ce retour d’expérience"></textarea>
-	</div>
-	<div class="cs-comment-footer row">
-		<div class="col-12 text-right pr-0">
-			<button class="btn btn-gray" id="cs-cancel-button" type="button">Annuler</button>
-			<button class="btn btn-dark-green text-white" id="cs-submit-button" type="button">Envoyer</button>
-		</div>
-	</div>
-</div>
-
-*/
 
 			var commentBox = $( '<div>' )
 				.addClass( 'cs-edit-box px-2' )
@@ -1903,7 +1865,66 @@ var commentstreams_controller = ( function () {
 
 			return commentBox;
 		},		
-					
+
+		addCaracteristics: function ( rightDiv, caracteristics ) {
+		
+			rightDiv.addClass("flex-fill caracteristiques"); // Flex-fill: takes as much space as available
+			var rowDiv = $( '<div>' )
+				.addClass( 'caracteristiques-bloc d-flex flex-wrap' );
+			rightDiv.append( rowDiv );
+
+			var carIndex;
+			for ( carIndex in caracteristics ) {
+				var aCaracteristic = caracteristics[ carIndex ];
+				
+				// Available: 
+				// aCaracteristic.url (page URL)
+				// aCaracteristic.page (page name)
+				// aCaracteristic.icon (icon URL)
+				// aCaracteristic.caption (text to display next to the icon)
+
+				var carDiv = $( '<div>' )
+					.addClass( 'mr-1' );
+			
+				var carSubDiv = $( '<div>' )
+					.addClass( 'd-flex' );
+				
+
+				var carImage = $( '<img>' )
+					.attr( {
+						title: aCaracteristic.page,
+						src: aCaracteristic.icon
+					} )
+					.addClass( 'd-inline-block align-self-center' );
+					carSubDiv.append( carImage );
+
+				var carSpan = $( '<span>' )
+					.addClass( 'align-self-center' )
+					.text( aCaracteristic.caption );
+					carSubDiv.append( carSpan );
+				carDiv.append( carSubDiv );
+				rowDiv.append( carDiv );
+			}
+		},
+
+		createCaracteristicsExpandToggle: function ( rightDiv, caracteristics ) {
+
+			var toggleDiv = $( '<div>' )
+				.addClass( 'text-right show-all' );
+			var toggleLink = $('<a>')
+				.attr({
+					href: 'javascript:void(0)',
+				});			
+
+			var toggleSpan = $( '<span>' )
+				.addClass( 'material-icons mt-3' )
+				.text( 'keyboard_arrow_down' );
+			toggleLink.append( toggleSpan );
+
+			toggleDiv.append( toggleLink );
+
+			return toggleDiv;
+		}			
 	};
 }() );
 
@@ -1917,3 +1938,26 @@ window.CommentStreamsController = commentstreams_controller;
 			}
 		} );
 }() );
+
+
+
+$(document).ready(function () {
+
+	// show/hide overflow
+
+	$('.show-all a').each(function () {
+
+		$(this).click(function () {
+			var currentBlock = $(this).parents('.cs-comment-header');
+			currentBlock.toggleClass('expanded');
+			if (currentBlock.hasClass('expanded')) {
+				$(this).find('span').text('keyboard_arrow_up');
+			}
+			else if (!currentBlock.hasClass('expanded')) {
+				$(this).find('span').text('keyboard_arrow_down');
+			}
+		});
+
+	});
+
+});

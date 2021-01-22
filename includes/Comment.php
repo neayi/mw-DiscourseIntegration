@@ -478,6 +478,56 @@ class Comment {
 	}
 
 	/**
+	 * @return json the caracteristics of the exploitation
+	 */
+	public function getCaracteristics() {
+		$caracteristics = [
+			[
+				'url' => "/wiki/Gers_(d%C3%A9partement)",
+				'page' => "Gers (département)",
+				'icon' => '/images/thumb/8/85/D%C3%A9partement_32.png/60px-D%C3%A9partement_32.png',
+				'caption' => "Gers"
+			],[
+				'url' =>     "",
+				'page' =>    "",
+				'icon' =>    '/images/thumb/0/05/SAU.png/60px-SAU.png',
+				'caption' => "83 ha"
+			],[
+				'url' =>     "/wiki/UTH",
+				'page' =>    "UTH",
+				'icon' =>    '/images/thumb/7/74/UTH.png/60px-UTH.png',
+				'caption' => "1"
+			],[
+				'url' =>     "/wiki/Argilo-sableux",
+				'page' =>    "Argilo-sableux",
+				'icon' =>    '/images/thumb/2/26/Type-Sol.png/60px-Type-Sol.png',
+				'caption' => "Coteaux argilo-calcaire"
+			],[
+				'url' =>     "/wiki/Grandes_cultures",
+				'page' =>    "Grandes cultures",
+				'icon' =>    '/images/thumb/f/fd/Grandes-cultures.png/60px-Grandes-cultures.png',
+				'caption' => "Grandes cultures"
+			],[
+				'url' =>     "/wiki/Agriculture_Biologique",
+				'page' =>    "Agriculture Biologique",
+				'icon' =>    '/images/thumb/c/c2/Agriculture-bio.png/60px-Agriculture-bio.png',
+				'caption' => "Agriculture Biologique"
+			],[
+				'url' =>     "/wiki/Syst%C3%A8me_irrigu%C3%A9",
+				'page' =>    "Système irrigué",
+				'icon' =>    '/images/thumb/b/b3/Irrigation.png/60px-Irrigation.png',
+				'caption' => "Système irrigué"
+			],[
+				'url' =>     "/wiki/Techniques_culturales_simplifi%C3%A9es_(TCS)",
+				'page' =>    "Techniques culturales simplifiées (TCS)",
+				'icon' =>    '/images/thumb/3/3a/TCS.png/60px-TCS.png',
+				'caption' => "TCS"
+			]];
+			
+		return json_encode($caracteristics);
+	}
+
+	/**
 	 * @return MWTimestamp the earliest revision date for this
 	 */
 	public function getCreationTimestamp() {
@@ -595,6 +645,9 @@ class Comment {
 			$json['numupvotes'] = $this->getNumUpVotes();
 			$json['numdownvotes'] = $this->getNumDownVotes();
 		}
+
+		$json['caracteristics'] = $this->getCaracteristics();
+
 		return $json;
 	}
 
