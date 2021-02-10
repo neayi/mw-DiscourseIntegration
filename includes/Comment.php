@@ -471,8 +471,9 @@ class Comment {
 				$this->avatar = self::getAvatarFromUser( $this->getUser() );
 			}
 
-			// Todo:
-			$this->avatar = 'https://insights.dev.tripleperformance.fr/storage/users/986d0a76-821f-4178-9486-26d63cbb0479.jpg';
+			// // Debug:
+			// if (empty($this->avatar))
+			// 	$this->avatar = 'https://insights.dev.tripleperformance.fr/storage/users/986d0a76-821f-4178-9486-26d63cbb0479.jpg';
 		}
 		return $this->avatar;
 	}
@@ -481,6 +482,8 @@ class Comment {
 	 * @return json the caracteristics of the exploitation
 	 */
 	public function getCaracteristics() {
+		return json_encode([]);
+
 		$caracteristics = [
 			[
 				'url' => "/wiki/Gers_(d%C3%A9partement)",
@@ -1146,6 +1149,10 @@ EOT;
 		if ( $GLOBALS['wgCommentStreamsUserAvatarPropertyName'] !== null ) {
 			$avatar = self::getUserProperty( $user,
 				$GLOBALS['wgCommentStreamsUserAvatarPropertyName'] );
+
+			if ( $avatar === null )
+				$avatar = 'File:defaultAvatar.png';
+			
 			if ( $avatar !== null ) {
 				if ( gettype( $avatar ) === 'string' ) {
 					$avatar = Title::newFromText( $avatar );
@@ -1165,7 +1172,7 @@ EOT;
 						$file = wfFindFile( $avatar );
 					}
 					if ( $file ) {
-						return $file->getFullUrl();
+						return $file->createThumb(100);
 					}
 				}
 			}
