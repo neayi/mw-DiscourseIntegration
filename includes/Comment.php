@@ -473,6 +473,10 @@ class Comment {
 				$this->avatar = self::getAvatarFromUser( $this->getUser() );
 			}
 		}
+
+		if ( empty($this->avatar) && !empty($GLOBALS['wgInsightsRootURL']) )
+			$this->avatar = $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/unknown/100";
+
 		return $this->avatar;
 	}
 
@@ -1183,9 +1187,9 @@ EOT;
 	 */
 	public static function getAvatarFromInsight( $user ) {
 		if ( empty($GLOBALS['wgInsightsRootURL']) )
-			return '';
+			return null;
 
-		$guid = 'notfound';
+		$guid = '';
 
 		$dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->selectRow(
@@ -1200,6 +1204,9 @@ EOT;
 		);
 		if ( $result )
 			$guid = (string)$result->neayiauth_external_userid;
+
+		if (empty($guid))
+			return null;
 
 		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
 	}
