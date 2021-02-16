@@ -106,6 +106,9 @@ class Comment {
 	// number of dow votes for this comment
 	private $num_down_votes = null;
 
+	// cache to store User GUIDs and information
+	private static $usersInfos = array();
+
 	/**
 	 * create a new Comment object from existing wiki page
 	 *
@@ -484,7 +487,15 @@ class Comment {
 	 * @return json the caracteristics of the exploitation
 	 */
 	public function getCaracteristics() {
-		return json_encode([]);
+
+		// https://insights.dev.tripleperformance.fr/api/user/986d0a76-821f-4178-9486-26d63cbb0479/context
+		// {"postal_code":"06330","department":"06"}
+
+		$guid = self::getNeayiGUID( $user );
+		if (empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
+			return json_encode([]);
+
+		$GLOBALS['wgInsightsRootURL'] . "api/user/$guid/context";
 
 		$caracteristics = [
 			[
@@ -1189,7 +1200,23 @@ EOT;
 		if ( empty($GLOBALS['wgInsightsRootURL']) )
 			return null;
 
-		$guid = '';
+		$guid = self::getNeayiGUID( $user );
+
+		if (empty($guid))
+			return null;
+
+		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
+	}
+
+	/** 
+	 * Cache the GUIDs for Users
+	 */
+	private static function getNeayiGUID( $user )
+	{
+		if (isset(self::$usersInfos[$user->mId]))
+			return self::$usersInfos[$user->mId]['guid'];
+
+		self::$usersInfos[$user->mId]['guid'] = '';
 
 		$dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->selectRow(
@@ -1203,12 +1230,9 @@ EOT;
 			__METHOD__
 		);
 		if ( $result )
-			$guid = (string)$result->neayiauth_external_userid;
+			self::$usersInfos[$user->mId]['guid'] = (string)$result->neayiauth_external_userid;
 
-		if (empty($guid))
-			return null;
-
-		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
+		return self::$usersInfos[$user->mId]['guid'];
 	}
 
 	/**
