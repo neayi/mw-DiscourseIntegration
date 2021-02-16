@@ -461,6 +461,8 @@ class Comment {
 	 * @return string the URL of the avatar of the author of this comment
 	 */
 	public function getAvatar() {
+		$this->avatar = self::getAvatarFromInsight( $this->getUser() );
+
 		if ( $this->avatar === null ) {
 			if ( class_exists( 'wAvatar' ) ) {
 				// from Extension:SocialProfile
@@ -470,10 +472,6 @@ class Comment {
 			} else {
 				$this->avatar = self::getAvatarFromUser( $this->getUser() );
 			}
-
-			// // Debug:
-			// if (empty($this->avatar))
-			// 	$this->avatar = 'https://insights.dev.tripleperformance.fr/storage/users/986d0a76-821f-4178-9486-26d63cbb0479.jpg';
 		}
 		return $this->avatar;
 	}
@@ -1150,9 +1148,6 @@ EOT;
 			$avatar = self::getUserProperty( $user,
 				$GLOBALS['wgCommentStreamsUserAvatarPropertyName'] );
 
-			if ( $avatar === null )
-				$avatar = 'File:defaultAvatar.png';
-			
 			if ( $avatar !== null ) {
 				if ( gettype( $avatar ) === 'string' ) {
 					$avatar = Title::newFromText( $avatar );
@@ -1178,6 +1173,35 @@ EOT;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * return the name of the file page containing the user's avatar
+	 *
+	 * @param User $user the user
+	 * @return string URL of avatar
+	 */
+	public static function getAvatarFromInsight( $user ) {
+		if ( empty($GLOBALS['wgInsightsRootURL']) )
+			return '';
+
+		$guid = 'notfound';
+
+		$dbr = wfGetDB(DB_REPLICA);
+		$result = $dbr->selectRow(
+			'neayiauth_users',
+			[
+				'neayiauth_external_userid'
+			],
+			[
+				'neayiauth_user' => $user->mId
+			],
+			__METHOD__
+		);
+		if ( $result )
+			$guid = (string)$result->neayiauth_external_userid;
+
+		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
 	}
 
 	/**
