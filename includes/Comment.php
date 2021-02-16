@@ -492,10 +492,16 @@ class Comment {
 		// {"postal_code":"06330","department":"06"}
 
 		$guid = self::getNeayiGUID( $user );
-		if (empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
+		if ( empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
 			return json_encode([]);
 
-		$GLOBALS['wgInsightsRootURL'] . "api/user/$guid/context";
+		$apiEndPoint = $GLOBALS['wgInsightsRootURL'] . "api/user/$guid/context";
+
+		$response = file_get_contents($apiEndPoint, false);
+
+		$user_info = json_decode($response, true);
+
+		var_dump($user_info);
 
 		$caracteristics = [
 			[
