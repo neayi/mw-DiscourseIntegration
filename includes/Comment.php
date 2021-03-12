@@ -362,7 +362,7 @@ class Comment {
 	 * @param IContextSource $context
 	 * @return string parsed HTML of the comment
 	 */
-	public function getHTML( IContextSource $context ) {
+	public function getHTML( ) {
 		if ( $this->html === null ) {
 			$this->getWikiText();
 			if ( $this->wikitext !== null ) {
