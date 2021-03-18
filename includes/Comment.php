@@ -489,9 +489,34 @@ class Comment {
 	public function getCaracteristics() {
 
 		// https://insights.dev.tripleperformance.fr/api/user/986d0a76-821f-4178-9486-26d63cbb0479/context
-		// {"postal_code":"06330","department":"06"}
+		/*
 
+		{
+			"firstname": "Bertrand Gorge",
+			"lastname": "Bertrand Gorge",
+			"postal_code": "06330",
+			"department": "06",
+			"productions": [
+				{
+					"page": "Aviculture",
+					"icon": "https://insights.dev.tripleperformance.fr/api/icon/40efe237-b827-4ab0-9aa9-ce2bca91b602",
+					"caption": "Aviculture"
+				}
+			],
+			"characteristics": [
+				{
+					"page": "Agroforesterie",
+					"icon": "https://insights.dev.tripleperformance.fr/api/icon/183edb53-3fc0-484d-9358-558c5898f246",
+					"caption": "Agroforesterie"
+				}
+			]
+		}
+
+		*/
+		
 		$guid = self::getNeayiGUID( $user );
+
+		echo $GLOBALS['wgInsightsRootURL'] . " guid : $guid ";
 		if ( empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
 			return json_encode([]);
 
@@ -1219,7 +1244,7 @@ EOT;
 	 */
 	private static function getNeayiGUID( $user )
 	{
-		if (isset(self::$usersInfos[$user->mId]))
+		if (!empty(self::$usersInfos[$user->mId]['guid']))
 			return self::$usersInfos[$user->mId]['guid'];
 
 		self::$usersInfos[$user->mId]['guid'] = '';
@@ -1237,7 +1262,9 @@ EOT;
 		);
 		if ( $result )
 			self::$usersInfos[$user->mId]['guid'] = (string)$result->neayiauth_external_userid;
-
+		else
+			echo 'bonk';
+			
 		return self::$usersInfos[$user->mId]['guid'];
 	}
 
