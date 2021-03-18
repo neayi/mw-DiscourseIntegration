@@ -514,20 +514,44 @@ class Comment {
 
 		*/
 		
-		$guid = self::getNeayiGUID( $user );
-
-		echo $GLOBALS['wgInsightsRootURL'] . " guid : $guid ";
+		$guid = self::getNeayiGUID( $this->getUser() );
 		if ( empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
 			return json_encode([]);
 
-		$apiEndPoint = $GLOBALS['wgInsightsRootURL'] . "api/user/$guid/context";
-
+		$apiEndPoint = $GLOBALS['wgInsightsRootURLPHP'] . "api/user/$guid/context";
 		$response = file_get_contents($apiEndPoint, false);
 
 		$user_info = json_decode($response, true);
 
-		var_dump($user_info);
+//		var_dump($user_info);
 
+		$caracteristics = array();
+		// First add the departement
+		
+		// Add the productions
+		foreach ($user_info['productions'] as $prod)
+		{
+			if (!empty($prod['icon']))
+				$prod['icon'] .= '/60';
+
+			$caracteristics[] = ['url' =>     "/wiki/" . $prod['page'],
+								 'page' =>    $prod['page'],
+								 'icon' =>    $prod['icon'],
+								 'caption' => $prod['caption']];
+		}
+
+		foreach ($user_info['characteristics'] as $prod)
+		{
+			if (!empty($prod['icon']))
+				$prod['icon'] .= '/60';
+
+			$caracteristics[] = ['url' =>     "/wiki/" . $prod['page'],
+								 'page' =>    $prod['page'],
+								 'icon' =>    $prod['icon'],
+								 'caption' => $prod['caption']];
+		}		
+
+/*
 		$caracteristics = [
 			[
 				'url' => "/wiki/Gers_(d%C3%A9partement)",
@@ -570,7 +594,7 @@ class Comment {
 				'icon' =>    '/images/thumb/3/3a/TCS.png/60px-TCS.png',
 				'caption' => "TCS"
 			]];
-			
+			*/
 		return json_encode($caracteristics);
 	}
 
@@ -1262,8 +1286,6 @@ EOT;
 		);
 		if ( $result )
 			self::$usersInfos[$user->mId]['guid'] = (string)$result->neayiauth_external_userid;
-		else
-			echo 'bonk';
 			
 		return self::$usersInfos[$user->mId]['guid'];
 	}

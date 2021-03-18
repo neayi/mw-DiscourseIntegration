@@ -9,9 +9,11 @@
             "type": "php",
             "request": "launch",
             "port": 9000,
+            "hostname": "0.0.0.0",
             // Path to your source in container
             "pathMappings": {
-                "/var/www/html/extensions/CommentStreams": "${workspaceFolder}"
+                "/var/www/html/extensions/CommentStreams": "${workspaceFolder}",
+                "/var/www/html": "${workspaceFolder}/../.."
             }
         },
         {
