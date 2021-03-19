@@ -1889,6 +1889,10 @@ var commentstreams_controller = ( function () {
 				var carSubDiv = $( '<div>' )
 					.addClass( 'd-flex' );
 				
+				var imageLink = $( '<a>')
+					.attr( {
+						href: aCaracteristic.url
+					});
 
 				var carImage = $( '<img>' )
 					.attr( {
@@ -1896,12 +1900,14 @@ var commentstreams_controller = ( function () {
 						src: aCaracteristic.icon
 					} )
 					.addClass( 'd-inline-block align-self-center' );
-					carSubDiv.append( carImage );
+				imageLink.append( carImage );
 
 				var carSpan = $( '<span>' )
 					.addClass( 'align-self-center' )
 					.text( aCaracteristic.caption );
-					carSubDiv.append( carSpan );
+				imageLink.append( carSpan );
+				carSubDiv.append( imageLink );
+
 				carDiv.append( carSubDiv );
 				rowDiv.append( carDiv );
 			}

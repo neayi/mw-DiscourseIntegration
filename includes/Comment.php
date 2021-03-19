@@ -526,8 +526,29 @@ class Comment {
 //		var_dump($user_info);
 
 		$caracteristics = array();
+
 		// First add the departement
-		
+		if (!empty($user_info['department']))
+		{
+			$departementURL = '';
+
+			$iconeFile = 'Département ' . $user_info['department'] . '.png';
+
+			$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $iconeFile );
+
+			if ( $file ) {
+				$departementURL = $file->createThumb(60);
+
+				if (!empty($departementURL))
+				{
+					$caracteristics[] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
+										'page' =>    'Département ' . $user_info['department'],
+										'icon' =>    $departementURL,
+										'caption' => $user_info['department']];
+				}
+			}
+		}
+
 		// Add the productions
 		foreach ($user_info['productions'] as $prod)
 		{
