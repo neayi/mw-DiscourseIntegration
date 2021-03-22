@@ -471,13 +471,13 @@ var commentstreams_controller = ( function () {
 			}
 
 			// START Neayi
-			self.addCaracteristics( rightDiv, JSON.parse(commentData.caracteristics) );
+			self.addFeatures( rightDiv, JSON.parse(commentData.features) );
 			// END Neayi
 
 			commentHeader.append( rightDiv );
 
 			// START Neayi
-			commentHeader.append( self.createCaracteristicsExpandToggle( ) );
+			commentHeader.append( self.createfeaturesExpandToggle( ) );
 			// END Neayi
 
 			var commentBody = $( '<div>' )
@@ -1866,54 +1866,59 @@ var commentstreams_controller = ( function () {
 			return commentBox;
 		},		
 
-		addCaracteristics: function ( rightDiv, caracteristics ) {
+		addFeatures: function ( rightDiv, features ) {
 		
 			rightDiv.addClass("flex-fill caracteristiques"); // Flex-fill: takes as much space as available
 			var rowDiv = $( '<div>' )
 				.addClass( 'caracteristiques-bloc d-flex flex-wrap' );
 			rightDiv.append( rowDiv );
 
-			var carIndex;
-			for ( carIndex in caracteristics ) {
-				var aCaracteristic = caracteristics[ carIndex ];
+			var featureIndex;
+			for ( featureIndex in features ) {
+				var aFeature = features[ featureIndex ];
 				
 				// Available: 
-				// aCaracteristic.url (page URL)
-				// aCaracteristic.page (page name)
-				// aCaracteristic.icon (icon URL)
-				// aCaracteristic.caption (text to display next to the icon)
+				// aFeature.url (page URL)
+				// aFeature.icon (icon URL)
+				// aFeature.caption (text to display next to the icon)
 
 				var carDiv = $( '<div>' )
-					.addClass( 'mr-1' );
-			
-				var carSubDiv = $( '<div>' )
-					.addClass( 'd-flex' );
+					.addClass( 'd-flex mr-1' );
 				
-				var imageLink = $( '<a>')
+				if (aFeature.url)
+				{
+					var imageLink = $( '<a>')
 					.attr( {
-						href: aCaracteristic.url
-					});
+						'href': aFeature.url,
+					})
+					.addClass( 'align-self-center' );
 
-				var carImage = $( '<img>' )
-					.attr( {
-						title: aCaracteristic.page,
-						src: aCaracteristic.icon
-					} )
-					.addClass( 'd-inline-block align-self-center' );
-				imageLink.append( carImage );
+					carDiv.append( imageLink );
+				}
+				else
+					imageLink = carDiv;
+
+				if (aFeature.icon)
+				{
+					var carImage = $( '<img>' )
+						.attr( {
+							title: aFeature.caption,
+							src: aFeature.icon
+						} )
+						.addClass( 'd-inline-block align-self-center' );
+					imageLink.append( carImage );
+				}
 
 				var carSpan = $( '<span>' )
 					.addClass( 'align-self-center' )
-					.text( aCaracteristic.caption );
+					.text( aFeature.caption );
 				imageLink.append( carSpan );
-				carSubDiv.append( imageLink );
 
-				carDiv.append( carSubDiv );
 				rowDiv.append( carDiv );
 			}
 		},
 
-		createCaracteristicsExpandToggle: function ( rightDiv, caracteristics ) {
+		createfeaturesExpandToggle: function ( rightDiv, features ) {
 
 			var toggleDiv = $( '<div>' )
 				.addClass( 'text-right show-all' );

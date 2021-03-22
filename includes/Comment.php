@@ -31,6 +31,9 @@ use JobQueueGroup;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+
+use MediaWiki\Session\SessionManager;
+
 use MWTimestamp;
 use PageProps;
 use Parser;
@@ -486,7 +489,7 @@ class Comment {
 	/**
 	 * @return json the caracteristics of the exploitation
 	 */
-	public function getCaracteristics() {
+	public function getFeatures() {
 
 		// https://insights.dev.tripleperformance.fr/api/user/986d0a76-821f-4178-9486-26d63cbb0479/context
 		/*
@@ -513,110 +516,87 @@ class Comment {
 		}
 
 		*/
-		
+
+		SessionManager::getGlobalSession()->persist();
+
+		$sessionKey = 'FeaturesForUser' . $this->getUser()->getId();
+
+		$features = SessionManager::getGlobalSession()->get( $sessionKey, false );
+		if ($features !== false)
+			return $features;
+
+		$features = array();
+
 		$guid = self::getNeayiGUID( $this->getUser() );
 		if ( empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
-			return json_encode([]);
+			return json_encode($features);
 
 		$apiEndPoint = $GLOBALS['wgInsightsRootURLPHP'] . "api/user/$guid/context";
 		$response = file_get_contents($apiEndPoint, false);
+		$user_info = array();
 
-		$user_info = json_decode($response, true);
+		if (!empty($response))
+			$user_info = json_decode($response, true);
 
-//		var_dump($user_info);
-
-		$caracteristics = array();
-
-		// First add the departement
+		// Start by adding the departement
 		if (!empty($user_info['department']))
 		{
-			$departementURL = '';
-
 			$iconeFile = 'Département ' . $user_info['department'] . '.png';
+			$iconeMWFile = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $iconeFile );
 
-			$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $iconeFile );
+			if ( $iconeMWFile)
+			{
+				$iconeURL = $iconeMWFile->createThumb(60);
 
-			if ( $file ) {
-				$departementURL = $file->createThumb(60);
-
-				if (!empty($departementURL))
+				if (!empty($iconeURL))
 				{
-					$caracteristics[] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
-										'page' =>    'Département ' . $user_info['department'],
-										'icon' =>    $departementURL,
-										'caption' => $user_info['department']];
+					$features[] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
+								   'icon' =>    $iconeURL,
+								   'caption' => $user_info['department']];
 				}
 			}
 		}
 
 		// Add the productions
-		foreach ($user_info['productions'] as $prod)
+		if (!empty($user_info['productions']))
 		{
-			if (!empty($prod['icon']))
-				$prod['icon'] .= '/60';
-
-			$caracteristics[] = ['url' =>     "/wiki/" . $prod['page'],
-								 'page' =>    $prod['page'],
-								 'icon' =>    $prod['icon'],
-								 'caption' => $prod['caption']];
+			foreach ($user_info['productions'] as $prod)
+				$features[] = $this->getFeature($prod);
 		}
 
-		foreach ($user_info['characteristics'] as $prod)
+		// Add the rest of the features
+		if (!empty($user_info['characteristics']))
 		{
-			if (!empty($prod['icon']))
-				$prod['icon'] .= '/60';
+			foreach ($user_info['characteristics'] as $aCharacteristic)
+				$features[] = $this->getFeature($aCharacteristic);
+		}
 
-			$caracteristics[] = ['url' =>     "/wiki/" . $prod['page'],
-								 'page' =>    $prod['page'],
-								 'icon' =>    $prod['icon'],
-								 'caption' => $prod['caption']];
-		}		
+		$featuresJson = json_encode($features);
 
-/*
-		$caracteristics = [
-			[
-				'url' => "/wiki/Gers_(d%C3%A9partement)",
-				'page' => "Gers (département)",
-				'icon' => '/images/thumb/8/85/D%C3%A9partement_32.png/60px-D%C3%A9partement_32.png',
-				'caption' => "Gers"
-			],[
-				'url' =>     "",
-				'page' =>    "",
-				'icon' =>    '/images/thumb/0/05/SAU.png/60px-SAU.png',
-				'caption' => "83 ha"
-			],[
-				'url' =>     "/wiki/UTH",
-				'page' =>    "UTH",
-				'icon' =>    '/images/thumb/7/74/UTH.png/60px-UTH.png',
-				'caption' => "1"
-			],[
-				'url' =>     "/wiki/Argilo-sableux",
-				'page' =>    "Argilo-sableux",
-				'icon' =>    '/images/thumb/2/26/Type-Sol.png/60px-Type-Sol.png',
-				'caption' => "Coteaux argilo-calcaire"
-			],[
-				'url' =>     "/wiki/Grandes_cultures",
-				'page' =>    "Grandes cultures",
-				'icon' =>    '/images/thumb/f/fd/Grandes-cultures.png/60px-Grandes-cultures.png',
-				'caption' => "Grandes cultures"
-			],[
-				'url' =>     "/wiki/Agriculture_Biologique",
-				'page' =>    "Agriculture Biologique",
-				'icon' =>    '/images/thumb/c/c2/Agriculture-bio.png/60px-Agriculture-bio.png',
-				'caption' => "Agriculture Biologique"
-			],[
-				'url' =>     "/wiki/Syst%C3%A8me_irrigu%C3%A9",
-				'page' =>    "Système irrigué",
-				'icon' =>    '/images/thumb/b/b3/Irrigation.png/60px-Irrigation.png',
-				'caption' => "Système irrigué"
-			],[
-				'url' =>     "/wiki/Techniques_culturales_simplifi%C3%A9es_(TCS)",
-				'page' =>    "Techniques culturales simplifiées (TCS)",
-				'icon' =>    '/images/thumb/3/3a/TCS.png/60px-TCS.png',
-				'caption' => "TCS"
-			]];
-			*/
-		return json_encode($caracteristics);
+		SessionManager::getGlobalSession()->set( $sessionKey, $featuresJson );
+
+		return $featuresJson;
+	}
+
+	private function getFeature($JsonFeature = array())
+	{
+		$feature = ['caption' => ''];
+
+		if (!empty($JsonFeature['page']))
+		{
+			$feature['url'] = "/wiki/" . $JsonFeature['page'];
+			$feature['caption'] = $JsonFeature['page'];
+		}
+		else
+			$feature['url'] = false;
+
+		if (!empty($JsonFeature['icon']))
+			$feature['icon'] = $JsonFeature['icon'] . '/60';
+
+		if (!empty($JsonFeature['caption']))
+			$feature['caption'] = $JsonFeature['caption'];
+
+		return $feature;
 	}
 
 	/**
@@ -738,7 +718,7 @@ class Comment {
 			$json['numdownvotes'] = $this->getNumDownVotes();
 		}
 
-		$json['caracteristics'] = $this->getCaracteristics();
+		$json['features'] = $this->getFeatures();
 
 		return $json;
 	}
