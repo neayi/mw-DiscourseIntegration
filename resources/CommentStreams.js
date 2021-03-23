@@ -1891,7 +1891,7 @@ var commentstreams_controller = ( function () {
 					.attr( {
 						'href': aFeature.url,
 					})
-					.addClass( 'align-self-center' );
+					.addClass( 'align-self-center d-flex' );
 
 					carDiv.append( imageLink );
 				}
