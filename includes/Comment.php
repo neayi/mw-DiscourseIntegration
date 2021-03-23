@@ -31,6 +31,9 @@ use JobQueueGroup;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+
+use MediaWiki\Session\SessionManager;
+
 use MWTimestamp;
 use PageProps;
 use Parser;
@@ -105,6 +108,9 @@ class Comment {
 
 	// number of dow votes for this comment
 	private $num_down_votes = null;
+
+	// cache to store User GUIDs and information
+	private static $usersInfos = array();
 
 	/**
 	 * create a new Comment object from existing wiki page
@@ -483,53 +489,114 @@ class Comment {
 	/**
 	 * @return json the caracteristics of the exploitation
 	 */
-	public function getCaracteristics() {
-		return json_encode([]);
+	public function getFeatures() {
 
-		$caracteristics = [
-			[
-				'url' => "/wiki/Gers_(d%C3%A9partement)",
-				'page' => "Gers (département)",
-				'icon' => '/images/thumb/8/85/D%C3%A9partement_32.png/60px-D%C3%A9partement_32.png',
-				'caption' => "Gers"
-			],[
-				'url' =>     "",
-				'page' =>    "",
-				'icon' =>    '/images/thumb/0/05/SAU.png/60px-SAU.png',
-				'caption' => "83 ha"
-			],[
-				'url' =>     "/wiki/UTH",
-				'page' =>    "UTH",
-				'icon' =>    '/images/thumb/7/74/UTH.png/60px-UTH.png',
-				'caption' => "1"
-			],[
-				'url' =>     "/wiki/Argilo-sableux",
-				'page' =>    "Argilo-sableux",
-				'icon' =>    '/images/thumb/2/26/Type-Sol.png/60px-Type-Sol.png',
-				'caption' => "Coteaux argilo-calcaire"
-			],[
-				'url' =>     "/wiki/Grandes_cultures",
-				'page' =>    "Grandes cultures",
-				'icon' =>    '/images/thumb/f/fd/Grandes-cultures.png/60px-Grandes-cultures.png',
-				'caption' => "Grandes cultures"
-			],[
-				'url' =>     "/wiki/Agriculture_Biologique",
-				'page' =>    "Agriculture Biologique",
-				'icon' =>    '/images/thumb/c/c2/Agriculture-bio.png/60px-Agriculture-bio.png',
-				'caption' => "Agriculture Biologique"
-			],[
-				'url' =>     "/wiki/Syst%C3%A8me_irrigu%C3%A9",
-				'page' =>    "Système irrigué",
-				'icon' =>    '/images/thumb/b/b3/Irrigation.png/60px-Irrigation.png',
-				'caption' => "Système irrigué"
-			],[
-				'url' =>     "/wiki/Techniques_culturales_simplifi%C3%A9es_(TCS)",
-				'page' =>    "Techniques culturales simplifiées (TCS)",
-				'icon' =>    '/images/thumb/3/3a/TCS.png/60px-TCS.png',
-				'caption' => "TCS"
-			]];
-			
-		return json_encode($caracteristics);
+		// https://insights.dev.tripleperformance.fr/api/user/986d0a76-821f-4178-9486-26d63cbb0479/context
+		/*
+
+		{
+			"firstname": "Bertrand Gorge",
+			"lastname": "Bertrand Gorge",
+			"postal_code": "06330",
+			"department": "06",
+			"productions": [
+				{
+					"page": "Aviculture",
+					"icon": "https://insights.dev.tripleperformance.fr/api/icon/40efe237-b827-4ab0-9aa9-ce2bca91b602",
+					"caption": "Aviculture"
+				}
+			],
+			"characteristics": [
+				{
+					"page": "Agroforesterie",
+					"icon": "https://insights.dev.tripleperformance.fr/api/icon/183edb53-3fc0-484d-9358-558c5898f246",
+					"caption": "Agroforesterie"
+				}
+			]
+		}
+
+		*/
+
+		SessionManager::getGlobalSession()->persist();
+
+		$sessionKey = 'FeaturesForUser' . $this->getUser()->getId();
+
+		$features = SessionManager::getGlobalSession()->get( $sessionKey, false );
+		if ($features !== false)
+			return $features;
+
+		$features = array();
+
+		$guid = self::getNeayiGUID( $this->getUser() );
+		if ( empty($guid) || empty($GLOBALS['wgInsightsRootURL']) )
+			return json_encode($features);
+
+		$apiEndPoint = $GLOBALS['wgInsightsRootURLPHP'] . "api/user/$guid/context";
+		$response = file_get_contents($apiEndPoint, false);
+		$user_info = array();
+
+		if (!empty($response))
+			$user_info = json_decode($response, true);
+
+		// Start by adding the departement
+		if (!empty($user_info['department']))
+		{
+			$iconeFile = 'Département ' . $user_info['department'] . '.png';
+			$iconeMWFile = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $iconeFile );
+
+			if ( $iconeMWFile)
+			{
+				$iconeURL = $iconeMWFile->createThumb(60);
+
+				if (!empty($iconeURL))
+				{
+					$features[] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
+								   'icon' =>    $iconeURL,
+								   'caption' => $user_info['department']];
+				}
+			}
+		}
+
+		// Add the productions
+		if (!empty($user_info['productions']))
+		{
+			foreach ($user_info['productions'] as $prod)
+				$features[] = $this->getFeature($prod);
+		}
+
+		// Add the rest of the features
+		if (!empty($user_info['characteristics']))
+		{
+			foreach ($user_info['characteristics'] as $aCharacteristic)
+				$features[] = $this->getFeature($aCharacteristic);
+		}
+
+		$featuresJson = json_encode($features);
+
+		SessionManager::getGlobalSession()->set( $sessionKey, $featuresJson );
+
+		return $featuresJson;
+	}
+
+	private function getFeature($JsonFeature = array())
+	{
+		$feature = ['caption' => ''];
+
+		if (!empty($JsonFeature['page']))
+		{
+			$feature['url'] = "/wiki/" . $JsonFeature['page'];
+			$feature['caption'] = $JsonFeature['page'];
+		}
+		else
+			$feature['url'] = false;
+
+		if (!empty($JsonFeature['icon']))
+			$feature['icon'] = $JsonFeature['icon'] . '/60';
+
+		if (!empty($JsonFeature['caption']))
+			$feature['caption'] = $JsonFeature['caption'];
+
+		return $feature;
 	}
 
 	/**
@@ -651,7 +718,7 @@ class Comment {
 			$json['numdownvotes'] = $this->getNumDownVotes();
 		}
 
-		$json['caracteristics'] = $this->getCaracteristics();
+		$json['features'] = $this->getFeatures();
 
 		return $json;
 	}
@@ -1189,7 +1256,23 @@ EOT;
 		if ( empty($GLOBALS['wgInsightsRootURL']) )
 			return null;
 
-		$guid = '';
+		$guid = self::getNeayiGUID( $user );
+
+		if (empty($guid))
+			return null;
+
+		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
+	}
+
+	/** 
+	 * Cache the GUIDs for Users
+	 */
+	private static function getNeayiGUID( $user )
+	{
+		if (!empty(self::$usersInfos[$user->mId]['guid']))
+			return self::$usersInfos[$user->mId]['guid'];
+
+		self::$usersInfos[$user->mId]['guid'] = '';
 
 		$dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->selectRow(
@@ -1203,12 +1286,9 @@ EOT;
 			__METHOD__
 		);
 		if ( $result )
-			$guid = (string)$result->neayiauth_external_userid;
-
-		if (empty($guid))
-			return null;
-
-		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
+			self::$usersInfos[$user->mId]['guid'] = (string)$result->neayiauth_external_userid;
+			
+		return self::$usersInfos[$user->mId]['guid'];
 	}
 
 	/**
