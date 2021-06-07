@@ -43,14 +43,18 @@ use UserArray;
 use WikiPage;
 
 /**
- * This query action adds a list of a specified user's contributions to the output.
+ * This query action adds a list of a specified user's comments to the output.
+ * 
+ * It is a fork of the usercontrib webservice, with the comments data + a capacity to search for user guid (Neayi specific)
  *
  * @ingroup API
  */
-class ApiCSQueryComments extends ApiQueryBase {
+class ApiCSQueryComments extends ApiQueryBase
+{
 
-	public function __construct( ApiQuery $query, $moduleName ) {
-		parent::__construct( $query, $moduleName, 'uc' );
+	public function __construct(ApiQuery $query, $moduleName)
+	{
+		parent::__construct($query, $moduleName, 'uc');
 	}
 
 	private $params, $multiUserMode, $orderBy, $parentLens;
@@ -62,37 +66,38 @@ class ApiCSQueryComments extends ApiQueryBase {
 		$fld_comment = false, $fld_parsedcomment = false, $fld_flags = false,
 		$fld_patrolled = false, $fld_tags = false, $fld_size = false, $fld_sizediff = false;
 
-	public function execute() {
+	public function execute()
+	{
 		// Parse some parameters
 		$this->params = $this->extractRequestParams();
 
 		$this->commentStore = CommentStore::getStore();
 
-		$prop = array_flip( $this->params['prop'] );
-		$this->fld_ids = isset( $prop['ids'] );
-		$this->fld_title = isset( $prop['title'] );
-		$this->fld_comment = isset( $prop['comment'] );
-		$this->fld_parsedcomment = isset( $prop['parsedcomment'] );
-		$this->fld_size = isset( $prop['size'] );
-		$this->fld_sizediff = isset( $prop['sizediff'] );
-		$this->fld_flags = isset( $prop['flags'] );
-		$this->fld_timestamp = isset( $prop['timestamp'] );
-		$this->fld_patrolled = isset( $prop['patrolled'] );
-		$this->fld_tags = isset( $prop['tags'] );
+		$prop = array_flip($this->params['prop']);
+		$this->fld_ids = isset($prop['ids']);
+		$this->fld_title = isset($prop['title']);
+		$this->fld_comment = isset($prop['comment']);
+		$this->fld_parsedcomment = isset($prop['parsedcomment']);
+		$this->fld_size = isset($prop['size']);
+		$this->fld_sizediff = isset($prop['sizediff']);
+		$this->fld_flags = isset($prop['flags']);
+		$this->fld_timestamp = isset($prop['timestamp']);
+		$this->fld_patrolled = isset($prop['patrolled']);
+		$this->fld_tags = isset($prop['tags']);
 
 		// The main query may use the 'contributions' group DB, which can map to replica DBs
 		// with extra user based indexes or partioning by user. The additional metadata
 		// queries should use a regular replica DB since the lookup pattern is not all by user.
 		$dbSecondary = $this->getDB(); // any random replica DB
 
-		$sort = ( $this->params['dir'] == 'newer' ? '' : ' DESC' );
-		$op = ( $this->params['dir'] == 'older' ? '<' : '>' );
+		$sort = ($this->params['dir'] == 'newer' ? '' : ' DESC');
+		$op = ($this->params['dir'] == 'older' ? '<' : '>');
 
 		// Create an Iterator that produces the UserIdentity objects we need, depending
 		// on which of the 'userprefix', 'userids', or 'user' params was
 		// specified.
-		$this->requireOnlyOneParameter( $this->params, 'userprefix', 'userids', 'user', 'userguids' );
-		if ( isset( $this->params['userprefix'] ) ) {
+		$this->requireOnlyOneParameter($this->params, 'userprefix', 'userids', 'user', 'userguids');
+		if (isset($this->params['userprefix'])) {
 			$this->multiUserMode = true;
 			$this->orderBy = 'name';
 			$fname = __METHOD__;
@@ -100,137 +105,139 @@ class ApiCSQueryComments extends ApiQueryBase {
 			// Because 'userprefix' might produce a huge number of users (e.g.
 			// a wiki with users "Test00000001" to "Test99999999"), use a
 			// generator with batched lookup and continuation.
-			$userIter = call_user_func( function () use ( $dbSecondary, $sort, $op, $fname ) {
+			$userIter = call_user_func(function () use ($dbSecondary, $sort, $op, $fname) {
 				$fromName = false;
-				if ( $this->params['continue'] !== null ) {
-					$continue = explode( '|', $this->params['continue'] );
-					$this->dieContinueUsageIf( count( $continue ) != 4 );
-					$this->dieContinueUsageIf( $continue[0] !== 'name' );
+				if ($this->params['continue'] !== null) {
+					$continue = explode('|', $this->params['continue']);
+					$this->dieContinueUsageIf(count($continue) != 4);
+					$this->dieContinueUsageIf($continue[0] !== 'name');
 					$fromName = $continue[1];
 				}
-				$like = $dbSecondary->buildLike( $this->params['userprefix'], $dbSecondary->anyString() );
+				$like = $dbSecondary->buildLike($this->params['userprefix'], $dbSecondary->anyString());
 
 				$limit = 501;
 
 				do {
-					$from = $fromName ? "$op= " . $dbSecondary->addQuotes( $fromName ) : false;
+					$from = $fromName ? "$op= " . $dbSecondary->addQuotes($fromName) : false;
 					$res = $dbSecondary->select(
 						'actor',
-						[ 'actor_id', 'user_id' => 'COALESCE(actor_user,0)', 'user_name' => 'actor_name' ],
-						array_merge( [ "actor_name$like" ], $from ? [ "actor_name $from" ] : [] ),
+						['actor_id', 'user_id' => 'COALESCE(actor_user,0)', 'user_name' => 'actor_name'],
+						array_merge(["actor_name$like"], $from ? ["actor_name $from"] : []),
 						$fname,
-						[ 'ORDER BY' => [ "user_name $sort" ], 'LIMIT' => $limit ]
+						['ORDER BY' => ["user_name $sort"], 'LIMIT' => $limit]
 					);
 
 					$count = 0;
 					$fromName = false;
-					foreach ( $res as $row ) {
-						if ( ++$count >= $limit ) {
+					foreach ($res as $row) {
+						if (++$count >= $limit) {
 							$fromName = $row->user_name;
 							break;
 						}
-						yield User::newFromRow( $row );
+						yield User::newFromRow($row);
 					}
-				} while ( $fromName !== false );
-			} );
+				} while ($fromName !== false);
+			});
 			// Do the actual sorting client-side, because otherwise
 			// prepareQuery might try to sort by actor and confuse everything.
 			$batchSize = 1;
-		} elseif ( isset( $this->params['userids'] ) ) {
-			if ( $this->params['userids'] === [] ) {
-				$encParamName = $this->encodeParamName( 'userids' );
-				$this->dieWithError( [ 'apierror-paramempty', $encParamName ], "paramempty_$encParamName" );
+		} elseif (isset($this->params['userids'])) {
+			if ($this->params['userids'] === []) {
+				$encParamName = $this->encodeParamName('userids');
+				$this->dieWithError(['apierror-paramempty', $encParamName], "paramempty_$encParamName");
 			}
 
 			$ids = [];
-			foreach ( $this->params['userids'] as $uid ) {
-				if ( $uid <= 0 ) {
-					$this->dieWithError( [ 'apierror-invaliduserid', $uid ], 'invaliduserid' );
+			foreach ($this->params['userids'] as $uid) {
+				if ($uid <= 0) {
+					$this->dieWithError(['apierror-invaliduserid', $uid], 'invaliduserid');
 				}
 				$ids[] = $uid;
 			}
 
 			$this->orderBy = 'id';
-			$this->multiUserMode = count( $ids ) > 1;
+			$this->multiUserMode = count($ids) > 1;
 
 			$from = $fromId = false;
-			if ( $this->multiUserMode && $this->params['continue'] !== null ) {
-				$continue = explode( '|', $this->params['continue'] );
-				$this->dieContinueUsageIf( count( $continue ) != 4 );
-				$this->dieContinueUsageIf( $continue[0] !== 'id' && $continue[0] !== 'actor' );
+			if ($this->multiUserMode && $this->params['continue'] !== null) {
+				$continue = explode('|', $this->params['continue']);
+				$this->dieContinueUsageIf(count($continue) != 4);
+				$this->dieContinueUsageIf($continue[0] !== 'id' && $continue[0] !== 'actor');
 				$fromId = (int)$continue[1];
-				$this->dieContinueUsageIf( $continue[1] !== (string)$fromId );
+				$this->dieContinueUsageIf($continue[1] !== (string)$fromId);
 				$from = "$op= $fromId";
 			}
 
 			$res = $dbSecondary->select(
 				'actor',
-				[ 'actor_id', 'user_id' => 'actor_user', 'user_name' => 'actor_name' ],
-				array_merge( [ 'actor_user' => $ids ], $from ? [ "actor_id $from" ] : [] ),
+				['actor_id', 'user_id' => 'actor_user', 'user_name' => 'actor_name'],
+				array_merge(['actor_user' => $ids], $from ? ["actor_id $from"] : []),
 				__METHOD__,
-				[ 'ORDER BY' => "user_id $sort" ]
+				['ORDER BY' => "user_id $sort"]
 			);
-			$userIter = UserArray::newFromResult( $res );
-			$batchSize = count( $ids );
-		} 
-		elseif ( isset( $this->params['userguids'] ) ) {
-			if ( $this->params['userguids'] === [] ) {
-				$encParamName = $this->encodeParamName( 'userguids' );
-				$this->dieWithError( [ 'apierror-paramempty', $encParamName ], "paramempty_$encParamName" );
+			$userIter = UserArray::newFromResult($res);
+			$batchSize = count($ids);
+		} elseif (isset($this->params['userguids'])) {
+			if ($this->params['userguids'] === []) {
+				$encParamName = $this->encodeParamName('userguids');
+				$this->dieWithError(['apierror-paramempty', $encParamName], "paramempty_$encParamName");
 			}
 
 			$guids = [];
-			foreach ( $this->params['userguids'] as $uguid ) {
+			foreach ($this->params['userguids'] as $uguid) {
 				$guids[] = $uguid;
 			}
 
 			$this->orderBy = 'id';
-			$this->multiUserMode = count( $guids ) > 1;
+			$this->multiUserMode = count($guids) > 1;
 
 			$from = $fromId = false;
-			if ( $this->multiUserMode && $this->params['continue'] !== null ) {
-				$continue = explode( '|', $this->params['continue'] );
-				$this->dieContinueUsageIf( count( $continue ) != 4 );
-				$this->dieContinueUsageIf( $continue[0] !== 'id' && $continue[0] !== 'actor' );
+			if ($this->multiUserMode && $this->params['continue'] !== null) {
+				$continue = explode('|', $this->params['continue']);
+				$this->dieContinueUsageIf(count($continue) != 4);
+				$this->dieContinueUsageIf($continue[0] !== 'id' && $continue[0] !== 'actor');
 				$fromId = (int)$continue[1];
-				$this->dieContinueUsageIf( $continue[1] !== (string)$fromId );
+				$this->dieContinueUsageIf($continue[1] !== (string)$fromId);
 				$from = "$op= $fromId";
 			}
 
 			$res = $dbSecondary->select(
 				'neayiauth_users',
-				[ 'user_id' => 'neayiauth_user', 'neayiauth_external_userid' ],
-				array_merge( [ 'neayiauth_external_userid' => $guids ], $from ? [ "neayiauth_user $from" ] : [] ),
+				['user_id' => 'neayiauth_user', 'neayiauth_external_userid'],
+				array_merge(['neayiauth_external_userid' => $guids], $from ? ["neayiauth_user $from"] : []),
 				__METHOD__,
-				[ 'ORDER BY' => "neayiauth_user $sort" ]
+				['ORDER BY' => "neayiauth_user $sort"]
 			);
 
-			$userIter = UserArray::newFromResult( $res );
-			$batchSize = count( $guids );
+			$userIter = UserArray::newFromResult($res);
+			$batchSize = count($guids);
 		} else {
 			$names = [];
-			if ( !count( $this->params['user'] ) ) {
-				$encParamName = $this->encodeParamName( 'user' );
+			if (!count($this->params['user'])) {
+				$encParamName = $this->encodeParamName('user');
 				$this->dieWithError(
-					[ 'apierror-paramempty', $encParamName ], "paramempty_$encParamName"
+					['apierror-paramempty', $encParamName],
+					"paramempty_$encParamName"
 				);
 			}
-			foreach ( $this->params['user'] as $u ) {
-				if ( $u === '' ) {
-					$encParamName = $this->encodeParamName( 'user' );
+			foreach ($this->params['user'] as $u) {
+				if ($u === '') {
+					$encParamName = $this->encodeParamName('user');
 					$this->dieWithError(
-						[ 'apierror-paramempty', $encParamName ], "paramempty_$encParamName"
+						['apierror-paramempty', $encParamName],
+						"paramempty_$encParamName"
 					);
 				}
 
-				if ( User::isIP( $u ) || ExternalUserNames::isExternal( $u ) ) {
+				if (User::isIP($u) || ExternalUserNames::isExternal($u)) {
 					$names[$u] = null;
 				} else {
-					$name = User::getCanonicalName( $u, 'valid' );
-					if ( $name === false ) {
-						$encParamName = $this->encodeParamName( 'user' );
+					$name = User::getCanonicalName($u, 'valid');
+					if ($name === false) {
+						$encParamName = $this->encodeParamName('user');
 						$this->dieWithError(
-							[ 'apierror-baduser', $encParamName, wfEscapeWikiText( $u ) ], "baduser_$encParamName"
+							['apierror-baduser', $encParamName, wfEscapeWikiText($u)],
+							"baduser_$encParamName"
 						);
 					}
 					$names[$name] = null;
@@ -238,84 +245,84 @@ class ApiCSQueryComments extends ApiQueryBase {
 			}
 
 			$this->orderBy = 'name';
-			$this->multiUserMode = count( $names ) > 1;
+			$this->multiUserMode = count($names) > 1;
 
 			$from = $fromName = false;
-			if ( $this->multiUserMode && $this->params['continue'] !== null ) {
-				$continue = explode( '|', $this->params['continue'] );
-				$this->dieContinueUsageIf( count( $continue ) != 4 );
-				$this->dieContinueUsageIf( $continue[0] !== 'name' && $continue[0] !== 'actor' );
+			if ($this->multiUserMode && $this->params['continue'] !== null) {
+				$continue = explode('|', $this->params['continue']);
+				$this->dieContinueUsageIf(count($continue) != 4);
+				$this->dieContinueUsageIf($continue[0] !== 'name' && $continue[0] !== 'actor');
 				$fromName = $continue[1];
-				$from = "$op= " . $dbSecondary->addQuotes( $fromName );
+				$from = "$op= " . $dbSecondary->addQuotes($fromName);
 			}
 
 			$res = $dbSecondary->select(
 				'actor',
-				[ 'actor_id', 'user_id' => 'actor_user', 'user_name' => 'actor_name' ],
+				['actor_id', 'user_id' => 'actor_user', 'user_name' => 'actor_name'],
 				array_merge(
-					[ 'actor_name' => array_map( 'strval', array_keys( $names ) ) ],
-					$from ? [ "actor_id $from" ] : []
+					['actor_name' => array_map('strval', array_keys($names))],
+					$from ? ["actor_id $from"] : []
 				),
 				__METHOD__,
-				[ 'ORDER BY' => "actor_name $sort" ]
+				['ORDER BY' => "actor_name $sort"]
 			);
-			$userIter = UserArray::newFromResult( $res );
-			$batchSize = count( $names );
+			$userIter = UserArray::newFromResult($res);
+			$batchSize = count($names);
 		}
 
 		// The DB query will order by actor so update $this->orderBy to match.
-		if ( $batchSize > 1 ) {
+		if ($batchSize > 1) {
 			$this->orderBy = 'actor';
 		}
 
 		$count = 0;
 		$limit = $this->params['limit'];
 		$userIter->rewind();
-		while ( $userIter->valid() ) {
+		while ($userIter->valid()) {
 			$users = [];
-			while ( count( $users ) < $batchSize && $userIter->valid() ) {
+			while (count($users) < $batchSize && $userIter->valid()) {
 				$users[] = $userIter->current();
 				$userIter->next();
 			}
 
 			$hookData = [];
-			$this->prepareQuery( $users, $limit - $count );
-			$res = $this->select( __METHOD__, [], $hookData );
+			$this->prepareQuery($users, $limit - $count);
+			$res = $this->select(__METHOD__, [], $hookData);
 
-			if ( $this->fld_title ) {
-				$this->executeGenderCacheFromResultWrapper( $res, __METHOD__ );
+			if ($this->fld_title) {
+				$this->executeGenderCacheFromResultWrapper($res, __METHOD__);
 			}
 
-			if ( $this->fld_sizediff ) {
+			if ($this->fld_sizediff) {
 				$revIds = [];
-				foreach ( $res as $row ) {
-					if ( $row->rev_parent_id ) {
+				foreach ($res as $row) {
+					if ($row->rev_parent_id) {
 						$revIds[] = $row->rev_parent_id;
 					}
 				}
 				$this->parentLens = MediaWikiServices::getInstance()->getRevisionStore()
-					->getRevisionSizes( $revIds );
+					->getRevisionSizes($revIds);
 			}
 
-			foreach ( $res as $row ) {
-				if ( ++$count > $limit ) {
+			foreach ($res as $row) {
+				if (++$count > $limit) {
 					// We've reached the one extra which shows that there are
 					// additional pages to be had. Stop here...
-					$this->setContinueEnumParameter( 'continue', $this->continueStr( $row ) );
+					$this->setContinueEnumParameter('continue', $this->continueStr($row));
 					break 2;
 				}
 
-				$vals = $this->extractRowInfo( $row );
-				$fit = $this->processRow( $row, $vals, $hookData ) &&
-					$this->getResult()->addValue( [ 'query', $this->getModuleName() ], null, $vals );
-				if ( !$fit ) {
-					$this->setContinueEnumParameter( 'continue', $this->continueStr( $row ) );
+				$vals = $this->extractRowInfo($row);
+				$fit = $this->processRow($row, $vals, $hookData) &&
+					$this->getResult()->addValue(['query', $this->getModuleName()], null, $vals);
+				if (!$fit) {
+					$this->setContinueEnumParameter('continue', $this->continueStr($row));
 					break 2;
 				}
 			}
 		}
 
-		$this->getResult()->addIndexedTagName( [ 'query', $this->getModuleName() ], 'item' );
+		$this->getResult()->addIndexedTagName(['query', $this->getModuleName()], 'item');
 	}
 
 	/**
@@ -323,13 +330,14 @@ class ApiCSQueryComments extends ApiQueryBase {
 	 * @param User[] $users
 	 * @param int $limit
 	 */
-	private function prepareQuery( array $users, $limit ) {
+	private function prepareQuery(array $users, $limit)
+	{
 		$this->resetQueryParams();
 		$db = $this->getDB();
 
-		$revQuery = MediaWikiServices::getInstance()->getRevisionStore()->getQueryInfo( [ 'page' ] );
+		$revQuery = MediaWikiServices::getInstance()->getRevisionStore()->getQueryInfo(['page']);
 
-		$revWhere = ActorMigration::newMigration()->getWhere( $db, 'rev_user', $users );
+		$revWhere = ActorMigration::newMigration()->getWhere($db, 'rev_user', $users);
 		$orderUserField = 'rev_actor';
 		$userField = $this->orderBy === 'actor' ? 'revactor_actor' : 'actor_name';
 		$tsField = 'revactor_timestamp';
@@ -342,50 +350,50 @@ class ApiCSQueryComments extends ApiQueryBase {
 		// `revision_actor_temp`). But not when uctag is used, as it seems as likely to be harmed as
 		// helped in that case, and not when there's only one User because in that case it fetches
 		// the one `actor` row as a constant and doesn't filesort.
-		if ( count( $users ) > 1 && !isset( $this->params['tag'] ) ) {
+		if (count($users) > 1 && !isset($this->params['tag'])) {
 			$revQuery['joins']['revision'] = $revQuery['joins']['temp_rev_user'];
-			unset( $revQuery['joins']['temp_rev_user'] );
-			$this->addOption( 'STRAIGHT_JOIN' );
+			unset($revQuery['joins']['temp_rev_user']);
+			$this->addOption('STRAIGHT_JOIN');
 			// It isn't actually necesssary to reorder $revQuery['tables'] as Database does the right thing
 			// when join conditions are given for all joins, but Gergő is wary of relying on that so pull
 			// `revision_actor_temp` to the start.
 			$revQuery['tables'] =
-				[ 'temp_rev_user' => $revQuery['tables']['temp_rev_user'] ] + $revQuery['tables'];
+				['temp_rev_user' => $revQuery['tables']['temp_rev_user']] + $revQuery['tables'];
 		}
 
-		$this->addTables( $revQuery['tables'] );
-		$this->addJoinConds( $revQuery['joins'] );
-		$this->addFields( $revQuery['fields'] );
-		$this->addWhere( $revWhere['conds'] );
+		$this->addTables($revQuery['tables']);
+		$this->addJoinConds($revQuery['joins']);
+		$this->addFields($revQuery['fields']);
+		$this->addWhere($revWhere['conds']);
 
 		// Handle continue parameter
-		if ( $this->params['continue'] !== null ) {
-			$continue = explode( '|', $this->params['continue'] );
-			if ( $this->multiUserMode ) {
-				$this->dieContinueUsageIf( count( $continue ) != 4 );
-				$modeFlag = array_shift( $continue );
-				$this->dieContinueUsageIf( $modeFlag !== $this->orderBy );
-				$encUser = $db->addQuotes( array_shift( $continue ) );
+		if ($this->params['continue'] !== null) {
+			$continue = explode('|', $this->params['continue']);
+			if ($this->multiUserMode) {
+				$this->dieContinueUsageIf(count($continue) != 4);
+				$modeFlag = array_shift($continue);
+				$this->dieContinueUsageIf($modeFlag !== $this->orderBy);
+				$encUser = $db->addQuotes(array_shift($continue));
 			} else {
-				$this->dieContinueUsageIf( count( $continue ) != 2 );
+				$this->dieContinueUsageIf(count($continue) != 2);
 			}
-			$encTS = $db->addQuotes( $db->timestamp( $continue[0] ) );
+			$encTS = $db->addQuotes($db->timestamp($continue[0]));
 			$encId = (int)$continue[1];
-			$this->dieContinueUsageIf( $encId != $continue[1] );
-			$op = ( $this->params['dir'] == 'older' ? '<' : '>' );
-			if ( $this->multiUserMode ) {
+			$this->dieContinueUsageIf($encId != $continue[1]);
+			$op = ($this->params['dir'] == 'older' ? '<' : '>');
+			if ($this->multiUserMode) {
 				$this->addWhere(
 					"$userField $op $encUser OR " .
-					"($userField = $encUser AND " .
-					"($tsField $op $encTS OR " .
-					"($tsField = $encTS AND " .
-					"$idField $op= $encId)))"
+						"($userField = $encUser AND " .
+						"($tsField $op $encTS OR " .
+						"($tsField = $encTS AND " .
+						"$idField $op= $encId)))"
 				);
 			} else {
 				$this->addWhere(
 					"$tsField $op $encTS OR " .
-					"($tsField = $encTS AND " .
-					"$idField $op= $encId)"
+						"($tsField = $encTS AND " .
+						"$idField $op= $encId)"
 				);
 			}
 		}
@@ -393,121 +401,124 @@ class ApiCSQueryComments extends ApiQueryBase {
 		// Don't include any revisions where we're not supposed to be able to
 		// see the username.
 		$user = $this->getUser();
-		if ( !$this->getPermissionManager()->userHasRight( $user, 'deletedhistory' ) ) {
+		if (!$this->getPermissionManager()->userHasRight($user, 'deletedhistory')) {
 			$bitmask = RevisionRecord::DELETED_USER;
-		} elseif ( !$this->getPermissionManager()
-			->userHasAnyRight( $user, 'suppressrevision', 'viewsuppressed' )
-		) {
+		} elseif (!$this->getPermissionManager()
+			->userHasAnyRight($user, 'suppressrevision', 'viewsuppressed')) {
 			$bitmask = RevisionRecord::DELETED_USER | RevisionRecord::DELETED_RESTRICTED;
 		} else {
 			$bitmask = 0;
 		}
-		if ( $bitmask ) {
-			$this->addWhere( $db->bitAnd( 'rev_deleted', $bitmask ) . " != $bitmask" );
+		if ($bitmask) {
+			$this->addWhere($db->bitAnd('rev_deleted', $bitmask) . " != $bitmask");
 		}
 
 		// Add the user field to ORDER BY if there are multiple users
-		if ( count( $users ) > 1 ) {
-			$this->addWhereRange( $orderUserField, $this->params['dir'], null, null );
+		if (count($users) > 1) {
+			$this->addWhereRange($orderUserField, $this->params['dir'], null, null);
 		}
 
 		// Then timestamp
-		$this->addTimestampWhereRange( $tsField,
-			$this->params['dir'], $this->params['start'], $this->params['end'] );
+		$this->addTimestampWhereRange(
+			$tsField,
+			$this->params['dir'],
+			$this->params['start'],
+			$this->params['end']
+		);
 
 		// Then rev_id for a total ordering
-		$this->addWhereRange( $idField, $this->params['dir'], null, null );
+		$this->addWhereRange($idField, $this->params['dir'], null, null);
 
 		// Limit on CommentStreams namespace
 		$this->params['namespace'] = 844;
-		$this->addWhereFld( 'page_namespace', $this->params['namespace'] );
+		$this->addWhereFld('page_namespace', $this->params['namespace']);
 
 		$show = $this->params['show'];
-		if ( $this->params['toponly'] ) { // deprecated/old param
+		if ($this->params['toponly']) { // deprecated/old param
 			$show[] = 'top';
 		}
-		if ( $show !== null ) {
-			$show = array_flip( $show );
+		if ($show !== null) {
+			$show = array_flip($show);
 
-			if ( ( isset( $show['minor'] ) && isset( $show['!minor'] ) )
-				|| ( isset( $show['patrolled'] ) && isset( $show['!patrolled'] ) )
-				|| ( isset( $show['autopatrolled'] ) && isset( $show['!autopatrolled'] ) )
-				|| ( isset( $show['autopatrolled'] ) && isset( $show['!patrolled'] ) )
-				|| ( isset( $show['top'] ) && isset( $show['!top'] ) )
-				|| ( isset( $show['new'] ) && isset( $show['!new'] ) )
+			if ((isset($show['minor']) && isset($show['!minor']))
+				|| (isset($show['patrolled']) && isset($show['!patrolled']))
+				|| (isset($show['autopatrolled']) && isset($show['!autopatrolled']))
+				|| (isset($show['autopatrolled']) && isset($show['!patrolled']))
+				|| (isset($show['top']) && isset($show['!top']))
+				|| (isset($show['new']) && isset($show['!new']))
 			) {
-				$this->dieWithError( 'apierror-show' );
+				$this->dieWithError('apierror-show');
 			}
 
-			$this->addWhereIf( 'rev_minor_edit = 0', isset( $show['!minor'] ) );
-			$this->addWhereIf( 'rev_minor_edit != 0', isset( $show['minor'] ) );
+			$this->addWhereIf('rev_minor_edit = 0', isset($show['!minor']));
+			$this->addWhereIf('rev_minor_edit != 0', isset($show['minor']));
 			$this->addWhereIf(
 				'rc_patrolled = ' . RecentChange::PRC_UNPATROLLED,
-				isset( $show['!patrolled'] )
+				isset($show['!patrolled'])
 			);
 			$this->addWhereIf(
 				'rc_patrolled != ' . RecentChange::PRC_UNPATROLLED,
-				isset( $show['patrolled'] )
+				isset($show['patrolled'])
 			);
 			$this->addWhereIf(
 				'rc_patrolled != ' . RecentChange::PRC_AUTOPATROLLED,
-				isset( $show['!autopatrolled'] )
+				isset($show['!autopatrolled'])
 			);
 			$this->addWhereIf(
 				'rc_patrolled = ' . RecentChange::PRC_AUTOPATROLLED,
-				isset( $show['autopatrolled'] )
+				isset($show['autopatrolled'])
 			);
-			$this->addWhereIf( $idField . ' != page_latest', isset( $show['!top'] ) );
-			$this->addWhereIf( $idField . ' = page_latest', isset( $show['top'] ) );
-			$this->addWhereIf( 'rev_parent_id != 0', isset( $show['!new'] ) );
-			$this->addWhereIf( 'rev_parent_id = 0', isset( $show['new'] ) );
+			$this->addWhereIf($idField . ' != page_latest', isset($show['!top']));
+			$this->addWhereIf($idField . ' = page_latest', isset($show['top']));
+			$this->addWhereIf('rev_parent_id != 0', isset($show['!new']));
+			$this->addWhereIf('rev_parent_id = 0', isset($show['new']));
 		}
-		$this->addOption( 'LIMIT', $limit + 1 );
+		$this->addOption('LIMIT', $limit + 1);
 
-		if ( isset( $show['patrolled'] ) || isset( $show['!patrolled'] ) ||
-			isset( $show['autopatrolled'] ) || isset( $show['!autopatrolled'] ) || $this->fld_patrolled
+		if (
+			isset($show['patrolled']) || isset($show['!patrolled']) ||
+			isset($show['autopatrolled']) || isset($show['!autopatrolled']) || $this->fld_patrolled
 		) {
-			if ( !$user->useRCPatrol() && !$user->useNPPatrol() ) {
-				$this->dieWithError( 'apierror-permissiondenied-patrolflag', 'permissiondenied' );
+			if (!$user->useRCPatrol() && !$user->useNPPatrol()) {
+				$this->dieWithError('apierror-permissiondenied-patrolflag', 'permissiondenied');
 			}
 
-			$isFilterset = isset( $show['patrolled'] ) || isset( $show['!patrolled'] ) ||
-				isset( $show['autopatrolled'] ) || isset( $show['!autopatrolled'] );
-			$this->addTables( 'recentchanges' );
-			$this->addJoinConds( [ 'recentchanges' => [
+			$isFilterset = isset($show['patrolled']) || isset($show['!patrolled']) ||
+				isset($show['autopatrolled']) || isset($show['!autopatrolled']);
+			$this->addTables('recentchanges');
+			$this->addJoinConds(['recentchanges' => [
 				$isFilterset ? 'JOIN' : 'LEFT JOIN',
-				[ 'rc_this_oldid = ' . $idField ]
-			] ] );
+				['rc_this_oldid = ' . $idField]
+			]]);
 		}
 
-		$this->addFieldsIf( 'rc_patrolled', $this->fld_patrolled );
+		$this->addFieldsIf('rc_patrolled', $this->fld_patrolled);
 
-		if ( $this->fld_tags ) {
-			$this->addFields( [ 'ts_tags' => ChangeTags::makeTagSummarySubquery( 'revision' ) ] );
+		if ($this->fld_tags) {
+			$this->addFields(['ts_tags' => ChangeTags::makeTagSummarySubquery('revision')]);
 		}
 
-		if ( isset( $this->params['tag'] ) ) {
-			$this->addTables( 'change_tag' );
+		if (isset($this->params['tag'])) {
+			$this->addTables('change_tag');
 			$this->addJoinConds(
-				[ 'change_tag' => [ 'JOIN', [ $idField . ' = ct_rev_id' ] ] ]
+				['change_tag' => ['JOIN', [$idField . ' = ct_rev_id']]]
 			);
 			$changeTagDefStore = MediaWikiServices::getInstance()->getChangeTagDefStore();
 			try {
-				$this->addWhereFld( 'ct_tag_id', $changeTagDefStore->getId( $this->params['tag'] ) );
-			} catch ( NameTableAccessException $exception ) {
+				$this->addWhereFld('ct_tag_id', $changeTagDefStore->getId($this->params['tag']));
+			} catch (NameTableAccessException $exception) {
 				// Return nothing.
-				$this->addWhere( '1=0' );
+				$this->addWhere('1=0');
 			}
 		}
 
 		// Add the cs_comment_data table:
-		$this->addTables( 'cs_comment_data' );
-		$this->addJoinConds( [ 'cs_comment_data' => [
+		$this->addTables('cs_comment_data');
+		$this->addJoinConds(['cs_comment_data' => [
 			'INNER JOIN',
-			[ 'cst_page_id = page_id' ]
-		] ] );
-		$this->addFields( [ 'cst_assoc_page_id' ] );
-
+			['cst_page_id = page_id']
+		]]);
+		$this->addFields(['cst_assoc_page_id']);
 	}
 
 	/**
@@ -516,11 +527,12 @@ class ApiCSQueryComments extends ApiQueryBase {
 	 * @param stdClass $row
 	 * @return array
 	 */
-	private function extractRowInfo( $row ) {
+	private function extractRowInfo($row)
+	{
 		$vals = [];
 		$anyHidden = false;
 
-		if ( $row->rev_deleted & RevisionRecord::DELETED_TEXT ) {
+		if ($row->rev_deleted & RevisionRecord::DELETED_TEXT) {
 			$vals['texthidden'] = true;
 			$anyHidden = true;
 		}
@@ -528,68 +540,70 @@ class ApiCSQueryComments extends ApiQueryBase {
 		// Any rows where we can't view the user were filtered out in the query.
 		$vals['userid'] = (int)$row->rev_user;
 		$vals['user'] = $row->rev_user_text;
-		if ( $row->rev_deleted & RevisionRecord::DELETED_USER ) {
+		if ($row->rev_deleted & RevisionRecord::DELETED_USER) {
 			$vals['userhidden'] = true;
 			$anyHidden = true;
 		}
-		if ( $this->fld_ids ) {
+		if ($this->fld_ids) {
 			$vals['pageid'] = (int)$row->rev_page;
 			$vals['revid'] = (int)$row->rev_id;
 
-			if ( $row->rev_parent_id !== null ) {
+			if ($row->rev_parent_id !== null) {
 				$vals['parentid'] = (int)$row->rev_parent_id;
 			}
 		}
 
-		$title = Title::makeTitle( $row->page_namespace, $row->page_title );
+		$title = Title::makeTitle($row->page_namespace, $row->page_title);
 
-		if ( $this->fld_title ) {
-			ApiQueryBase::addTitleInfo( $vals, $title );
+		if ($this->fld_title) {
+			ApiQueryBase::addTitleInfo($vals, $title);
 		}
 
-		if ( $this->fld_timestamp ) {
-			$vals['timestamp'] = wfTimestamp( TS_ISO_8601, $row->rev_timestamp );
+		if ($this->fld_timestamp) {
+			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $row->rev_timestamp);
 		}
 
-		if ( $this->fld_flags ) {
+		if ($this->fld_flags) {
 			$vals['new'] = $row->rev_parent_id == 0 && $row->rev_parent_id !== null;
 			$vals['minor'] = (bool)$row->rev_minor_edit;
 			$vals['top'] = $row->page_latest == $row->rev_id;
 		}
 
-		if ( $this->fld_comment || $this->fld_parsedcomment ) {
-			if ( $row->rev_deleted & RevisionRecord::DELETED_COMMENT ) {
+		if ($this->fld_comment || $this->fld_parsedcomment) {
+			if ($row->rev_deleted & RevisionRecord::DELETED_COMMENT) {
 				$vals['commenthidden'] = true;
 				$anyHidden = true;
 			}
 
 			$userCanView = RevisionRecord::userCanBitfield(
 				$row->rev_deleted,
-				RevisionRecord::DELETED_COMMENT, $this->getUser()
+				RevisionRecord::DELETED_COMMENT,
+				$this->getUser()
 			);
 
-			if ( $userCanView ) {
-				$comment = $this->commentStore->getComment( 'rev_comment', $row )->text;
-				if ( $this->fld_comment ) {
+			if ($userCanView) {
+				$comment = $this->commentStore->getComment('rev_comment', $row)->text;
+				if ($this->fld_comment) {
 					$vals['comment'] = $comment;
 				}
 
-				if ( $this->fld_parsedcomment ) {
-					$vals['parsedcomment'] = Linker::formatComment( $comment, $title );
+				if ($this->fld_parsedcomment) {
+					$vals['parsedcomment'] = Linker::formatComment($comment, $title);
 				}
 			}
 		}
 
-		if ( $this->fld_patrolled ) {
+		if ($this->fld_patrolled) {
 			$vals['patrolled'] = $row->rc_patrolled != RecentChange::PRC_UNPATROLLED;
 			$vals['autopatrolled'] = $row->rc_patrolled == RecentChange::PRC_AUTOPATROLLED;
 		}
 
-		if ( $this->fld_size && $row->rev_len !== null ) {
+		if ($this->fld_size && $row->rev_len !== null) {
 			$vals['size'] = (int)$row->rev_len;
 		}
 
-		if ( $this->fld_sizediff
+		if (
+			$this->fld_sizediff
 			&& $row->rev_len !== null
 			&& $row->rev_parent_id !== null
 		) {
@@ -597,44 +611,45 @@ class ApiCSQueryComments extends ApiQueryBase {
 			$vals['sizediff'] = (int)$row->rev_len - $parentLen;
 		}
 
-		if ( $this->fld_tags ) {
-			if ( $row->ts_tags ) {
-				$tags = explode( ',', $row->ts_tags );
-				ApiResult::setIndexedTagName( $tags, 'tag' );
+		if ($this->fld_tags) {
+			if ($row->ts_tags) {
+				$tags = explode(',', $row->ts_tags);
+				ApiResult::setIndexedTagName($tags, 'tag');
 				$vals['tags'] = $tags;
 			} else {
 				$vals['tags'] = [];
 			}
 		}
 
-		if ( $anyHidden && ( $row->rev_deleted & RevisionRecord::DELETED_RESTRICTED ) ) {
+		if ($anyHidden && ($row->rev_deleted & RevisionRecord::DELETED_RESTRICTED)) {
 			$vals['suppressed'] = true;
 		}
 
-	
-		$vals['associated_page_title'] = Title::newFromId( $row->cst_assoc_page_id )->getText();
-		
-		$commentPage = WikiPage::newFromId( $row->page_id );
-		$comment = Comment::newFromWikiPage( $commentPage );
+
+		$vals['associated_page_title'] = Title::newFromId($row->cst_assoc_page_id)->getText();
+
+		$commentPage = WikiPage::newFromId($row->page_id);
+		$comment = Comment::newFromWikiPage($commentPage);
 		$vals['commenttitle'] = $comment->getCommentTitle();
 		$vals['username'] = $comment->getUsername();
 		$vals['userdisplayname'] = $comment->getUserDisplayName();
 		$vals['avatar'] = $comment->getAvatar();
 		$vals['created'] = $comment->getCreationDate();
-		$vals['created_timestamp'] = $comment->getCreationTimestamp()->format( "U" );
+		$vals['created_timestamp'] = $comment->getCreationTimestamp()->format("U");
 		$vals['modified'] = $comment->getModificationDate();
 		$vals['moderated'] = $comment->isLastEditModerated() ? "moderated" : null;
-		$vals['wikitext'] = htmlentities( $comment->getWikiText() );
-		$vals['html'] = $comment->getHTML( $context );
+		$vals['wikitext'] = htmlentities($comment->getWikiText());
+		$vals['html'] = $comment->getHTML($context);
 		$vals['parentid'] = $comment->getParentId();
 		$vals['numreplies'] = $comment->getNumReplies();
-		
+
 		return $vals;
 	}
 
-	private function continueStr( $row ) {
-		if ( $this->multiUserMode ) {
-			switch ( $this->orderBy ) {
+	private function continueStr($row)
+	{
+		if ($this->multiUserMode) {
+			switch ($this->orderBy) {
 				case 'id':
 					return "id|$row->rev_user|$row->rev_timestamp|$row->rev_id";
 				case 'name':
@@ -647,13 +662,15 @@ class ApiCSQueryComments extends ApiQueryBase {
 		}
 	}
 
-	public function getCacheMode( $params ) {
+	public function getCacheMode($params)
+	{
 		// This module provides access to deleted revisions and patrol flags if
 		// the requester is logged in
 		return 'anon-public-user-private';
 	}
 
-	public function getAllowedParams() {
+	public function getAllowedParams()
+	{
 		return [
 			'limit' => [
 				ApiBase::PARAM_DFLT => 10,
@@ -673,7 +690,7 @@ class ApiCSQueryComments extends ApiQueryBase {
 			],
 			'user' => [
 				ApiBase::PARAM_TYPE => 'user',
-				UserDef::PARAM_ALLOWED_USER_TYPES => [ 'name', 'ip', 'interwiki' ],
+				UserDef::PARAM_ALLOWED_USER_TYPES => ['name', 'ip', 'interwiki'],
 				ApiBase::PARAM_ISMULTI => true
 			],
 			'userids' => [
@@ -683,7 +700,7 @@ class ApiCSQueryComments extends ApiQueryBase {
 			'userguids' => [
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_ISMULTI => true
-			],			
+			],
 			'userprefix' => null,
 			'dir' => [
 				ApiBase::PARAM_DFLT => 'older',
@@ -730,7 +747,7 @@ class ApiCSQueryComments extends ApiQueryBase {
 				],
 				ApiBase::PARAM_HELP_MSG => [
 					'apihelp-query+usercontribs-param-show',
-					$this->getConfig()->get( 'RCMaxAge' )
+					$this->getConfig()->get('RCMaxAge')
 				],
 			],
 			'tag' => null,
@@ -752,7 +769,8 @@ class ApiCSQueryComments extends ApiQueryBase {
 		];
 	}
 
-	public function getHelpUrls() {
+	public function getHelpUrls()
+	{
 		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Usercontribs';
 	}
 }
