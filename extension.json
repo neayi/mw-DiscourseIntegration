@@ -135,6 +135,9 @@
 		"cswatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSWatch",
 		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch"
 	},
+	"APIListModules": {
+		"usercomments": "MediaWiki\\Extension\\CommentStreams\\ApiCSQueryComments"
+	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentTableToDatabase",
 		"CanonicalNamespaces": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentStreamsNamespaces",
