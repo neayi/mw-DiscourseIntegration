@@ -630,6 +630,7 @@ class ApiCSQueryComments extends ApiQueryBase
 
 		$commentPage = WikiPage::newFromId($row->page_id);
 		$comment = Comment::newFromWikiPage($commentPage);
+		$vals['associatedid'] = $row->cst_assoc_page_id;
 		$vals['commenttitle'] = $comment->getCommentTitle();
 		$vals['username'] = $comment->getUsername();
 		$vals['userdisplayname'] = $comment->getUserDisplayName();
