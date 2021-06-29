@@ -85,6 +85,9 @@ class CommentStreams {
 	 */
 	public function init( $output ) {
 		if ( $this->checkDisplayComments( $output ) ) {
+
+			Comment::setConnectedUser( $output->getUser() );
+
 			$comments = $this->getComments( $output );
 			$this->initJS( $output, $comments );
 		}
