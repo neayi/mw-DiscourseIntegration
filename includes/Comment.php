@@ -470,7 +470,7 @@ class Comment {
 	 * @return string the URL of the avatar of the author of this comment
 	 */
 	public function getAvatar() {
-		$this->avatar = self::getAvatarFromInsight( $this->getUser() );
+		$this->avatar = self::getAvatarFromInsights( $this->getUser() );
 
 		if ( $this->avatar === null ) {
 			if ( class_exists( 'wAvatar' ) ) {
@@ -1278,7 +1278,7 @@ EOT;
 	 * @param User $user the user
 	 * @return string URL of avatar
 	 */
-	public static function getAvatarFromInsight( $user ) {
+	public static function getAvatarFromInsights( $user ) {
 		if ( empty($GLOBALS['wgInsightsRootURL']) )
 			return null;
 
