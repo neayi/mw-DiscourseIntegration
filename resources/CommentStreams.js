@@ -335,6 +335,7 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-header' );
 
 			// Start Neayi: Add a few more classes
+			commentData.features =  JSON.parse(commentData.features);
 			commentHeader.addClass( 'd-flex flex-wrap' );
 			// End Neayi
 			
@@ -365,10 +366,32 @@ var commentstreams_controller = ( function () {
 				END Neayi */
 			}
 
+			/* START Neayi
 			var author = $( '<span>' )
 				.addClass( 'cs-comment-author' )
 				.html( commentData.userdisplayname );
 			centerDiv.append( author );
+			END Neayi */
+
+			// Start Neayi
+
+			var author = $( '<div>' )
+				.addClass( 'cs-comment-author' )
+				.html( commentData.userdisplayname );
+			centerDiv.append( author );
+
+			var title = commentData.features['sector'];
+			var structure = commentData.features['structure'];
+			if (structure != '')
+				structure = ' (<a href="/wiki/Structure:'+structure+'">'+structure+'</a>)';
+
+			var authorTitle = $( '<div>' )
+				.addClass( 'cs-comment-author-title' )
+				.html( title + structure );
+			centerDiv.append( authorTitle );
+
+			// End Neayi
+
 
 			var created = $( '<span>' )
 				.addClass( 'cs-comment-details' )
@@ -428,8 +451,6 @@ var commentstreams_controller = ( function () {
 			}
 			menulinks.push( this.createPermalinkNeayiLink( commentData.pageid ) );
 
-
-
 			commentHeader.append( centerDiv );
 
 			var rightDiv = $( '<div>' )
@@ -471,7 +492,7 @@ var commentstreams_controller = ( function () {
 			}
 
 			// START Neayi
-			self.addFeatures( rightDiv, JSON.parse(commentData.features) );
+			self.addFeatures( rightDiv, commentData.features['icons'] );
 			// END Neayi
 
 			commentHeader.append( rightDiv );

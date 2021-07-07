@@ -112,6 +112,9 @@ class Comment {
 	// cache to store User GUIDs and information
 	private static $usersInfos = array();
 
+	// Keep the currently connected user in order to show a different user profile link
+	private static $currentUserId = null;
+
 	/**
 	 * create a new Comment object from existing wiki page
 	 *
@@ -467,7 +470,7 @@ class Comment {
 	 * @return string the URL of the avatar of the author of this comment
 	 */
 	public function getAvatar() {
-		$this->avatar = self::getAvatarFromInsight( $this->getUser() );
+		$this->avatar = self::getAvatarFromInsights( $this->getUser() );
 
 		if ( $this->avatar === null ) {
 			if ( class_exists( 'wAvatar' ) ) {
@@ -512,7 +515,10 @@ class Comment {
 					"icon": "https://insights.dev.tripleperformance.fr/api/icon/183edb53-3fc0-484d-9358-558c5898f246",
 					"caption": "Agroforesterie"
 				}
-			]
+			],
+			"description": "fdsfsfs fdsfsd<br />\r\nligne 2<br />\r\n<br />\r\n&lt; te &gt; &lt;div&gt; &amp; &amp;amp; € / \\ ' * %",
+			"sector": "Co-Fondateur Neayi - Triple Performance",
+			"structure": "Neayi"
 		}
 
 		*/
@@ -538,6 +544,10 @@ class Comment {
 		if (!empty($response))
 			$user_info = json_decode($response, true);
 
+		$features['sector'] = $user_info['sector'] ?? '';
+		$features['structure'] = $user_info['structure'] ?? '';
+		$features['icons'] = array();
+
 		// Start by adding the departement
 		if (!empty($user_info['department']))
 		{
@@ -550,7 +560,7 @@ class Comment {
 
 				if (!empty($iconeURL))
 				{
-					$features[] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
+					$features['icons'][] = ['url' =>     "/wiki/" . 'Département ' . $user_info['department'],
 								   'icon' =>    $iconeURL,
 								   'caption' => $user_info['department']];
 				}
@@ -561,14 +571,14 @@ class Comment {
 		if (!empty($user_info['productions']))
 		{
 			foreach ($user_info['productions'] as $prod)
-				$features[] = $this->getFeature($prod);
+				$features['icons'][] = $this->getFeature($prod);
 		}
 
 		// Add the rest of the features
 		if (!empty($user_info['characteristics']))
 		{
 			foreach ($user_info['characteristics'] as $aCharacteristic)
-				$features[] = $this->getFeature($aCharacteristic);
+				$features['icons'][] = $this->getFeature($aCharacteristic);
 		}
 
 		$featuresJson = json_encode($features);
@@ -1201,6 +1211,22 @@ EOT;
 		if ( $displayname === null || strlen( $displayname ) == 0 ) {
 			$displayname = $user->getName();
 		}
+
+		if ( $linked )
+		{
+			$guid = self::getNeayiGUID( $user );
+
+			if (!empty($guid))
+			{
+				if ( $user->mId == self::$currentUserId )
+					$displayname = '<a href="'.$GLOBALS['wgInsightsRootURL'] . 'profile">' . $displayname . '</a>';
+				else
+					$displayname = '<a href="'.$GLOBALS['wgInsightsRootURL'] . 'tp/' . urlencode($displayname). '/' . $guid . '">' . $displayname . '</a>';
+
+				$linked = false;
+			}
+		}
+
 		if ( $linked && $userpage->exists() ) {
 			$displayname = CommentStreamsUtils::link( $userpage, $displayname );
 		}
@@ -1252,7 +1278,7 @@ EOT;
 	 * @param User $user the user
 	 * @return string URL of avatar
 	 */
-	public static function getAvatarFromInsight( $user ) {
+	public static function getAvatarFromInsights( $user ) {
 		if ( empty($GLOBALS['wgInsightsRootURL']) )
 			return null;
 
@@ -1338,5 +1364,10 @@ EOT;
 			}
 		}
 		return [];
+	}
+
+	public static function setConnectedUser( $user ) {
+		if ( ! $user->isAnon() )
+			self::$currentUserId = $user->mId;
 	}
 }
