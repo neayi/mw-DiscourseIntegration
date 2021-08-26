@@ -1241,6 +1241,11 @@ var commentstreams_controller = ( function () {
 					}
 				} );
 			}
+
+			// Neayi - Follow the page
+			if (window.NeayiInteractionsController)
+				window.NeayiInteractionsController.ajaxInsights(['follow']);
+			// End Neayi
 		},
 		postComment2: function ( parentPageId, cst_id ) {
 			var self = this;
