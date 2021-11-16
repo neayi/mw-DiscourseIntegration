@@ -122,8 +122,8 @@ var commentstreams_controller = ( function () {
 				commentDiv.append( footerDiv );
 
 				if ( self.canComment ) {
-					
-					/* START Neayi - we create a special addButton zone, and we put it always at the bottom					
+
+					/* START Neayi - we create a special addButton zone, and we put it always at the bottom
 
 					var addButton = $( '<button>' )
 						.attr( {
@@ -172,8 +172,8 @@ var commentstreams_controller = ( function () {
 					addButton.click( function () {
 						self.showNewCommentStreamBox( this );
 					} );
-				} 
-				
+				}
+
 				// Start Neayi : When the user is not connected, we show a button anyway
 				else {
 					var addButtonDiv = $( '<div> ' )
@@ -338,7 +338,7 @@ var commentstreams_controller = ( function () {
 			commentData.features =  JSON.parse(commentData.features);
 			commentHeader.addClass( 'd-flex flex-wrap' );
 			// End Neayi
-			
+
 			var leftDiv = $( '<div>' )
 				.addClass( 'cs-comment-header-left' );
 			if ( commentData.avatar !== null && commentData.avatar.length > 0 ) {
@@ -360,7 +360,7 @@ var commentstreams_controller = ( function () {
 						title: commentData.commenttitle,
 						'data-toggle': 'tooltip'
 					} );
-					
+
 				/* START Neayi: We'll move the title a little further down, just before the comment
 				centerDiv.append( title );
 				END Neayi */
@@ -397,7 +397,7 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-details' )
 				.text( mw.message( 'commentstreams-datetext-postedon' ) +
 				' ' + commentData.created );
-				
+
 			/* START Neayi: We'll move the creation date a little further down, just before the title
 			centerDiv.append( this.createDivider() );
 			centerDiv.append( created );
@@ -509,10 +509,15 @@ var commentstreams_controller = ( function () {
 
 			// Neayi reply button
 			if (this.canComment) {
+
+				var replyToId = commentData.pageid;
+				if ( commentData.parentid !== null )
+					replyToId = commentData.parentid;
+
 				var replyButton = $('<a>')
 					.addClass('btn mr-2')
 					.attr({
-						'data-stream-id': commentData.pageid,
+						'data-stream-id': replyToId,
 						title: mw.message('commentstreams-buttontext-reply'),
 						'data-toggle': 'tooltip'
 					});
@@ -522,10 +527,10 @@ var commentstreams_controller = ( function () {
 				} else {
 					replyButton.addClass( 'btn btn btn-outline-gray mr-2 mb-md-0 mb-2' );
 				}
-		
+
 
 				replyButton.append( this.createMaterialIcon('reply', '') );
-				
+
 				if (this.showLabels) {
 					var replyLabel = $('<span>')
 						.text(mw.message('commentstreams-buttontext-reply'))
@@ -569,7 +574,7 @@ var commentstreams_controller = ( function () {
 				comment
 					.addClass( 'cs-target-comment' );
 			}
-			
+
 			/* START Neayi: We use our own order
 			comment
 				.append( [ commentHeader, commentBody, commentFooter ] );
@@ -578,7 +583,7 @@ var commentstreams_controller = ( function () {
 			comment
 				.append( [ commentHeader, created, modified, title, commentBody, commentFooter ] );
 			// END Neayi
-			
+
 			return comment;
 		},
 		showUrlDialog: function ( id ) {
@@ -623,7 +628,7 @@ var commentstreams_controller = ( function () {
 					title: mw.message( 'commentstreams-buttontooltip-edit' ),
 					'data-toggle': 'tooltip'
 				} );
-			
+
 			var editimage = $( '<img>' );
 			if ( mw.config.get( 'wgUserName' ) !== username ) {
 				editimage
@@ -1173,7 +1178,7 @@ var commentstreams_controller = ( function () {
 		showNewReplyBox: function ( element, topCommentId ) {
 			var self = this;
 			var editBox = this.formatNeayiEditBox( false );
-			
+
 			/* START Neayi
 			var editBox = this.formatEditBox( false );
 			$( editBox )
@@ -1187,7 +1192,7 @@ var commentstreams_controller = ( function () {
 				.hide()
 				.slideDown();
 			// END Neayi
-			
+
 			$( '#cs-submit-button' ).on( 'click', function () {
 				self.postComment( topCommentId, '0' );
 			} );
@@ -1656,7 +1661,7 @@ var commentstreams_controller = ( function () {
 			menulinks.forEach(item => submenuDiv.append(item));
 
 			parentElement.append( menuDiv );
-		},		
+		},
 		createNeayiAddButton: function ()
 		{
 			var self = this;
@@ -1672,7 +1677,7 @@ var commentstreams_controller = ( function () {
 					'data-toggle': 'tooltip'
 				} )
 				.addClass( 'cs-button rounded' );
-			
+
 			var addCommentFA = $( '<i>' )
 				.addClass( 'fas fa-comment' );
 			addButton.append( addCommentFA );
@@ -1725,7 +1730,7 @@ var commentstreams_controller = ( function () {
 			} );
 			return deleteButton;
 		},
-		
+
 
 		createPermalinkNeayiLink: function ( pageid ) {
 			var self = this;
@@ -1802,7 +1807,7 @@ var commentstreams_controller = ( function () {
 				downButton = $( '<span>' )
 					.addClass( 'btn btn-outline-gray' );
 			}
-			
+
 			if ( commentData.vote < 0 ) {
 				downButton.append( this.createMaterialIcon( 'keyboard_arrow_down', 'cs-vote-upimage cs-vote-enabled') );
 			}
@@ -1890,10 +1895,10 @@ var commentstreams_controller = ( function () {
 			commentBox.append( cancelButton );
 
 			return commentBox;
-		},		
+		},
 
 		addFeatures: function ( rightDiv, features ) {
-		
+
 			rightDiv.addClass("flex-fill caracteristiques"); // Flex-fill: takes as much space as available
 			var rowDiv = $( '<div>' )
 				.addClass( 'caracteristiques-bloc d-flex flex-wrap' );
@@ -1902,15 +1907,15 @@ var commentstreams_controller = ( function () {
 			var featureIndex;
 			for ( featureIndex in features ) {
 				var aFeature = features[ featureIndex ];
-				
-				// Available: 
+
+				// Available:
 				// aFeature.url (page URL)
 				// aFeature.icon (icon URL)
 				// aFeature.caption (text to display next to the icon)
 
 				var carDiv = $( '<div>' )
 					.addClass( 'd-flex mr-1' );
-				
+
 				if (aFeature.url)
 				{
 					var imageLink = $( '<a>')
@@ -1951,7 +1956,7 @@ var commentstreams_controller = ( function () {
 			var toggleLink = $('<a>')
 				.attr({
 					href: 'javascript:void(0)',
-				});			
+				});
 
 			var toggleSpan = $( '<span>' )
 				.addClass( 'material-icons mt-3' )
@@ -1961,7 +1966,7 @@ var commentstreams_controller = ( function () {
 			toggleDiv.append( toggleLink );
 
 			return toggleDiv;
-		}			
+		}
 	};
 }() );
 
