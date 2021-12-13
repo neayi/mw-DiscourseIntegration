@@ -334,6 +334,10 @@ var commentstreams_controller = ( function () {
 			var commentHeader = $( '<div>' )
 				.addClass( 'cs-comment-header' );
 
+			// Start Neayi: declare the title to be used at the bottom of this function
+			var title = "";
+			// End Neayi
+
 			// Start Neayi: Add a few more classes
 			commentData.features =  JSON.parse(commentData.features);
 			commentHeader.addClass( 'd-flex flex-wrap' );
@@ -353,7 +357,7 @@ var commentstreams_controller = ( function () {
 				.addClass( 'cs-comment-header-center' );
 
 			if ( commentData.parentid === null ) {
-				var title = $( '<div>' )
+				title = $( '<div>' )
 					.addClass( 'cs-comment-title' )
 					.text( commentData.commenttitle )
 					.attr( {
@@ -380,14 +384,14 @@ var commentstreams_controller = ( function () {
 				.html( commentData.userdisplayname );
 			centerDiv.append( author );
 
-			var title = commentData.features['sector'];
-			var structure = commentData.features['structure'];
-			if (structure != '')
-				structure = ' (<a href="/wiki/Structure:'+structure+'">'+structure+'</a>)';
+			var userTitle = commentData.features['sector'];
+			var userStructure = commentData.features['structure'];
+			if (userStructure != '')
+				userStructure = ' (<a href="/wiki/Structure:'+userStructure+'">'+userStructure+'</a>)';
 
 			var authorTitle = $( '<div>' )
 				.addClass( 'cs-comment-author-title' )
-				.html( title + structure );
+				.html( userTitle + userStructure );
 			centerDiv.append( authorTitle );
 
 			// End Neayi
