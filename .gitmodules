@@ -1,0 +1,3 @@
+[submodule "discourse-api-php"]
+	path = discourse-api-php
+	url = https://github.com/neayi/discourse-api-php.git
