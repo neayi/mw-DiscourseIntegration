@@ -723,10 +723,6 @@ class Comment {
 			'parentid' => $this->getParentId(),
 			'numreplies' => $this->getNumReplies(),
 		];
-		if ( $GLOBALS['wgCommentStreamsEnableVoting'] ) {
-			$json['numupvotes'] = $this->getNumUpVotes();
-			$json['numdownvotes'] = $this->getNumDownVotes();
-		}
 
 		$json['features'] = $this->getFeatures();
 
@@ -1290,7 +1286,7 @@ EOT;
 		return $GLOBALS['wgInsightsRootURL'] . "api/user/avatar/$guid/100";
 	}
 
-	/** 
+	/**
 	 * Cache the GUIDs for Users
 	 */
 	private static function getNeayiGUID( $user )
@@ -1313,7 +1309,7 @@ EOT;
 		);
 		if ( $result )
 			self::$usersInfos[$user->mId]['guid'] = (string)$result->neayiauth_external_userid;
-			
+
 		return self::$usersInfos[$user->mId]['guid'];
 	}
 

@@ -24,7 +24,7 @@ class cs_2_discourse extends Maintenance {
 
         $this->topicForPage = array();
         $this->usersToSubscribe = array();
-	}
+    }
 
 	public function execute() {
 		$this->output( "Start\n\n" );
@@ -242,7 +242,7 @@ class cs_2_discourse extends Maintenance {
 
         // Now for each topic for which a thread has been created, ask insights
         // about who decided to follow the page and subscribe them too:
-        $insightsURL = $GLOBALS['wgInsightsRootURL']; // http://insights/';
+        $insightsURL = $GLOBALS['wgInsightsRootAPIURL']; // http://insights/';
 
         foreach ($this->topicForPage as $pageId => $topicId)
         {

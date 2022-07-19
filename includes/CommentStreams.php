@@ -67,17 +67,6 @@ class CommentStreams {
 		$this->areCommentsEnabled = self::COMMENTS_DISABLED;
 	}
 
-	// initially collapse CommentStreams flag
-	private $initiallyCollapseCommentStreams = false;
-
-	/**
-	 * makes the comments appear initially collapsed when the current page
-	 * is viewed
-	 */
-	public function initiallyCollapseCommentsOnPage() {
-		$this->initiallyCollapseCommentStreams = true;
-	}
-
 	/**
 	 * initializes the display of comments
 	 *
@@ -88,8 +77,7 @@ class CommentStreams {
 
 			Comment::setConnectedUser( $output->getUser() );
 
-			$comments = $this->getComments( $output );
-			$this->initJS( $output, $comments );
+			$this->initJS( $output );
 		}
 	}
 
@@ -146,18 +134,9 @@ class CommentStreams {
 			return true;
 		}
 
-		// don't display comments in a talk namespace unless:
-		// 1) $wgCommentStreamsEnableTalk is true, OR
-		// 2) the namespace is a talk namespace for a namespace in the array of
-		// allowed namespaces
-		// 3) comments have been explicitly enabled on that namespace with
-		// <comment-streams/>
+		// don't display comments in a talk namespace
 		if ( $title->isTalkPage() ) {
-			$subject_namespace = MWNamespace::getSubject( $namespace );
-			if ( !$config->get( 'CommentStreamsEnableTalk' ) &&
-				!in_array( $subject_namespace, $csAllowedNamespaces ) ) {
 				return false;
-			}
 		} elseif ( !in_array( $namespace, $csAllowedNamespaces ) ) {
 			// only display comments in subject namespaces in the list of allowed
 			// namespaces
@@ -168,44 +147,11 @@ class CommentStreams {
 	}
 
 	/**
-	 * retrieve all comments for the current page
-	 *
-	 * @param OutputPage $output the OutputPage object for the current page
-	 * @return Comment[] array of comments
-	 */
-	private function getComments( $output ) {
-		$commentData = [];
-		$pageId = $output->getTitle()->getArticleID();
-		$allComments = Comment::getAssociatedComments( $pageId );
-		$parentComments = $this->getDiscussions( $allComments,
-			$GLOBALS['wgCommentStreamsNewestStreamsOnTop'],
-			$GLOBALS['wgCommentStreamsEnableVoting'] );
-		foreach ( $parentComments as $parentComment ) {
-			$parentJSON = $parentComment->getJSON( $output );
-			if ( $GLOBALS['wgCommentStreamsEnableVoting'] ) {
-				$parentJSON['vote'] = $parentComment->getVote( $output->getUser() );
-			}
-			if ( ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ) {
-				$parentJSON['watching'] = $parentComment->isWatching( $output->getUser() );
-			}
-			$childComments = $this->getReplies( $allComments,
-				$parentComment->getId() );
-			foreach ( $childComments as $childComment ) {
-				$childJSON = $childComment->getJSON( $output );
-				$parentJSON['children'][] = $childJSON;
-			}
-			$commentData[] = $parentJSON;
-		}
-		return $commentData;
-	}
-
-	/**
 	 * initialize JavaScript
 	 *
 	 * @param OutputPage $output the OutputPage object
-	 * @param Comment[] $comments array of comments on the current page
 	 */
-	private function initJS( $output, $comments ) {
+	private function initJS( $output ) {
 		// determine if comments should be initially collapsed or expanded
 		// if the namespace is a talk namespace, use state of its subject namespace
 		$title = $output->getTitle();
@@ -214,42 +160,18 @@ class CommentStreams {
 			$namespace = MWNamespace::getSubject( $namespace );
 		}
 
-		if ( $this->initiallyCollapseCommentStreams ) {
-			$initiallyCollapsed = true;
-		} else {
-			$initiallyCollapsed = in_array( $namespace,
-				$GLOBALS['wgCommentStreamsInitiallyCollapsedNamespaces'] );
-		}
-
-		$canComment = true;
-		if ( !in_array( 'cs-comment', $output->getUser()->getRights() ) ||
-			$output->getUser()->isBlocked() ) {
-			$canComment = false;
-		}
-
 		$commentStreamsParams = [
-			'canComment' => $canComment,
 			'moderatorEdit' => in_array( 'cs-moderator-edit',
 				$output->getUser()->getRights() ),
 			'moderatorDelete' => in_array( 'cs-moderator-delete',
 				$output->getUser()->getRights() ),
-			'moderatorFastDelete' =>
-				$GLOBALS['wgCommentStreamsModeratorFastDelete'] ? 1 : 0,
-			'showLabels' =>
-				$GLOBALS['wgCommentStreamsShowLabels'] ? 1 : 0,
 			'userDisplayName' =>
 				Comment::getDisplayNameFromUser( $output->getUser() ),
 			'userAvatar' =>
 				Comment::getAvatarFromUser( $output->getUser() ),
-			'newestStreamsOnTop' =>
-				$GLOBALS['wgCommentStreamsNewestStreamsOnTop'] ? 1 : 0,
-			'initiallyCollapsed' => $initiallyCollapsed,
 			'areNamespaceEnabled' => $this->areNamespaceEnabled,
-			'enableVoting' =>
-				$GLOBALS['wgCommentStreamsEnableVoting'] ? 1 : 0,
 			'enableWatchlist' =>
-				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0,
-			'comments' => $comments
+				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0
 		];
 
 		// Neayi: $wgCommentStreamsEnableWatchlist was not tested
@@ -295,78 +217,4 @@ class CommentStreams {
 								'http', '', '', strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false);
 	}
 
-	/**
-	 * return all discussions (top level comments) in an array of comments
-	 *
-	 * @param array $allComments an array of all comments on a page
-	 * @param bool $newestOnTop true if array should be sorted from newest to
-	 * @param bool $enableVoting
-	 * @return array an array of all discussions
-	 * oldest
-	 */
-	private function getDiscussions( $allComments, $newestOnTop, $enableVoting ) {
-		$array = array_filter(
-			$allComments, function ( $comment ) {
-				return $comment->getParentId() === null;
-			}
-		);
-		usort( $array, function ( $comment1, $comment2 ) use ( $newestOnTop, $enableVoting ) {
-			$date1 = $comment1->getCreationTimestamp()->timestamp;
-			$date2 = $comment2->getCreationTimestamp()->timestamp;
-			if ( $enableVoting ) {
-				$upvotes1 = $comment1->getNumUpVotes();
-				$downvotes1 = $comment1->getNumDownVotes();
-				$votediff1 = $upvotes1 - $downvotes1;
-				$upvotes2 = $comment2->getNumUpVotes();
-				$downvotes2 = $comment2->getNumDownVotes();
-				$votediff2 = $upvotes2 - $downvotes2;
-				if ( $votediff1 === $votediff2 ) {
-					if ( $upvotes1 === $upvotes2 ) {
-						if ( $newestOnTop ) {
-							return $date1 > $date2 ? -1 : 1;
-						} else {
-							return $date1 < $date2 ? -1 : 1;
-						}
-					} else {
-						return $upvotes1 > $upvotes2 ? -1 : 1;
-					}
-				} else {
-					return $votediff1 > $votediff2 ? -1 : 1;
-				}
-			} else {
-				if ( $newestOnTop ) {
-					return $date1 > $date2 ? -1 : 1;
-				} else {
-					return $date1 < $date2 ? -1 : 1;
-				}
-			}
-		} );
-		return $array;
-	}
-
-	/**
-	 * return all replies for a given discussion in an array of comments
-	 *
-	 * @param array $allComments an array of all comments on a page
-	 * @param int $parentId the page ID of the discussion to get replies for
-	 * @return array an array of replies for the given discussion
-	 */
-	private function getReplies( $allComments, $parentId ) {
-		$array = array_filter(
-			$allComments, function ( $comment ) use ( $parentId ) {
-				if ( $comment->getParentId() === $parentId ) {
-					return true;
-				}
-				return false;
-			}
-		);
-		usort(
-			$array, function ( $comment1, $comment2 ) {
-				$date1 = $comment1->getCreationTimestamp()->timestamp;
-				$date2 = $comment2->getCreationTimestamp()->timestamp;
-				return $date1 < $date2 ? -1 : 1;
-			}
-		);
-		return $array;
-	}
 }

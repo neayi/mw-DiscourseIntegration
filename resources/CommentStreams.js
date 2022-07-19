@@ -24,75 +24,21 @@ var commentstreams_controller = ( function () {
 	'use strict';
 
 	return {
-		baseUrl: null,
-		imagepath: null,
-		targetComment: null,
 		isLoggedIn: false,
-		canComment: false,
-		moderatorEdit: false,
-		moderatorDelete: false,
-		moderatorFastDelete: false,
-		showLabels: false,
 		userDisplayName: null,
-		newestStreamsOnTop: false,
-		initiallyCollapsed: false,
 		areNamespaceEnabled: false,
-		enableVoting: false,
-		enableWatchlist: false,
-		comments: [],
 		discourseTopicId: false,
-		spinnerOptions: {
-			lines: 11, // The number of lines to draw
-			length: 8, // The length of each line
-			width: 4, // The line thickness
-			radius: 8, // The radius of the inner circle
-			corners: 1, // Corner roundness (0..1)
-			rotate: 0, // The rotation offset
-			direction: 1, // 1: clockwise, -1: counterclockwise
-			color: '#000', // #rgb or #rrggbb or array of colors
-			speed: 1, // Rounds per second
-			trail: 60, // ƒfterglow percentage
-			shadow: false, // Whether to render a shadow
-			hwaccel: false, // Whether to use hardware acceleration
-			className: 'spinner', // The CSS class to assign to the spinner
-			zIndex: 2e9, // The z-index (defaults to 2000000000)
-			top: '50%', // Top position relative to parent
-			left: '50%' // Left position relative to parent
-		},
+
 		initialize: function () {
-			this.baseUrl = window.location.href.split(/[?#]/)[0];
-			this.imagepath = mw.config.get('wgExtensionAssetsPath') +
-				'/CommentStreams/images/';
-			if (window.location.hash) {
-				var hash = window.location.hash.substring(1);
-				var queryIndex = hash.indexOf('?');
-				if (queryIndex !== -1) {
-					hash = hash.substring(0, queryIndex);
-				}
-				this.targetComment = hash;
-			}
+
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
 			var config = mw.config.get('CommentStreams');
-			this.canComment = config.canComment;
-			this.moderatorEdit = config.moderatorEdit;
-			this.moderatorDelete = config.moderatorDelete;
-			this.moderatorFastDelete = this.moderatorDelete ?
-				config.moderatorFastDelete : false;
-			this.showLabels = config.showLabels;
 			this.userDisplayName = config.userDisplayName;
-			this.newestStreamsOnTop = config.newestStreamsOnTop;
-			this.initiallyCollapsed = config.initiallyCollapsed;
 			this.areNamespaceEnabled = config.areNamespaceEnabled;
-			this.enableVoting = config.enableVoting;
-			this.enableWatchlist = config.enableWatchlist;
-			this.comments = config.comments;
 			this.discourseTopicId = config.discourseTopicId;
 			this.DiscourseURL = config.DiscourseURL;
 			this.setupDivs();
 
-			if (this.targetComment) {
-				this.scrollToAnchor(this.targetComment);
-			}
 		},
 		scrollToAnchor: function (id) {
 			var element = $('#' + id);
@@ -110,13 +56,6 @@ var commentstreams_controller = ( function () {
 			$('.cs-comments').each(function () {
 				var commentDiv = $(this);
 
-				var headerDiv = $('<div>').attr('class', 'cs-header');
-				// For backwards compatibility. Please remove in ver 6.0
-				if (commentDiv.attr('id') === 'cs-comments') {
-					headerDiv.attr('id', 'cs-header');
-				}
-				commentDiv.append(headerDiv);
-
 				var footerDiv = $('<div>').attr('class', 'cs-footer');
 				// For backwards compatibility. Please remove in ver 6.0
 				if (commentDiv.attr('id') === 'cs-comments') {
@@ -124,7 +63,7 @@ var commentstreams_controller = ( function () {
 				}
 				commentDiv.append(footerDiv);
 
-				if (self.canComment) {
+				if (self.isLoggedIn) {
 					var addButton = self.createNeayiAddButton(self.discourseTopicId);
 
 					// For backwards compatibility. Please remove in ver 6.0
@@ -147,7 +86,7 @@ var commentstreams_controller = ( function () {
 							title: mw.message('commentstreams-buttontext-Neayi-connecttocomment'),
 							'data-toggle': 'tooltip'
 						})
-						.addClass('cs-button rounded');
+						.addClass('cs-add-button cs-button rounded');
 
 					var addCommentFA = $('<i>')
 						.addClass('fas fa-comment');
@@ -173,6 +112,7 @@ var commentstreams_controller = ( function () {
 
 				commentDiv.append($(`<div id='discourse-comments'></div>`));
 
+				// Now add the discourse embed
 				if (self.discourseTopicId)
 				{
 					window.DiscourseEmbed = {
@@ -239,26 +179,3 @@ window.CommentStreamsController = commentstreams_controller;
 			}
 		});
 }());
-
-
-
-$(document).ready(function () {
-
-	// show/hide overflow
-
-	$('.show-all a').each(function () {
-
-		$(this).click(function () {
-			var currentBlock = $(this).parents('.cs-comment-header');
-			currentBlock.toggleClass('expanded');
-			if (currentBlock.hasClass('expanded')) {
-				$(this).find('span').text('keyboard_arrow_up');
-			}
-			else if (!currentBlock.hasClass('expanded')) {
-				$(this).find('span').text('keyboard_arrow_down');
-			}
-		});
-
-	});
-
-});

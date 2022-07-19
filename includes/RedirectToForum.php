@@ -124,7 +124,7 @@ class RedirectToForum extends SpecialPage {
 	function addInsightsFollower($pageId, $topicId)
 	{
         // Ask insights about who decided to follow the page and subscribe them too:
-        $insightsURL = $GLOBALS['wgInsightsRootURL']; // http://insights/';
+        $insightsURL = $GLOBALS['wgInsightsRootAPIURL']; // http://insights/';
 
 		$url = $insightsURL . "api/page/$pageId/followers?type=follow";
 
@@ -171,23 +171,6 @@ class RedirectToForum extends SpecialPage {
 		}
 	}
 
-    // function getUserNameForWikiPage($wikipage)
-    // {
-    //     $api = $this->getDiscourseAPI();
-
-    //     // Maybe we should take the user with the most revisions, or the first, ...?
-    //     $lastUserId = $wikipage->getUser();
-    //     $user = User::newFromId( $lastUserId );
-
-	// 	$userEmail = $this->getCurrentUserEmail();
-
-    //     $username = $api->getUsernameByEmail($userEmail);
-    //     if (empty($username))
-    //         $username = 'astrid.robette';
-
-    //     return $username;
-    // }
-
 	/**
 	 * Find the Discourse username for the currently logged in user on the wiki.
 	 * If the user does not exists, create it
@@ -209,33 +192,7 @@ class RedirectToForum extends SpecialPage {
 	        return $username;
 
 		// Not found ? Create it now (it will be synched properly by insights later)
-		return $this->createDiscourseUser($user);
-	}
-
-	function createDiscourseUser($user, int $increment = 0)
-	{
-        $username = str_replace(' ', '.', $user->getRealName());
-
-        if (!empty($increment))
-            $username .= $increment;
-
-		$api = $this->getDiscourseAPI();
-		$r = $api->createUserNoPassword($user->getRealName(), $username, $this->getCurrentUserEmail(), true);
-
-		if (empty($r->apiresult))
-			throw new \MWException("Could not connect to the Discourse API", 1);
-
-		if ($r->apiresult->success)
-			return $username;
-
-		if (!empty($r->apiresult->errors->username[0]) &&
-			strpos($r->apiresult->errors->username[0], 'unique') !== false)
-		{
-			$increment++;
-			return $this->createDiscourseUser($user, $increment);
-		}
-
-		throw new \MWException($r->apiresult->message);
+		return $api->createDiscourseUser($user);
 	}
 
     function getDiscourseAPI()

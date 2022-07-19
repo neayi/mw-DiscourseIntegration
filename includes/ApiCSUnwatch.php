@@ -39,23 +39,21 @@ class ApiCSUnwatch extends ApiCSBase {
 	 * @return result of API request
 	 */
 	protected function executeBody() {
-		if ( $this->getUser()->isAnon() ) {
-			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-unwatch-notloggedin' );
-		}
 
-		if ( $this->comment->getParentId() !== null ) {
-			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-unwatch-nounwatchonreply' );
-		}
+		$username = $this->getCurrentlyLoggedInDiscourseUserName();
 
-		$result = $this->comment->unwatch( $this->getUser() );
-		if ( !$result ) {
+		$api = $this->getDiscourseAPI();
+
+		$topicId = $this->getTopicIdForPageId();
+		$result = $api->unwatchTopic($topicId, $username); // TODO: check the result format
+
+		if ( empty($result->apiresult) || !$result->apiresult->success ) {
 			$this->dieCustomUsageMessage( 'commentstreams-api-error-unwatch' );
 		}
 
-		$this->getResult()->addValue( null, $this->getModuleName(), '' );
+		$this->getResult()->addValue( null, $this->getModuleName(), print_r($result, true) );
 	}
+
 
 	/**
 	 * @return array examples of the use of this API module
@@ -63,9 +61,7 @@ class ApiCSUnwatch extends ApiCSBase {
 	public function getExamplesMessages() {
 		return [
 			'action=' . $this->getModuleName() . '&pageid=3' =>
-			'apihelp-' . $this->getModuleName() . '-pageid-example',
-			'action=' . $this->getModuleName() . '&title=CommentStreams:3' =>
-			'apihelp-' . $this->getModuleName() . '-title-example'
+			'apihelp-' . $this->getModuleName() . '-pageid-example'
 		];
 	}
 

@@ -30,6 +30,7 @@ use ManualLogEntry;
 abstract class ApiCSBase extends ApiBase {
 
 	private $edit;
+	protected $currentPage;
 
 	/**
 	 * @param ApiMain $main main module
@@ -46,6 +47,8 @@ abstract class ApiCSBase extends ApiBase {
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
+		$this->currentPage = $this->getTitleOrPageId( $params,
+			$this->edit ? 'frommasterdb' : 'fromdb' );
 
 		$result = $this->executeBody();
 		if ( $result !== null ) {
@@ -112,6 +115,59 @@ abstract class ApiCSBase extends ApiBase {
 			$logEntry->setTarget( $this->comment->getWikiPage()->getTitle() );
 		}
 		$logid = $logEntry->insert();
+	}
+
+	protected function getTopicIdForPageId()
+	{
+		$wikiTitle = $this->currentPage->getTitle();
+
+		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
+
+		$api = $this->getDiscourseAPI();
+
+		$r = $api->getPostsByEmbeddedURL($pageURL);
+
+		if (isset($r->apiresult->topic_id))
+			return $r->apiresult->topic_id;
+	}
+
+	/**
+	 * Find the Discourse username for the currently logged in user on the wiki.
+	 * If the user does not exists, create it
+	 */
+	protected function getCurrentlyLoggedInDiscourseUserName()
+	{
+		$user = $this->getUser();
+
+		if ( $user->isAnon() ) {
+			$this->dieCustomUsageMessage(
+				'commentstreams-api-error-watch-notloggedin' );
+		}
+
+		// Find the email of the logged in user
+		if ( $user->isAnon() ) {
+			// Should not be possible, this is a special
+		}
+
+		$userEmail = $user->getEmail();
+		$userEmail = str_replace('tripleperformance.fr', 'neayi.com', $userEmail);
+
+		// Find the user on discourse
+		$api = $this->getDiscourseAPI();
+        $username = $api->getUsernameByEmail($userEmail);
+        if (!empty($username))
+	        return $username;
+
+		// Not found ? Create it now (it will be synched properly by insights later)
+		try {
+			return $api->createDiscourseUser($user);
+		} catch (\Throwable $th) {
+			if (!empty($username))
+			{
+				$this->dieCustomUsageMessage(
+					'commentstreams-api-error-watch-no-discourse-user' );
+			}
+		}
 	}
 
 	/**

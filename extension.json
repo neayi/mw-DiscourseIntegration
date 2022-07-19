@@ -31,9 +31,7 @@
 				"CommentStreams.css"
 			],
 			"scripts": [
-				"CommentStreamsQuerier.js",
-				"CommentStreams.js",
-				"spin.min.js"
+				"CommentStreams.js"
 			],
 			"dependencies": [
 				"oojs-ui"
@@ -109,15 +107,6 @@
 				"commentstreams-buttontext-Neayi-delete",
 				"commentstreams-buttontext-Neayi-permalink"
 			]
-		},
-		"ext.CommentStreamsAllComments": {
-			"styles": [
-				"CommentStreamsAllComments.css"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
-			]
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -131,11 +120,6 @@
 		"DiscourseAPI": "discourse-api-php/lib/DiscourseAPI.php"
 	},
 	"APIModules": {
-		"cspostcomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSPostComment",
-		"csquerycomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSQueryComment",
-		"cseditcomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSEditComment",
-		"csdeletecomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSDeleteComment",
-		"csvote": "MediaWiki\\Extension\\CommentStreams\\ApiCSVote",
 		"cswatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSWatch",
 		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch"
 	},
@@ -160,12 +144,6 @@
 	"config": {
 		"CommentStreamsNamespaceIndex": 844,
 		"CommentStreamsAllowedNamespaces" : null,
-		"CommentStreamsEnableTalk": false,
-		"CommentStreamsNewestStreamsOnTop": true,
-		"CommentStreamsModeratorFastDelete": false,
-		"CommentStreamsShowLabels": true,
-		"CommentStreamsEnableVoting": false,
-		"CommentStreamsInitiallyCollapsedNamespaces" : [],
 		"CommentStreamsUserRealNamePropertyName" : null,
 		"CommentStreamsUserAvatarPropertyName" : null,
 		"DiscourseAPIKey" : null,

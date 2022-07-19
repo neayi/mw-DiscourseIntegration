@@ -474,21 +474,6 @@ class CommentStreamsHooks {
 				$dataItem = new \SMWDIBlob( $comment->getCommentTitle() );
 				$semanticData->addPropertyObjectValue( $propertyDI, $dataItem );
 			}
-
-			if ( $GLOBALS['wgCommentStreamsEnableVoting'] === true ) {
-				$upvotes = $comment->getNumUpVotes();
-				$propertyDI = new SMW\DIProperty( '___CS_UPVOTES' );
-				$dataItem = new \SMWDINumber( $upvotes );
-				$semanticData->addPropertyObjectValue( $propertyDI, $dataItem );
-				$downvotes = $comment->getNumDownVotes();
-				$propertyDI = new SMW\DIProperty( '___CS_DOWNVOTES' );
-				$dataItem = new \SMWDINumber( $downvotes );
-				$semanticData->addPropertyObjectValue( $propertyDI, $dataItem );
-				$votediff = $upvotes - $downvotes;
-				$propertyDI = new SMW\DIProperty( '___CS_VOTEDIFF' );
-				$dataItem = new \SMWDINumber( $votediff );
-				$semanticData->addPropertyObjectValue( $propertyDI, $dataItem );
-			}
 		}
 		return true;
 	}

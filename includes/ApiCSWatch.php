@@ -39,23 +39,21 @@ class ApiCSWatch extends ApiCSBase {
 	 * @return result of API request
 	 */
 	protected function executeBody() {
-		if ( $this->getUser()->isAnon() ) {
-			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-watch-notloggedin' );
-		}
 
-		if ( $this->comment->getParentId() !== null ) {
-			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-watch-nowatchonreply' );
-		}
+		$username = $this->getCurrentlyLoggedInDiscourseUserName();
 
-		$result = $this->comment->watch( $this->getUser() );
-		if ( !$result ) {
+		$api = $this->getDiscourseAPI();
+
+		$topicId = $this->getTopicIdForPageId();
+		$result = $api->watchTopic($topicId, $username); // TODO: check the result format
+
+		if ( empty($result->apiresult) || !$result->apiresult->success ) {
 			$this->dieCustomUsageMessage( 'commentstreams-api-error-watch' );
 		}
 
-		$this->getResult()->addValue( null, $this->getModuleName(), '' );
+		$this->getResult()->addValue( null, $this->getModuleName(), print_r($result, true) );
 	}
+
 
 	/**
 	 * @return array examples of the use of this API module
@@ -63,9 +61,7 @@ class ApiCSWatch extends ApiCSBase {
 	public function getExamplesMessages() {
 		return [
 			'action=' . $this->getModuleName() . '&pageid=3' =>
-			'apihelp-' . $this->getModuleName() . '-pageid-example',
-			'action=' . $this->getModuleName() . '&title=CommentStreams:3' =>
-			'apihelp-' . $this->getModuleName() . '-title-example'
+			'apihelp-' . $this->getModuleName() . '-pageid-example'
 		];
 	}
 
