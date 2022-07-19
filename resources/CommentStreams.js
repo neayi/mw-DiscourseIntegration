@@ -25,7 +25,6 @@ var commentstreams_controller = ( function () {
 
 	return {
 		isLoggedIn: false,
-		userDisplayName: null,
 		areNamespaceEnabled: false,
 		discourseTopicId: false,
 
@@ -33,7 +32,6 @@ var commentstreams_controller = ( function () {
 
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
 			var config = mw.config.get('CommentStreams');
-			this.userDisplayName = config.userDisplayName;
 			this.areNamespaceEnabled = config.areNamespaceEnabled;
 			this.discourseTopicId = config.discourseTopicId;
 			this.DiscourseURL = config.DiscourseURL;

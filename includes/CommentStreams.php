@@ -75,8 +75,6 @@ class CommentStreams {
 	public function init( $output ) {
 		if ( $this->checkDisplayComments( $output ) ) {
 
-			Comment::setConnectedUser( $output->getUser() );
-
 			$this->initJS( $output );
 		}
 	}
@@ -165,10 +163,6 @@ class CommentStreams {
 				$output->getUser()->getRights() ),
 			'moderatorDelete' => in_array( 'cs-moderator-delete',
 				$output->getUser()->getRights() ),
-			'userDisplayName' =>
-				Comment::getDisplayNameFromUser( $output->getUser() ),
-			'userAvatar' =>
-				Comment::getAvatarFromUser( $output->getUser() ),
 			'areNamespaceEnabled' => $this->areNamespaceEnabled,
 			'enableWatchlist' =>
 				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0

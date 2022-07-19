@@ -11,19 +11,15 @@
 	"type": "parserhook",
 	"license-name": "MIT",
 	"requires": {
-		"MediaWiki": ">= 1.31.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"SpecialPages": {
-		"CommentStreamsAllComments": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsAllComments",
 		"RedirectToForum": "MediaWiki\\Extension\\CommentStreams\\RedirectToForum"
 	},
 	"MessagesDirs": {
 		"CommentStreams": [
 			"i18n"
 		]
-	},
-	"ExtensionMessagesFiles": {
-		"CommentStreamsAlias": "includes/CommentStreamsAllComments.alias.php"
 	},
 	"ResourceModules": {
 		"ext.CommentStreams": {
@@ -100,7 +96,6 @@
 				"commentstreams-body-field-placeholder",
 				"commentstreams-ve-conversion-error",
 
-
 				"commentstreams-buttontext-Neayi-askquestion",
 				"commentstreams-buttontext-Neayi-connecttocomment",
 				"commentstreams-buttontext-Neayi-edit",
@@ -123,29 +118,14 @@
 		"cswatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSWatch",
 		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch"
 	},
-	"APIListModules": {
-		"usercomments": "MediaWiki\\Extension\\CommentStreams\\ApiCSQueryComments"
-	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentTableToDatabase",
-		"CanonicalNamespaces": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentStreamsNamespaces",
-		"MediaWikiPerformAction": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onMediaWikiPerformAction",
-		"MovePageIsValidMove": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onMovePageIsValidMove",
-		"userCan": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::userCan",
 		"ParserFirstCallInit": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onParserSetup",
-		"BeforePageDisplay": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentsAndInitializeJS",
-		"ShowSearchHitTitle": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::showSearchHitTitle",
-		"smwInitProperties": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::initProperties",
-		"SMWStore::updateDataBefore": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::updateData",
-		"BeforeCreateEchoEvent": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onBeforeCreateEchoEvent",
-		"SMW::Settings::BeforeInitializationComplete": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onSMWInitialization"
+		"BeforePageDisplay": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentsAndInitializeJS"
 	},
-	"callback" : "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onRegistration",
 	"config": {
 		"CommentStreamsNamespaceIndex": 844,
 		"CommentStreamsAllowedNamespaces" : null,
 		"CommentStreamsUserRealNamePropertyName" : null,
-		"CommentStreamsUserAvatarPropertyName" : null,
 		"DiscourseAPIKey" : null,
 		"DiscourseHost" : null
 	}
