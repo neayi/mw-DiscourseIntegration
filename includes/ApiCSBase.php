@@ -30,7 +30,6 @@ use ManualLogEntry;
 abstract class ApiCSBase extends ApiBase {
 
 	private $edit;
-	protected $comment;
 
 	/**
 	 * @param ApiMain $main main module
@@ -47,12 +46,7 @@ abstract class ApiCSBase extends ApiBase {
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
-		$wikipage = $this->getTitleOrPageId( $params,
-			$this->edit ? 'frommasterdb' : 'fromdb' );
-		$this->comment = Comment::newFromWikiPage( $wikipage );
-		if ( $this->comment === null ) {
-			$this->dieCustomUsageMessage( 'commentstreams-api-error-notacomment' );
-		}
+
 		$result = $this->executeBody();
 		if ( $result !== null ) {
 			$this->getResult()->addValue( null, $this->getModuleName(), $result );
@@ -126,10 +120,15 @@ abstract class ApiCSBase extends ApiBase {
 	 */
 	protected function dieCustomUsageMessage( $message_name ) {
 		$error_message = wfMessage( $message_name );
-		$this->dieUsageMsg(
-			[
-				ApiMessage::create( $error_message )
-			]
-		);
+		$this->dieWithError($error_message);
+	}
+
+	protected function getDiscourseAPI()
+	{
+		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
+			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
+
+        return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
+								'http', '', '', strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false);
 	}
 }

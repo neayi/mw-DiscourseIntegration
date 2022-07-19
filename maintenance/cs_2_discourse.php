@@ -45,10 +45,6 @@ class cs_2_discourse extends Maintenance {
 		);
 
 		foreach ( $res as $row ) {
-
-            if (13691 != $row->cst_assoc_page_id)
-                continue;
-
             $this->createTopicForPage($row->cst_assoc_page_id, $row->cst_comment_title, $row->cst_page_id);
 		}
 
@@ -60,7 +56,7 @@ class cs_2_discourse extends Maintenance {
 
     private function createTopicForPage($pageId, $commentTitle, $commentPageId)
     {
-        $api = $this->getAPI();
+        $api = $this->getDiscourseAPI();
 
         $topicId = false;
 
@@ -88,21 +84,17 @@ class cs_2_discourse extends Maintenance {
                 $text = "<p>Ce sujet de discussion accompagne la page <br><a href=\"$pageURL\">$wikiTitle</a></p>";
 
                 // create a topic
-                $r = $api->createTopicForEmbed(
+                $topicId = $api->createTopicForEmbed2(
                     'Discussion - ' . $wikiTitle,
                     $text,
-                    false, // category id
+                    false,  // TODO : add a category id in LocalSettings
                     $username,
                     $pageURL,
                     $pageId
                 );
 
-                if (empty($r->apiresult) || !isset($r->apiresult->id))
-                {
-                    throw new Exception("Error Processing Request " . print_r($r, true), 1);
-                }
-
-                $topicId = $r->apiresult->id;
+                if (empty($topicId))
+                    throw new Exception("Error Processing Request", 1);
 
                 $this->usersToSubscribe[$username][$topicId] = true;
             }
@@ -156,7 +148,7 @@ class cs_2_discourse extends Maintenance {
      */
     function createReply($commentPageId, $topicId, $postNumber)
     {
-        $api = $this->getAPI();
+        $api = $this->getDiscourseAPI();
 
         // Create a reply for this comment/question:
         $commentPage = WikiPage::newFromId( $commentPageId );
@@ -180,13 +172,15 @@ class cs_2_discourse extends Maintenance {
         }
     }
 
-    function getAPI()
+    function getDiscourseAPI()
     {
-        $apikey = '6b5d848d0414dfa868cbbf5777d6689d4d205ea7a64868492fd86e71ce594a80';
-        $apiHost = 'app';
+		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
+			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
 
-        return new DiscourseAPI($apiHost, $apikey, 'http', '', '', strpos($apiHost, 'dev') !== false);
+        return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
+								'http', '', '', strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false);
     }
+
     function getPageDate($wikipage)
     {
         $ts = $wikipage->getTimestamp();
@@ -200,7 +194,7 @@ class cs_2_discourse extends Maintenance {
 
     function getUserNameForWikiPage($wikipage)
     {
-        $api = $this->getAPI();
+        $api = $this->getDiscourseAPI();
 
         // Maybe we should take the user with the most revisions, or the first, ...?
         $lastUserId = $wikipage->getUser();
@@ -223,7 +217,7 @@ class cs_2_discourse extends Maintenance {
 
     function findTopicForURL($url)
     {
-        $api = $this->getAPI();
+        $api = $this->getDiscourseAPI();
 
         $r = $api->getPostsByEmbeddedURL($url);
 
@@ -238,7 +232,7 @@ class cs_2_discourse extends Maintenance {
      */
     function subscribeUsers()
     {
-        $api = $this->getAPI();
+        $api = $this->getDiscourseAPI();
 
         // By default users who participated to the conversation are watching at level 2, so we bump them
         // to level 3
@@ -248,17 +242,13 @@ class cs_2_discourse extends Maintenance {
 
         // Now for each topic for which a thread has been created, ask insights
         // about who decided to follow the page and subscribe them too:
+        $insightsURL = $GLOBALS['wgInsightsRootURL']; // http://insights/';
 
         foreach ($this->topicForPage as $pageId => $topicId)
         {
-            $insightsURL = 'http://insights/';
-
 			$url = $insightsURL . "api/page/$pageId/followers?type=follow";
 
             $ch = curl_init();
-
-            //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

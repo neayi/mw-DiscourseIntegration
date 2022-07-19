@@ -14,7 +14,8 @@
 		"MediaWiki": ">= 1.31.0"
 	},
 	"SpecialPages": {
-		"CommentStreamsAllComments": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsAllComments"
+		"CommentStreamsAllComments": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsAllComments",
+		"RedirectToForum": "MediaWiki\\Extension\\CommentStreams\\RedirectToForum"
 	},
 	"MessagesDirs": {
 		"CommentStreams": [
@@ -126,6 +127,9 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\CommentStreams\\": "includes/"
 	},
+	"AutoloadClasses": {
+		"DiscourseAPI": "discourse-api-php/lib/DiscourseAPI.php"
+	},
 	"APIModules": {
 		"cspostcomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSPostComment",
 		"csquerycomment": "MediaWiki\\Extension\\CommentStreams\\ApiCSQueryComment",
@@ -163,6 +167,8 @@
 		"CommentStreamsEnableVoting": false,
 		"CommentStreamsInitiallyCollapsedNamespaces" : [],
 		"CommentStreamsUserRealNamePropertyName" : null,
-		"CommentStreamsUserAvatarPropertyName" : null
+		"CommentStreamsUserAvatarPropertyName" : null,
+		"DiscourseAPIKey" : null,
+		"DiscourseHost" : null
 	}
 }

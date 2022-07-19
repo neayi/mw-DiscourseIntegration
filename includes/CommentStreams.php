@@ -253,8 +253,13 @@ class CommentStreams {
 		];
 
 		// Neayi: $wgCommentStreamsEnableWatchlist was not tested
-		$commentStreamsParams['enableWatchlist'] = $GLOBALS['wgCommentStreamsEnableWatchlist'] 
+		$commentStreamsParams['enableWatchlist'] = $GLOBALS['wgCommentStreamsEnableWatchlist']
 													&& ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0;
+
+
+		$commentStreamsParams['discourseTopicId'] = $this->getDiscourseTopicId( $title );
+		$commentStreamsParams['DiscourseURL'] = $GLOBALS['wgDiscourseURL'];
+
 		// End Neayi
 
 		$output->addJsConfigVars( 'CommentStreams', $commentStreamsParams );
@@ -262,6 +267,32 @@ class CommentStreams {
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 			$output->addModules( 'ext.veforall.main' );
 		}
+	}
+
+	/**
+	 * Finds the discourse topic for the current URL
+	 */
+	private function getDiscourseTopicId($wikiTitle)
+	{
+		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
+
+		$api = $this->getDiscourseAPI();
+
+        $r = $api->getPostsByEmbeddedURL($pageURL);
+
+        if (empty($r->apiresult) || !isset($r->apiresult->topic_id))
+            return false;
+
+        return $r->apiresult->topic_id;
+	}
+
+	private function getDiscourseAPI()
+	{
+		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
+			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
+
+        return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
+								'http', '', '', strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false);
 	}
 
 	/**

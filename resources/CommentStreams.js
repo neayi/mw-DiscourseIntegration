@@ -40,6 +40,7 @@ var commentstreams_controller = ( function () {
 		enableVoting: false,
 		enableWatchlist: false,
 		comments: [],
+		discourseTopicId: false,
 		spinnerOptions: {
 			lines: 11, // The number of lines to draw
 			length: 8, // The length of each line
@@ -59,19 +60,19 @@ var commentstreams_controller = ( function () {
 			left: '50%' // Left position relative to parent
 		},
 		initialize: function () {
-			this.baseUrl = window.location.href.split( /[?#]/ )[ 0 ];
-			this.imagepath = mw.config.get( 'wgExtensionAssetsPath' ) +
+			this.baseUrl = window.location.href.split(/[?#]/)[0];
+			this.imagepath = mw.config.get('wgExtensionAssetsPath') +
 				'/CommentStreams/images/';
-			if ( window.location.hash ) {
-				var hash = window.location.hash.substring( 1 );
-				var queryIndex = hash.indexOf( '?' );
-				if ( queryIndex !== -1 ) {
-					hash = hash.substring( 0, queryIndex );
+			if (window.location.hash) {
+				var hash = window.location.hash.substring(1);
+				var queryIndex = hash.indexOf('?');
+				if (queryIndex !== -1) {
+					hash = hash.substring(0, queryIndex);
 				}
 				this.targetComment = hash;
 			}
-			this.isLoggedIn = mw.config.get( 'wgUserName' ) !== null;
-			var config = mw.config.get( 'CommentStreams' );
+			this.isLoggedIn = mw.config.get('wgUserName') !== null;
+			var config = mw.config.get('CommentStreams');
 			this.canComment = config.canComment;
 			this.moderatorEdit = config.moderatorEdit;
 			this.moderatorDelete = config.moderatorDelete;
@@ -85,150 +86,159 @@ var commentstreams_controller = ( function () {
 			this.enableVoting = config.enableVoting;
 			this.enableWatchlist = config.enableWatchlist;
 			this.comments = config.comments;
+			this.discourseTopicId = config.discourseTopicId;
+			this.DiscourseURL = config.DiscourseURL;
 			this.setupDivs();
 
-			if ( this.targetComment ) {
-				this.scrollToAnchor( this.targetComment );
+			if (this.targetComment) {
+				this.scrollToAnchor(this.targetComment);
 			}
 		},
-		scrollToAnchor: function ( id ) {
-			var element = $( '#' + id );
-			if ( element.length ) {
-				$( 'html,body' ).animate( { scrollTop: element.offset().top }, 'slow' );
+		scrollToAnchor: function (id) {
+			var element = $('#' + id);
+			if (element.length) {
+				$('html,body').animate({ scrollTop: element.offset().top }, 'slow');
 			}
 		},
 		setupDivs: function () {
 			var self = this;
 
-			if ( self.areNamespaceEnabled && $( '#cs-comments.cs-comments' ).length === 0 ) {
-				var mainDiv = $( '<div>' ).attr( 'class', 'cs-comments' ).attr( 'id', 'cs-comments' );
-				mainDiv.insertAfter( '#catlinks' );
+			if (self.areNamespaceEnabled && $('#cs-comments.cs-comments').length === 0) {
+				var mainDiv = $('<div>').attr('class', 'cs-comments').attr('id', 'cs-comments');
+				mainDiv.insertAfter('#catlinks');
 			}
-			$( '.cs-comments' ).each( function () {
-				var commentDiv = $( this );
+			$('.cs-comments').each(function () {
+				var commentDiv = $(this);
 
-				var headerDiv = $( '<div>' ).attr( 'class', 'cs-header' );
+				var headerDiv = $('<div>').attr('class', 'cs-header');
 				// For backwards compatibility. Please remove in ver 6.0
-				if ( commentDiv.attr( 'id' ) === 'cs-comments' ) {
-					headerDiv.attr( 'id', 'cs-header' );
+				if (commentDiv.attr('id') === 'cs-comments') {
+					headerDiv.attr('id', 'cs-header');
 				}
-				commentDiv.append( headerDiv );
+				commentDiv.append(headerDiv);
 
-				var footerDiv = $( '<div>' ).attr( 'class', 'cs-footer' );
+				var footerDiv = $('<div>').attr('class', 'cs-footer');
 				// For backwards compatibility. Please remove in ver 6.0
-				if ( commentDiv.attr( 'id' ) === 'cs-comments' ) {
-					footerDiv.attr( 'id', 'cs-footer' );
+				if (commentDiv.attr('id') === 'cs-comments') {
+					footerDiv.attr('id', 'cs-footer');
 				}
-				commentDiv.append( footerDiv );
+				commentDiv.append(footerDiv);
 
-				if ( self.canComment ) {
-					var addButton = self.createNeayiAddButton();
+				if (self.canComment) {
+					var addButton = self.createNeayiAddButton(self.discourseTopicId);
 
 					// For backwards compatibility. Please remove in ver 6.0
-					if ( commentDiv.attr( 'id' ) === 'cs-comments' ) {
-						addButton.attr( 'id', 'cs-add-button' );
+					if (commentDiv.attr('id') === 'cs-comments') {
+						addButton.attr('id', 'cs-add-button');
 					}
 
-					footerDiv.append( addButton );
-
-					addButton.click( function () {
-						self.showNewCommentStreamBox( this );
-					} );
+					footerDiv.append(addButton);
 				}
 
 				// Start Neayi : When the user is not connected, we show a button anyway
 				else {
-					var addButtonDiv = $( '<div> ' )
-						.addClass( 'cs-add-div' );
+					var addButtonDiv = $('<div> ')
+						.addClass('cs-add-div');
 
-					var addButton = $( '<button>' )
-						.attr( {
+					var addButton = $('<button>')
+						.attr({
 							type: 'button',
 							id: 'cs-add-button',
-							title: mw.message( 'commentstreams-buttontext-Neayi-connecttocomment' ),
+							title: mw.message('commentstreams-buttontext-Neayi-connecttocomment'),
 							'data-toggle': 'tooltip'
-						} )
-						.addClass( 'cs-button rounded' );
+						})
+						.addClass('cs-button rounded');
 
-					var addCommentFA = $( '<i>' )
-						.addClass( 'fas fa-comment' );
-					addButton.append( addCommentFA );
+					var addCommentFA = $('<i>')
+						.addClass('fas fa-comment');
+					addButton.append(addCommentFA);
 
-					if ( self.showLabels ) {
-						var addLabel = $( '<span>' )
-							.text( mw.message( 'commentstreams-buttontext-Neayi-connecttocomment' ) )
-							.addClass( 'cs-comment-button-label' );
-						addButton.append( addLabel );
+					if (self.showLabels) {
+						var addLabel = $('<span>')
+							.text(mw.message('commentstreams-buttontext-Neayi-connecttocomment'))
+							.addClass('cs-comment-button-label');
+						addButton.append(addLabel);
 					}
 
-					addButtonDiv.append( addButton );
+					addButtonDiv.append(addButton);
 
-					footerDiv.append( addButtonDiv );
+					footerDiv.append(addButtonDiv);
 
-					addButton.click( function () {
-						var wgPageName = mw.config.get( 'wgPageName' );
-						window.location = mediaWiki.util.getUrl( "Special:Connexion", { returnto: wgPageName } );
-					} );
+					addButton.click(function () {
+						var wgPageName = mw.config.get('wgPageName');
+						window.location = mediaWiki.util.getUrl("Special:Connexion", { returnto: wgPageName });
+					});
 
 				}
 
+				commentDiv.append($(`<div id='discourse-comments'></div>`));
 
-				commentDiv.append( $(`<div id='discourse-comments'></div>`) );
+				if (self.discourseTopicId)
+				{
+					window.DiscourseEmbed = {
+						discourseUrl: self.DiscourseURL + '/',
+						topicId: self.discourseTopicId,
+						discourseReferrerPolicy: 'strict-origin-when-cross-origin'
+					};
 
-				window.DiscourseEmbed = { discourseUrl: 'https://forum.dev.tripleperformance.fr/', topicId: 743};
-
-				(function() {
-					var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
-					d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
-					(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
-				})();
-
-			} );
+					(function () {
+						var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
+						d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
+						(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
+					})();
+				}
+			});
 		},
 
-		createNeayiAddButton: function ()
-		{
+		createNeayiAddButton: function (discourseTopicId) {
 			var self = this;
 
-			var addButtonDiv = $( '<div> ' )
-			.addClass( 'cs-add-div' );
+			var addButtonDiv = $('<div> ')
+				.addClass('cs-add-div');
 
-			var addButton = $( '<button>' )
-				.attr( {
-					type: 'button',
-					class: 'cs-add-button',
-					title: mw.message( 'commentstreams-buttontext-Neayi-askquestion' ),
-					'data-toggle': 'tooltip'
-				} )
-				.addClass( 'cs-button rounded' );
+			var targetURL = '';
+			if (discourseTopicId)
+				targetURL = self.DiscourseURL + '/t/' + discourseTopicId;
+			else
+				targetURL = '/wiki/Special:RedirectToForum/page/' + mw.config.get('wgArticleId');
 
-			var addCommentFA = $( '<i>' )
-				.addClass( 'fas fa-comment' );
-			addButton.append( addCommentFA );
+			var addButton = $('<a>')
+						.attr({
+							'href': targetURL,
+							'target': '_blank',
+							'class': 'cs-add-button',
+							'title': mw.message('commentstreams-buttontext-Neayi-askquestion'),
+							'data-toggle': 'tooltip'
+						})
+						.addClass('cs-button rounded');
 
-			var addLabel = $( '<span>' )
-				.text( mw.message( 'commentstreams-buttontext-Neayi-askquestion' ) )
-				.addClass( 'cs-comment-button-label' );
-			addButton.append( addLabel );
+			var addCommentFA = $('<i>')
+				.addClass('fas fa-comment');
+			addButton.append(addCommentFA);
 
-			addButtonDiv.append( addButton );
+			var addLabel = $('<span>')
+				.text(mw.message('commentstreams-buttontext-Neayi-askquestion'))
+				.addClass('cs-comment-button-label');
+			addButton.append(addLabel);
+
+			addButtonDiv.append(addButton);
 
 			return addButtonDiv;
 		}
 
 	};
-}() );
+}());
 
 window.CommentStreamsController = commentstreams_controller;
 
-( function () {
-	$( document )
-		.ready( function () {
-			if ( mw.config.exists( 'CommentStreams' ) ) {
+(function () {
+	$(document)
+		.ready(function () {
+			if (mw.config.exists('CommentStreams')) {
 				window.CommentStreamsController.initialize();
 			}
-		} );
-}() );
+		});
+}());
 
 
 
