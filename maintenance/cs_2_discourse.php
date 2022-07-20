@@ -101,20 +101,20 @@ class cs_2_discourse extends Maintenance {
             $pageURL = $wikiTitle->getFullURL('', false, 'https://');
             $pageId = $wikiTitle->getArticleID();
 
-            $this->output( "@@ Discussion de la page $wikiTitle ($username)\n" );
+            $this->output( "@@ $wikiTitle ($username)\n" );
 
             $topicId = $this->findTopicForURL($pageURL);
 
             if (!$topicId)
             {
                 // Create the topic now
-                $text = "<p>Ce sujet de discussion accompagne la page <br><a href=\"$pageURL\">$wikiTitle</a></p>";
+                $text = "Ce sujet de discussion accompagne la page :<br><br><a href=\"$pageURL\">$wikiTitle</a>";
 
                 // create a topic
                 $topicId = $api->createTopicForEmbed2(
-                    'Discussion - ' . $wikiTitle,
+                    (String)$wikiTitle,
                     $text,
-                    false,  // TODO : add a category id in LocalSettings
+                    $GLOBALS['wgDiscourseDefaultCategoryId'],
                     $username,
                     $pageURL,
                     $pageId
@@ -140,12 +140,13 @@ class cs_2_discourse extends Maintenance {
 
         $html = "<p><b>$commentTitle</b></p>$html";
 
-        $username = $this->getUserNameForWikiPage($commentPage);
+        $username = $this->getUserNameForWikiPage($commentPage, true);
         $created_at = $this->getPageDate($commentPage);
 
         $this->usersToSubscribe[$username][$topicId] = true;
 
-        $this->output( "$commentTitle - $username - $created_at \n");
+        $this->output( "- adding a reply from $username : $commentTitle - $created_at \n");
+
         $r = $api->createPost($html, $topicId, $username, $created_at);
         if (empty($r->apiresult) || !isset($r->apiresult->id))
         {
@@ -185,12 +186,12 @@ class cs_2_discourse extends Maintenance {
 
         $html = preg_replace('@{{[^}]+}}@', '', $html);
 
-        $username = $this->getUserNameForWikiPage($commentPage);
+        $username = $this->getUserNameForWikiPage($commentPage, true);
         $created_at = $this->getPageDate($commentPage);
 
         $this->usersToSubscribe[$username][$topicId] = true;
 
-        $this->output("$username - $created_at - $html \n");
+        $this->output("- adding a reply from $username - $created_at\n");
         $r = $api->createPost($html, $topicId, $username, $created_at, $postNumber);
 
         if (empty($r->apiresult) || !isset($r->apiresult->post->id))
@@ -226,13 +227,26 @@ class cs_2_discourse extends Maintenance {
         return null;
     }
 
-    function getUserNameForWikiPage($wikipage)
+    function getUserNameForWikiPage($wikipage, $bGetFirstUser = false)
     {
         $api = $this->getDiscourseAPI();
 
         // Maybe we should take the user with the most revisions, or the first, ...?
-        $lastUserId = $wikipage->getUser();
-        $user = User::newFromId( $lastUserId );
+        if ($bGetFirstUser)
+        {
+            $contributors = $wikipage->getContributors();
+            foreach ($contributors as $aContributor)
+            {
+                $user = $aContributor;
+                break;
+            }
+        }
+
+        if (empty($user))
+        {
+            $lastUserId = $wikipage->getUser();
+            $user = User::newFromId( $lastUserId );
+        }
 
         $userEmail = $user->getEmail();
         $userEmail = str_replace('tripleperformance.fr', 'neayi.com', $userEmail);

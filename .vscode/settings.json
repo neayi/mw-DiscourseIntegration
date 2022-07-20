@@ -2,5 +2,6 @@
     "intelephense.environment.includePaths": [
         "../../includes",
         "../../maintenance/includes"
-    ]
+    ],
+    "todo-tree.tree.scanMode": "workspace"
 }

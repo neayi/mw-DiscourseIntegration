@@ -109,7 +109,7 @@ class RedirectToForum extends SpecialPage {
 		$topicId = $api->createTopicForEmbed2(
 			'Discussion - ' . $wikiTitle,
 			$text,
-			false, // TODO : add a category id in LocalSettings
+			$GLOBALS['wgDiscourseDefaultCategoryId'],
 			$username,
 			$pageURL,
 			$pageId
