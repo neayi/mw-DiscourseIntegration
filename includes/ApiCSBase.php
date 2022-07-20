@@ -129,6 +129,8 @@ abstract class ApiCSBase extends ApiBase {
 
 		if (isset($r->apiresult->topic_id))
 			return $r->apiresult->topic_id;
+
+		return false;
 	}
 
 	/**

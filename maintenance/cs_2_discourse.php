@@ -1,9 +1,6 @@
 <?php
 
-
 set_time_limit(0);
-
-require_once __DIR__ . '/../discourse-api-php/lib/DiscourseAPI.php';
 
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
@@ -24,10 +21,40 @@ class cs_2_discourse extends Maintenance {
 
         $this->topicForPage = array();
         $this->usersToSubscribe = array();
+
+        $this->addOption( 'launch', 'Really launch the script', false, false );
     }
 
 	public function execute() {
-		$this->output( "Start\n\n" );
+		$launch = $this->getOption( 'launch', '0' );
+        if (empty($launch))
+        {
+            $help = "Make sure you do the following before launching this script !
+
+                First : make a backup of your discourse instance!
+                Second: desable all email !
+                Third : set the following settings:
+
+                        SiteSetting.min_post_length=1
+                        SiteSetting.min_first_post_length=1
+                        SiteSetting.rate_limit_create_topic=1
+                        SiteSetting.rate_limit_create_post=1
+                        SiteSetting.disable_emails='yes'
+
+                Fourth: add those settings in app.yml :
+
+                        DISCOURSE_MAX_ADMIN_API_REQS_PER_MINUTE: 5000
+                        DISCOURSE_MAX_REQS_PER_IP_PER_MINUTE : 1000
+                        DISCOURSE_MAX_REQS_PER_IP_PER_10_SECONDS : 500
+
+                Fifth : now cross your fingers and relaunch the script with --launch\n\n\n";
+
+		    $this->output($help);
+
+            return;
+        }
+
+		$this->output( "Starting...\n\n" );
 
         // SELECT cst_page_id, cst_assoc_page_id, cst_comment_title, page_title
         // FROM `cs_comment_data`
@@ -118,7 +145,7 @@ class cs_2_discourse extends Maintenance {
 
         $this->usersToSubscribe[$username][$topicId] = true;
 
-        echo "$commentTitle - $username - $created_at \n";
+        $this->output( "$commentTitle - $username - $created_at \n");
         $r = $api->createPost($html, $topicId, $username, $created_at);
         if (empty($r->apiresult) || !isset($r->apiresult->id))
         {
@@ -146,7 +173,7 @@ class cs_2_discourse extends Maintenance {
     /**
      * Create a reply
      */
-    function createReply($commentPageId, $topicId, $postNumber)
+    function createReply($commentPageId, $topicId, $postNumber, $retry = 0)
     {
         $api = $this->getDiscourseAPI();
 
@@ -163,11 +190,18 @@ class cs_2_discourse extends Maintenance {
 
         $this->usersToSubscribe[$username][$topicId] = true;
 
-        echo "$username - $created_at - $html\n";
+        $this->output("$username - $created_at - $html \n");
         $r = $api->createPost($html, $topicId, $username, $created_at, $postNumber);
 
         if (empty($r->apiresult) || !isset($r->apiresult->post->id))
         {
+            if (!empty($r->apiresult->extras->wait_seconds) && $retry < 5)
+            {
+                $this->output("Got an exception - let's wait 5 seconds.\n");
+                sleep(5);
+                $this->createReply($commentPageId, $topicId, $postNumber, $retry ++);
+            }
+
             throw new Exception("Error Processing Request " . print_r($r, true), 1);
         }
     }

@@ -45,13 +45,17 @@ class ApiCSUnwatch extends ApiCSBase {
 		$api = $this->getDiscourseAPI();
 
 		$topicId = $this->getTopicIdForPageId();
-		$result = $api->unwatchTopic($topicId, $username); // TODO: check the result format
+
+		if (empty($topicId))
+			return;
+
+		$result = $api->unwatchTopic($topicId, $username);
 
 		if ( empty($result->apiresult) || !$result->apiresult->success ) {
 			$this->dieCustomUsageMessage( 'commentstreams-api-error-unwatch' );
 		}
 
-		$this->getResult()->addValue( null, $this->getModuleName(), print_r($result, true) );
+		$this->getResult()->addValue( null, $this->getModuleName(), '' );
 	}
 
 
