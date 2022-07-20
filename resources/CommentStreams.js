@@ -90,12 +90,10 @@ var commentstreams_controller = ( function () {
 						.addClass('fas fa-comment');
 					addButton.append(addCommentFA);
 
-					if (self.showLabels) {
-						var addLabel = $('<span>')
-							.text(mw.message('commentstreams-buttontext-Neayi-connecttocomment'))
-							.addClass('cs-comment-button-label');
-						addButton.append(addLabel);
-					}
+					var addLabel = $('<span>')
+						.text(mw.message('commentstreams-buttontext-Neayi-connecttocomment'))
+						.addClass('cs-comment-button-label');
+					addButton.append(addLabel);
 
 					addButtonDiv.append(addButton);
 
