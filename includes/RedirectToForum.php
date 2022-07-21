@@ -25,10 +25,8 @@
 
 namespace MediaWiki\Extension\CommentStreams;
 
-use Html;
 use SpecialPage;
-use Title;
-use WikiPage;
+use MediaWiki\MediaWikiServices;
 
 class RedirectToForum extends SpecialPage {
 
@@ -56,6 +54,19 @@ class RedirectToForum extends SpecialPage {
 			$pageId = $parts[2];
 		else
 			return;
+
+		if (!empty($GLOBALS['env']) && $GLOBALS['env'] === 'preprod')
+		{
+			$wikitext = 'In preprod, one cannot create a topic. Sorry.';
+			if ( method_exists( 'OutputPage', 'addWikiTextAsInterface' ) ) {
+				$this->getOutput()->addWikiTextAsInterface( $wikitext );
+			} else {
+				$this->getOutput()->addWikiText( $wikitext );
+			}
+
+			return;
+		}
+
 
 		$topicId = $this->createTopicForPage($pageId);
 		$this->addInsightsFollower($pageId, $topicId);
@@ -90,7 +101,7 @@ class RedirectToForum extends SpecialPage {
         $topicId = false;
 
 		// First, get the page info:
-		$wikipage = WikiPage::newFromId( $pageId );
+		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $pageId );
 		$wikiTitle = $wikipage->getTitle();
 
 		$username = $this->getCurrentlyLoggedInUser();
