@@ -186,7 +186,15 @@ abstract class ApiCSBase extends ApiBase {
 		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
 			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
 
-        return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
-								'http', '', '', strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false);
+		if (strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false)
+		{
+			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
+									'http', '', '', true);
+		}
+		else
+		{
+			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
+									'https', '', '', false);
+		}
 	}
 }
