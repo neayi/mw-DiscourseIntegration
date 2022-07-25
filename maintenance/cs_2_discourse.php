@@ -15,12 +15,14 @@ class cs_2_discourse extends Maintenance {
 
     private $topicForPage = array();
     private $usersToSubscribe = array();
+    private $discourseUsernames = array();
 
 	public function __construct() {
 		parent::__construct();
 
         $this->topicForPage = array();
         $this->usersToSubscribe = array();
+        $this->discourseUsernames = array();
 
         $this->addOption( 'launch', 'Really launch the script', false, false );
     }
@@ -238,6 +240,7 @@ class cs_2_discourse extends Maintenance {
     function getUserNameForWikiPage($wikipage, $bGetFirstUser = false)
     {
         $api = $this->getDiscourseAPI();
+        $userEmail = '';
 
         // Maybe we should take the user with the most revisions, or the first, ...?
         if ($bGetFirstUser)
@@ -246,7 +249,10 @@ class cs_2_discourse extends Maintenance {
             foreach ($contributors as $aContributor)
             {
                 $user = $aContributor;
-                break;
+                $userEmail = $user->getEmail();
+
+                if (!empty($userEmail))
+                    break;
             }
         }
 
@@ -254,17 +260,46 @@ class cs_2_discourse extends Maintenance {
         {
             $lastUserId = $wikipage->getUser();
             $user = User::newFromId( $lastUserId );
+
+            $userEmail = $user->getEmail();
+
+            if (empty($userEmail))
+            {
+                // Get the list of contributors and find the first with an email
+                $contributors = $wikipage->getContributors();
+                $contributorsEmails = array();
+                foreach ($contributors as $aContributor)
+                {
+                    $user = $aContributor;
+                    $mail = $user->getEmail();
+
+                    if (!empty($mail))
+                        $contributorsEmails[] = $email;
+                }
+
+                $userEmail = end($contributorsEmails);
+            }
         }
 
-        $userEmail = $user->getEmail();
+        if (empty($userEmail))
+            $userEmail = 'astrid.robette@neayi.com';
+
         $userEmail = str_replace('tripleperformance.fr', 'neayi.com', $userEmail);
 
-        $username = $api->getUsernameByEmail($userEmail);
-        if (empty($username))
+        if (empty($this->discourseUsernames[$userEmail]))
         {
-            $this->output( "Could not find discourse user for email $userEmail - please check that this email was verified.\n" );
-            $username = 'astrid.robette';
+            $username = $api->getUsernameByEmail($userEmail);
+
+            if (empty($username))
+            {
+                $this->output( "Could not find discourse user for email $userEmail - please check that this email was verified.\n" );
+                $username = 'astrid.robette';
+            }
+
+            $this->discourseUsernames[$userEmail] = $userName;
         }
+        else
+            $userName = $this->discourseUsernames[$userEmail];
 
         // SELECT * FROM `users` WHERE `email` IN ('astrid.robette@neayi.com', 'b.estanguet@valdegascogne.coop',  'bertrand.gorge@neayi.com',  'delphine.da-costa@bio-occitanie.org',  'didier.fertil@m-g-p.fr',  'etadesmarais@hotmail.fr',  'hartmax@hotmail.fr',  'jd4s@orange.fr',  'maraichportecluse09@orange.fr',  'pieter@hortiproyect.eu',  'samuelfoubert@orange.fr',  'st.perrault2611@gmail.com',  'suzor@herault.chambagri.fr',  'v.soulere@hautes-pyrenees.chambagri.fr',  'zionamap@gmail.com')
 
@@ -341,7 +376,7 @@ class cs_2_discourse extends Maintenance {
 
                 $api->watchTopic($topicId, $username);
 
-                $this->output("Whatching $topicId -> " . $username . "\n");
+                $this->output("Watching topic $topicId -> " . $username . "\n");
             }
         }
     }
