@@ -214,7 +214,7 @@ class cs_2_discourse extends Maintenance {
 		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
 			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
 
-        if (strpos($GLOBALS['wgDiscourseHost'], 'dev') !== false)
+        if ($GLOBALS['env'] == 'dev')
         {
             return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
                                     'http', '', '', true);
