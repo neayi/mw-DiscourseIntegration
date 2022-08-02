@@ -114,7 +114,9 @@ class RedirectToForum extends SpecialPage {
 		$this->debugText .= "Title =  $wikiTitle<br>";
 
 		// Create the topic now
-		$text = "<p>Ce sujet de discussion accompagne la page <br><a href=\"$pageURL\">$wikiTitle</a></p>";
+		$text = "Ce sujet de discussion accompagne la page :
+
+$pageURL";
 
 		// create a topic
 		$topicId = $api->createTopicForEmbed2(
