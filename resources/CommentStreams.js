@@ -26,14 +26,12 @@ var commentstreams_controller = ( function () {
 	return {
 		isLoggedIn: false,
 		areNamespaceEnabled: false,
-		discourseTopicId: false,
 
 		initialize: function () {
 
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
 			var config = mw.config.get('CommentStreams');
 			this.areNamespaceEnabled = config.areNamespaceEnabled;
-			this.discourseTopicId = config.discourseTopicId;
 			this.DiscourseURL = config.DiscourseURL;
 			this.setupDivs();
 
@@ -47,7 +45,7 @@ var commentstreams_controller = ( function () {
 		setupDivs: function () {
 			var self = this;
 
-			if (self.areNamespaceEnabled && $('#cs-comments.cs-comments').length === 0) {
+			if ($('#cs-comments.cs-comments').length === 0) {
 				var mainDiv = $('<div>').attr('class', 'cs-comments').attr('id', 'cs-comments');
 				mainDiv.insertAfter('#catlinks');
 			}
@@ -62,7 +60,7 @@ var commentstreams_controller = ( function () {
 				commentDiv.append(footerDiv);
 
 				if (self.isLoggedIn) {
-					var addButton = self.createNeayiAddButton(self.discourseTopicId);
+					var addButton = self.createNeayiAddButton();
 
 					// For backwards compatibility. Please remove in ver 6.0
 					if (commentDiv.attr('id') === 'cs-comments') {
@@ -106,37 +104,44 @@ var commentstreams_controller = ( function () {
 
 				}
 
+				// Now add the discourse embed
 				commentDiv.append($(`<div id='discourse-comments'></div>`));
 
-				// Now add the discourse embed
-				if (self.discourseTopicId)
-				{
-					window.DiscourseEmbed = {
-						discourseUrl: self.DiscourseURL + '/',
-						topicId: self.discourseTopicId,
-						discourseReferrerPolicy: 'strict-origin-when-cross-origin'
-					};
+				var pageId = mw.config.get('wgArticleId');
+				var api = new mw.Api();
 
-					(function () {
-						var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
-						d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
-						(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
-					})();
-				}
+				api.post( {
+					action: 'csgettopicid',
+					pageid: pageId
+				} )
+				.done( function ( data ) {
+					var topicID = data.csgettopicid.topicID;
+
+					if (topicID > 0)
+					{
+						window.DiscourseEmbed = {
+							discourseUrl: self.DiscourseURL + '/',
+							topicId: topicID,
+							discourseReferrerPolicy: 'strict-origin-when-cross-origin'
+						};
+
+						(function () {
+							var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
+							d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
+							(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
+						})();
+					}
+				} );
 			});
 		},
 
-		createNeayiAddButton: function (discourseTopicId) {
+		createNeayiAddButton: function () {
 			var self = this;
 
 			var addButtonDiv = $('<div> ')
 				.addClass('cs-add-div');
 
-			var targetURL = '';
-			if (discourseTopicId)
-				targetURL = self.DiscourseURL + '/t/' + discourseTopicId;
-			else
-				targetURL = '/wiki/Special:RedirectToForum/page/' + mw.config.get('wgArticleId');
+			var targetURL = '/wiki/Special:RedirectToForum/page/' + mw.config.get('wgArticleId');
 
 			var addButton = $('<a>')
 						.attr({

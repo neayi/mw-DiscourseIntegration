@@ -2,8 +2,7 @@
 	"name": "CommentStreams",
 	"version": "5.0",
 	"author": [
-		"[https://www.mediawiki.org/wiki/User:Jji Jason Ji]",
-		"[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
+		"[https://www.mediawiki.org/wiki/User:BertrandGorge Bertrand Gorge]"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:CommentStreams",
 	"descriptionmsg": "commentstreams-desc",
@@ -11,7 +10,7 @@
 	"type": "parserhook",
 	"license-name": "MIT",
 	"requires": {
-		"MediaWiki": ">= 1.35.0"
+		"MediaWiki": ">= 1.37.0"
 	},
 	"SpecialPages": {
 		"RedirectToForum": "MediaWiki\\Extension\\CommentStreams\\RedirectToForum"
@@ -116,7 +115,8 @@
 	},
 	"APIModules": {
 		"cswatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSWatch",
-		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch"
+		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch",
+		"csgettopicid": "MediaWiki\\Extension\\CommentStreams\\ApiCSGetTopicID"
 	},
 	"Hooks": {
 		"ParserFirstCallInit": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onParserSetup",

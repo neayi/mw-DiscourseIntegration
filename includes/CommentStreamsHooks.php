@@ -23,22 +23,10 @@
 
 namespace MediaWiki\Extension\CommentStreams;
 
-use Article;
-use DatabaseUpdater;
-use MediaWiki;
 use OutputPage;
 use Parser;
 use PPFrame;
-use SearchResult;
 use Skin;
-use SMW;
-use SMW\DIWikiPage;
-use SpecialSearch;
-use Status;
-use Title;
-use User;
-use WebRequest;
-use WikiPage;
 
 class CommentStreamsHooks {
 
@@ -75,7 +63,6 @@ class CommentStreamsHooks {
 		Parser $parser,
 		PPFrame $frame
 	) {
-		$parser->getOutput()->updateCacheExpiry( 0 );
 		$cs = CommentStreams::singleton();
 		$cs->enableCommentsOnPage();
 		if ( isset( $args['id'] ) ) {
@@ -100,7 +87,6 @@ class CommentStreamsHooks {
 	 */
 	public static function disableCommentStreams( $input, array $args,
 		Parser $parser, PPFrame $frame ) {
-		$parser->getOutput()->updateCacheExpiry( 0 );
 		$cs = CommentStreams::singleton();
 		$cs->disableCommentsOnPage();
 		return "";

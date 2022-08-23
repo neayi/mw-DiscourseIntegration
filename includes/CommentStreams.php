@@ -23,9 +23,6 @@
 
 namespace MediaWiki\Extension\CommentStreams;
 
-use ExtensionRegistry;
-use MWNamespace;
-
 class CommentStreams {
 
 	// CommentStreams singleton instance
@@ -37,9 +34,6 @@ class CommentStreams {
 
 	// no CommentStreams flag
 	private $areCommentsEnabled = self::COMMENTS_INHERITED;
-
-	// true if enabled due to wgCommentStreamsAllowedNamespaces
-	private $areNamespaceEnabled = false;
 
 	/**
 	 * create a CommentStreams singleton instance
@@ -145,73 +139,11 @@ class CommentStreams {
 	 * @param OutputPage $output the OutputPage object
 	 */
 	private function initJS( $output ) {
-		// determine if comments should be initially collapsed or expanded
-		// if the namespace is a talk namespace, use state of its subject namespace
-		$title = $output->getTitle();
-		$namespace = $title->getNamespace();
-		if ( $title->isTalkPage() ) {
-			$namespace = MWNamespace::getSubject( $namespace );
-		}
+		$commentStreamsParams = [];
 
-		$commentStreamsParams = [
-			'moderatorEdit' => in_array( 'cs-moderator-edit',
-				$output->getUser()->getRights() ),
-			'moderatorDelete' => in_array( 'cs-moderator-delete',
-				$output->getUser()->getRights() ),
-			'areNamespaceEnabled' => $this->areNamespaceEnabled,
-			'enableWatchlist' =>
-				ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0
-		];
-
-		// Neayi: $wgCommentStreamsEnableWatchlist was not tested
-		$commentStreamsParams['enableWatchlist'] = $GLOBALS['wgCommentStreamsEnableWatchlist']
-													&& ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ? 1 : 0;
-
-
-		$commentStreamsParams['discourseTopicId'] = $this->getDiscourseTopicId( $title );
 		$commentStreamsParams['DiscourseURL'] = $GLOBALS['wgDiscourseURL'];
-
-		// End Neayi
 
 		$output->addJsConfigVars( 'CommentStreams', $commentStreamsParams );
 		$output->addModules( 'ext.CommentStreams' );
-		if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
-			$output->addModules( 'ext.veforall.main' );
-		}
 	}
-
-	/**
-	 * Finds the discourse topic for the current URL
-	 */
-	private function getDiscourseTopicId($wikiTitle)
-	{
-		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
-
-		$api = $this->getDiscourseAPI();
-
-        $r = $api->getPostsByEmbeddedURL($pageURL);
-
-        if (empty($r->apiresult) || !isset($r->apiresult->topic_id))
-            return false;
-
-        return $r->apiresult->topic_id;
-	}
-
-	private function getDiscourseAPI()
-	{
-		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
-			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
-
-		if ($GLOBALS['env'] == 'dev')
-		{
-			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
-									'http', '', '', true);
-		}
-		else
-		{
-			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
-									'https', '', '', false);
-		}
-	}
-
 }
