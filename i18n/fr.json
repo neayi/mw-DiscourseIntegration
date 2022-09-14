@@ -159,8 +159,8 @@
 	"commentstreams-allcomments-button-previous": "Précédent",
 	"commentstreams-ve-conversion-error": "Erreur de conversion entre le wikitexte et le code HTML pour l’ÉditeurVisuel",
 
-	"commentstreams-buttontext-Neayi-askquestion": "Poser une question",
-	"commentstreams-buttontext-Neayi-connecttocomment": "Connectez-vous pour poser une question",
+	"commentstreams-buttontext-Neayi-askquestion": "Démarrer la discussion",
+	"commentstreams-buttontext-Neayi-connecttocomment": "Connectez-vous pour discuter sur ce sujet !",
 	"commentstreams-buttontext-Neayi-edit": "Modifier",
 	"commentstreams-buttontext-Neayi-delete": "Supprimer",
 	"commentstreams-buttontext-Neayi-permalink": "Lien permanent"
