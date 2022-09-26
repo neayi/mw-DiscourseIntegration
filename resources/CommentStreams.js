@@ -130,6 +130,8 @@ var commentstreams_controller = ( function () {
 							d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
 							(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
 						})();
+
+						$(".cs-comment-button-label").html("Continuer la discussion");
 					}
 				} );
 			});
