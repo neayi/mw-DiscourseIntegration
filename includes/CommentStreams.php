@@ -106,6 +106,11 @@ class CommentStreams {
 		$title = $output->getTitle();
 		$namespace = $title->getNamespace();
 
+		// don't display comments on the main page
+		if ( $title->isMainPage() ) {
+			return false;
+		}
+
 		// don't display comments on pages that do not exist
 		if ( !$title->exists() ) {
 			return false;
