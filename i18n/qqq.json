@@ -159,9 +159,9 @@
 	"commentstreams-allcomments-button-previous": "Button label\n{{Identical|Previous}}",
 	"commentstreams-ve-conversion-error": "Error message",
 
-	"commentstreams-buttontext-Neayi-askquestion": "Ask a question question",
-	"commentstreams-buttontext-Neayi-connecttocomment": "Connect to ask a question question",
+	"commentstreams-buttontext-Neayi-askquestion": "Ask a question",
+	"commentstreams-buttontext-Neayi-connecttocomment": "Connect to ask a question",
 	"commentstreams-buttontext-Neayi-edit": "User interface button tooltip.\n{{Identical|Edit}}",
 	"commentstreams-buttontext-Neayi-delete": "User interface button tooltip.\n{{Identical|Delete}}",
-	"commentstreams-buttontext-Neayi-permalink": "User interface button tooltip.\n{{Identical|Permalink}}"	
+	"commentstreams-buttontext-Neayi-permalink": "User interface button tooltip.\n{{Identical|Permalink}}"
 }
