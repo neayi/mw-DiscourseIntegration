@@ -1,0 +1,43 @@
+#di-comments {
+	margin-top: 10px;
+	font-family: sans-serif;
+}
+
+
+
+.di-comment-button-label {
+	padding-left: 5px;
+}
+
+.di-button {
+	background-color: transparent;
+	border: 0;
+	font-family: sans-serif;
+	font-weight: bold;
+	text-decoration: none;
+	padding-left: 5px;
+	padding-right: 5px;
+	box-shadow: none;
+}
+
+.di-button:hover {
+	background-color: #8eddf5;
+}
+
+.di-button:disabled {
+	color: #95a5a6;
+	opacity: 0.2;
+}
+
+.di-button:enabled:active {
+	opacity: 0.5;
+}
+
+.di-button:enabled:hover {
+	color: #3ccefa;
+}
+
+#di-add-button {
+	font-size: 14px;
+	padding-left: 0;
+}

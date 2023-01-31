@@ -21,35 +21,35 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
 use OutputPage;
 use Parser;
 use PPFrame;
 use Skin;
 
-class CommentStreamsHooks {
+class DiscourseIntegrationHooks {
 
 	/**
 	 * Implements ParserFirstCallInit hook.
 	 * See https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
-	 * Adds comment-streams, no-comment-streams, and
-	 * comment-streams-initially-collapsed magic words.
+	 * Adds discourse-integration, no-discourse-integration, and
+	 * discourse-integration-initially-collapsed magic words.
 	 *
 	 * @param Parser $parser the parser
 	 * @return bool continue checking hooks
 	 */
 	public static function onParserSetup( Parser $parser ) {
-		$parser->setHook( 'comment-streams',
-			'MediaWiki\Extension\CommentStreams\CommentStreamsHooks::enableCommentStreams' );
-		$parser->setHook( 'no-comment-streams',
-			'MediaWiki\Extension\CommentStreams\CommentStreamsHooks::disableCommentStreams' );
+		$parser->setHook( 'discourse-integration',
+			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::enableDiscourseIntegration' );
+		$parser->setHook( 'no-discourse-integration',
+			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::disableDiscourseIntegration' );
 		return true;
 	}
 
 	/**
-	 * Implements tag function, <comment-streams/>, which enables
-	 * CommentStreams on a page.
+	 * Implements tag function, <discourse-integration/>, which enables
+	 * DiscourseIntegration on a page.
 	 *
 	 * @param string $input input between the tags (ignored)
 	 * @param array $args tag arguments
@@ -57,27 +57,27 @@ class CommentStreamsHooks {
 	 * @param PPFrame $frame the parent frame
 	 * @return string to replace tag with
 	 */
-	public static function enableCommentStreams(
+	public static function enableDiscourseIntegration(
 		$input,
 		array $args,
 		Parser $parser,
 		PPFrame $frame
 	) {
-		$cs = CommentStreams::singleton();
-		$cs->enableCommentsOnPage();
+		$discourseIntegration = DiscourseIntegration::singleton();
+		$discourseIntegration->enableCommentsOnPage();
 		if ( isset( $args['id'] ) ) {
-			$ret = '<div class="cs-comments" id="csc_' . md5( $args['id'] ) . '"></div>';
+			$ret = '<div class="di-comments" id="di_' . md5( $args['id'] ) . '"></div>';
 		} elseif ( isset( $args['location'] ) && $args['location'] === 'footer' ) {
 			$ret = '';
 		} else {
-			$ret = '<div class="cs-comments" id="cs-comments"></div>';
+			$ret = '<div class="di-comments" id="di-comments"></div>';
 		}
 		return $ret;
 	}
 
 	/**
-	 * Implements tag function, <no-comment-streams/>, which disables
-	 * CommentStreams on a page.
+	 * Implements tag function, <no-discourse-integration/>, which disables
+	 * DiscourseIntegration on a page.
 	 *
 	 * @param string $input input between the tags (ignored)
 	 * @param array $args tag arguments
@@ -85,10 +85,10 @@ class CommentStreamsHooks {
 	 * @param PPFrame $frame the parent frame
 	 * @return string to replace tag with
 	 */
-	public static function disableCommentStreams( $input, array $args,
+	public static function disableDiscourseIntegration( $input, array $args,
 		Parser $parser, PPFrame $frame ) {
-		$cs = CommentStreams::singleton();
-		$cs->disableCommentsOnPage();
+		$discourseIntegration = DiscourseIntegration::singleton();
+		$discourseIntegration->disableCommentsOnPage();
 		return "";
 	}
 
@@ -105,8 +105,8 @@ class CommentStreamsHooks {
 		OutputPage $output,
 		Skin $skin
 	) {
-		$cs = CommentStreams::singleton();
-		$cs->init( $output );
+		$discourseIntegration = DiscourseIntegration::singleton();
+		$discourseIntegration->init( $output );
 		return true;
 	}
 

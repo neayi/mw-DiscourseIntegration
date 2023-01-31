@@ -20,7 +20,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-var commentstreams_controller = ( function () {
+var DiscourseIntegration_controller = ( function () {
 	'use strict';
 
 	return {
@@ -30,7 +30,7 @@ var commentstreams_controller = ( function () {
 		initialize: function () {
 
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
-			var config = mw.config.get('CommentStreams');
+			var config = mw.config.get('DiscourseIntegration');
 			this.areNamespaceEnabled = config.areNamespaceEnabled;
 			this.DiscourseURL = config.DiscourseURL;
 			this.setupDivs();
@@ -45,17 +45,17 @@ var commentstreams_controller = ( function () {
 		setupDivs: function () {
 			var self = this;
 
-			if ($('#cs-comments.cs-comments').length === 0) {
-				var mainDiv = $('<div>').attr('class', 'cs-comments').attr('id', 'cs-comments');
+			if ($('#di-comments.di-comments').length === 0) {
+				var mainDiv = $('<div>').attr('class', 'di-comments').attr('id', 'di-comments');
 				mainDiv.insertAfter('#catlinks');
 			}
-			$('.cs-comments').each(function () {
+			$('.di-comments').each(function () {
 				var commentDiv = $(this);
 
-				var footerDiv = $('<div>').attr('class', 'cs-footer');
+				var footerDiv = $('<div>').attr('class', 'di-footer');
 				// For backwards compatibility. Please remove in ver 6.0
-				if (commentDiv.attr('id') === 'cs-comments') {
-					footerDiv.attr('id', 'cs-footer');
+				if (commentDiv.attr('id') === 'di-comments') {
+					footerDiv.attr('id', 'di-footer');
 				}
 				commentDiv.append(footerDiv);
 
@@ -63,8 +63,8 @@ var commentstreams_controller = ( function () {
 					var addButton = self.createNeayiAddButton();
 
 					// For backwards compatibility. Please remove in ver 6.0
-					if (commentDiv.attr('id') === 'cs-comments') {
-						addButton.attr('id', 'cs-add-button');
+					if (commentDiv.attr('id') === 'di-comments') {
+						addButton.attr('id', 'di-add-button');
 					}
 
 					footerDiv.append(addButton);
@@ -73,24 +73,24 @@ var commentstreams_controller = ( function () {
 				// Start Neayi : When the user is not connected, we show a button anyway
 				else {
 					var addButtonDiv = $('<div> ')
-						.addClass('cs-add-div');
+						.addClass('di-add-div');
 
 					var addButton = $('<button>')
 						.attr({
 							type: 'button',
-							id: 'cs-add-button',
-							title: mw.message('commentstreams-buttontext-Neayi-connecttocomment'),
+							id: 'di-add-button',
+							title: mw.message('discourseintegration-buttontext-connecttocomment'),
 							'data-toggle': 'tooltip'
 						})
-						.addClass('cs-add-button cs-button rounded');
+						.addClass('di-add-button di-button rounded');
 
 					var addCommentFA = $('<i>')
 						.addClass('fas fa-comment');
 					addButton.append(addCommentFA);
 
 					var addLabel = $('<span>')
-						.text(mw.message('commentstreams-buttontext-Neayi-connecttocomment'))
-						.addClass('cs-comment-button-label');
+						.text(mw.message('discourseintegration-buttontext-connecttocomment'))
+						.addClass('di-comment-button-label');
 					addButton.append(addLabel);
 
 					addButtonDiv.append(addButton);
@@ -111,11 +111,11 @@ var commentstreams_controller = ( function () {
 				var api = new mw.Api();
 
 				api.post( {
-					action: 'csgettopicid',
+					action: 'digettopicid',
 					pageid: pageId
 				} )
 				.done( function ( data ) {
-					var topicID = data.csgettopicid.topicID;
+					var topicID = data.digettopicid.topicID;
 
 					if (topicID > 0)
 					{
@@ -131,7 +131,7 @@ var commentstreams_controller = ( function () {
 							(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
 						})();
 
-						$(".cs-comment-button-label").html("Continuer la discussion");
+						$(".di-comment-button-label").html("Continuer la discussion");
 					}
 				} );
 			});
@@ -141,7 +141,7 @@ var commentstreams_controller = ( function () {
 			var self = this;
 
 			var addButtonDiv = $('<div> ')
-				.addClass('cs-add-div');
+				.addClass('di-add-div');
 
 			var targetURL = '/wiki/Special:RedirectToForum/page/' + mw.config.get('wgArticleId');
 
@@ -149,19 +149,19 @@ var commentstreams_controller = ( function () {
 						.attr({
 							'href': targetURL,
 							'target': '_blank',
-							'class': 'cs-add-button',
-							'title': mw.message('commentstreams-buttontext-Neayi-askquestion'),
+							'class': 'di-add-button',
+							'title': mw.message('discourseintegration-buttontext-askquestion'),
 							'data-toggle': 'tooltip'
 						})
-						.addClass('cs-button rounded');
+						.addClass('di-button rounded');
 
 			var addCommentFA = $('<i>')
 				.addClass('fas fa-comment');
 			addButton.append(addCommentFA);
 
 			var addLabel = $('<span>')
-				.text(mw.message('commentstreams-buttontext-Neayi-askquestion'))
-				.addClass('cs-comment-button-label');
+				.text(mw.message('discourseintegration-buttontext-askquestion'))
+				.addClass('di-comment-button-label');
 			addButton.append(addLabel);
 
 			addButtonDiv.append(addButton);
@@ -172,13 +172,13 @@ var commentstreams_controller = ( function () {
 	};
 }());
 
-window.CommentStreamsController = commentstreams_controller;
+window.DiscourseIntegrationController = DiscourseIntegration_controller;
 
 (function () {
 	$(document)
 		.ready(function () {
-			if (mw.config.exists('CommentStreams')) {
-				window.CommentStreamsController.initialize();
+			if (mw.config.exists('DiscourseIntegration')) {
+				window.DiscourseIntegrationController.initialize();
 			}
 		});
 }());

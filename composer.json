@@ -1,5 +1,5 @@
 {
-	"name": "mediawiki/comment-streams",
+	"name": "mediawiki/discourse-integration",
 	"type": "mediawiki-extension",
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "34.0.0",

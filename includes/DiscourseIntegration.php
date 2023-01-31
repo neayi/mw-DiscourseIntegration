@@ -21,24 +21,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
-class CommentStreams {
+class DiscourseIntegration {
 
-	// CommentStreams singleton instance
+	// DiscourseIntegration singleton instance
 	private static $instance = null;
 
 	const COMMENTS_ENABLED = 1;
 	const COMMENTS_DISABLED = -1;
 	const COMMENTS_INHERITED = 0;
 
-	// no CommentStreams flag
+	// no DiscourseIntegration flag
 	private $areCommentsEnabled = self::COMMENTS_INHERITED;
 
 	/**
-	 * create a CommentStreams singleton instance
+	 * create a DiscourseIntegration singleton instance
 	 *
-	 * @return CommentStreams a singleton CommentStreams instance
+	 * @return DiscourseIntegration a singleton DiscourseIntegration instance
 	 */
 	public static function singleton() : self {
 		if ( self::$instance === null ) {
@@ -90,10 +90,10 @@ class CommentStreams {
 			return false;
 		}
 
-		// if $wgCommentStreamsAllowedNamespaces is not set, display comments
+		// if $wgDiscourseIntegrationAllowedNamespaces is not set, display comments
 		// in all content namespaces and if set to -1, don't display comments
 		$config = $output->getConfig();
-		$csAllowedNamespaces = $config->get( 'CommentStreamsAllowedNamespaces' );
+		$csAllowedNamespaces = $config->get( 'DiscourseIntegrationAllowedNamespaces' );
 		if ( $csAllowedNamespaces === null ) {
 			$csAllowedNamespaces = $config->get( 'ContentNamespaces' );
 			$this->areNamespaceEnabled = true;
@@ -144,11 +144,11 @@ class CommentStreams {
 	 * @param OutputPage $output the OutputPage object
 	 */
 	private function initJS( $output ) {
-		$commentStreamsParams = [];
+		$params = [];
 
-		$commentStreamsParams['DiscourseURL'] = $GLOBALS['wgDiscourseURL'];
+		$params['DiscourseURL'] = $GLOBALS['wgDiscourseURL'];
 
-		$output->addJsConfigVars( 'CommentStreams', $commentStreamsParams );
-		$output->addModules( 'ext.CommentStreams' );
+		$output->addJsConfigVars( 'DiscourseIntegration', $params );
+		$output->addModules( 'ext.DiscourseIntegration' );
 	}
 }

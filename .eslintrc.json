@@ -19,7 +19,6 @@
 		"vars-on-top": "off"
 	},
 	"globals": {
-		"CommentStreamsQuerier": "readonly",
 		"Spinner": "readonly"
 	}
 }

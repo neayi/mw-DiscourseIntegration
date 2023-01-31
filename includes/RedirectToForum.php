@@ -23,7 +23,7 @@
  */
 
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
 use SpecialPage;
 use MediaWiki\MediaWikiServices;
@@ -109,7 +109,7 @@ class RedirectToForum extends SpecialPage {
 		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
 		$pageId = $wikiTitle->getArticleID();
 
-		wfDebugLog( 'CommentStreams', "Creating topic for : $wikiTitle");
+		wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
 
 		$this->debugText .= "Title =  $wikiTitle<br>";
 
@@ -171,7 +171,7 @@ $pageURL";
 		{
 			if (empty($aFollower->user->discourse_username))
 			{
-				wfDebugLog( 'CommentStreams', "Empty follower : " . print_r($aFollower, true) . "\n");
+				wfDebugLog( 'DiscourseIntegration', "Empty follower : " . print_r($aFollower, true) . "\n");
 				continue;
 			}
 
@@ -180,7 +180,7 @@ $pageURL";
 			$api->watchTopic($topicId, $username);
 			$this->debugText .= "Whatching $topicId -> " . $username . "<br>";
 
-			wfDebugLog( 'CommentStreams', "Whatching $topicId -> " . $username . "\n");
+			wfDebugLog( 'DiscourseIntegration', "Whatching $topicId -> " . $username . "\n");
 		}
 	}
 

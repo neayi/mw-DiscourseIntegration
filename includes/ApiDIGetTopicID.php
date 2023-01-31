@@ -21,9 +21,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
-class ApiCSGetTopicID extends ApiCSBase {
+class ApiDIGetTopicID extends ApiDIBase {
 
 	/**
 	 * @param ApiMain $main main module

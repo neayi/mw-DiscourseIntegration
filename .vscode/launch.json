@@ -12,7 +12,7 @@
             "hostname": "0.0.0.0",
             // Path to your source in container
             "pathMappings": {
-                "/var/www/html/extensions/CommentStreams": "${workspaceFolder}",
+                "/var/www/html/extensions/DiscourseIntegration": "${workspaceFolder}",
                 "/var/www/html": "${workspaceFolder}/../.."
             }
         },
@@ -24,7 +24,7 @@
             "cwd": "${fileDirname}",
             "port": 9003,
             "pathMappings": {
-                "/var/www/html/extensions/CommentStreams": "${workspaceFolder}"
+                "/var/www/html/extensions/DiscourseIntegration": "${workspaceFolder}"
             }
         }
     ]

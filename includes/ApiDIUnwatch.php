@@ -21,9 +21,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
-class ApiCSWatch extends ApiCSBase {
+class ApiDIUnwatch extends ApiDIBase {
 
 	/**
 	 * @param ApiMain $main main module
@@ -49,10 +49,10 @@ class ApiCSWatch extends ApiCSBase {
 		if (empty($topicId))
 			return;
 
-		$result = $api->watchTopic($topicId, $username);
+		$result = $api->unwatchTopic($topicId, $username);
 
 		if ( empty($result->apiresult) || !$result->apiresult->success ) {
-			$this->dieCustomUsageMessage( 'commentstreams-api-error-watch' );
+			$this->dieCustomUsageMessage( 'discourseintegration-api-error-unwatch' );
 		}
 
 		$this->getResult()->addValue( null, $this->getModuleName(), '' );

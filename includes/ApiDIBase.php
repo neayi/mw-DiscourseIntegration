@@ -21,13 +21,12 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-namespace MediaWiki\Extension\CommentStreams;
+namespace MediaWiki\Extension\DiscourseIntegration;
 
 use ApiBase;
 use ApiMessage;
-use ManualLogEntry;
 
-abstract class ApiCSBase extends ApiBase {
+abstract class ApiDIBase extends ApiBase {
 
 	private $edit;
 	protected $currentPage;
@@ -84,7 +83,7 @@ abstract class ApiCSBase extends ApiBase {
 		return [
 			'action=' . $this->getModuleName() . '&pageid=3' =>
 			'apihelp-' . $this->getModuleName() . '-pageid-example',
-			'action=' . $this->getModuleName() . '&title=CommentStreams:3' =>
+			'action=' . $this->getModuleName() . '&title=DiscourseIntegration:3' =>
 			'apihelp-' . $this->getModuleName() . '-title-example'
 		];
 	}
@@ -98,23 +97,6 @@ abstract class ApiCSBase extends ApiBase {
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * log action
-	 * @param string $action the name of the action to be logged
-	 * @param string|null $title the title of the page for the comment that the
-	 *        action was performed upon, if differen from the current comment
-	 */
-	protected function logAction( $action, $title = null ) {
-		$logEntry = new ManualLogEntry( 'commentstreams', $action );
-		$logEntry->setPerformer( $this->getUser() );
-		if ( $title ) {
-			$logEntry->setTarget( $title );
-		} else {
-			$logEntry->setTarget( $this->comment->getWikiPage()->getTitle() );
-		}
-		$logid = $logEntry->insert();
 	}
 
 	protected function getTopicIdForPageId()
@@ -143,7 +125,7 @@ abstract class ApiCSBase extends ApiBase {
 
 		if ( $user->isAnon() ) {
 			$this->dieCustomUsageMessage(
-				'commentstreams-api-error-watch-notloggedin' );
+				'discourseintegration-api-error-watch-notloggedin' );
 		}
 
 		// Find the email of the logged in user
@@ -167,7 +149,7 @@ abstract class ApiCSBase extends ApiBase {
 			if (!empty($username))
 			{
 				$this->dieCustomUsageMessage(
-					'commentstreams-api-error-watch-no-discourse-user' );
+					'discourseintegration-api-error-watch-no-discourse-user' );
 			}
 		}
 	}

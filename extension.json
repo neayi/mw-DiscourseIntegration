@@ -1,11 +1,11 @@
 {
-	"name": "CommentStreams",
+	"name": "DiscourseIntegration",
 	"version": "5.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:BertrandGorge Bertrand Gorge]"
 	],
-	"url": "https://www.mediawiki.org/wiki/Extension:CommentStreams",
-	"descriptionmsg": "commentstreams-desc",
+	"url": "https://www.mediawiki.org/wiki/Extension:DiscourseIntegration",
+	"descriptionmsg": "discourseintegration-desc",
 	"manifest_version": 1,
 	"type": "parserhook",
 	"license-name": "MIT",
@@ -13,20 +13,20 @@
 		"MediaWiki": ">= 1.37.0"
 	},
 	"SpecialPages": {
-		"RedirectToForum": "MediaWiki\\Extension\\CommentStreams\\RedirectToForum"
+		"RedirectToForum": "MediaWiki\\Extension\\DiscourseIntegration\\RedirectToForum"
 	},
 	"MessagesDirs": {
-		"CommentStreams": [
+		"DiscourseIntegration": [
 			"i18n"
 		]
 	},
 	"ResourceModules": {
-		"ext.CommentStreams": {
+		"ext.DiscourseIntegration": {
 			"styles": [
-				"CommentStreams.css"
+				"DiscourseIntegration.css"
 			],
 			"scripts": [
-				"CommentStreams.js"
+				"DiscourseIntegration.js"
 			],
 			"dependencies": [
 				"oojs-ui"
@@ -36,96 +36,39 @@
 				"mobile"
 			],
 			"messages": [
-				"commentstreams-api-error-notloggedin",
-				"commentstreams-api-error-commentnotfound",
-				"commentstreams-api-error-notacomment",
-				"commentstreams-api-error-missingcommenttitle",
-				"commentstreams-api-error-post-permissions",
-				"commentstreams-api-error-post-parentandtitle",
-				"commentstreams-api-error-post-parentpagedoesnotexist",
-				"commentstreams-api-error-post-associatedpageidmismatch",
-				"commentstreams-api-error-post-associatedpagedoesnotexist",
-				"commentstreams-api-error-post",
-				"commentstreams-api-error-edit-notloggedin",
-				"commentstreams-api-error-edit-permissions",
-				"commentstreams-api-error-edit",
-				"commentstreams-api-error-delete-notloggedin",
-				"commentstreams-api-error-delete-permissions",
-				"commentstreams-api-error-delete-haschildren",
-				"commentstreams-api-error-delete",
-				"commentstreams-api-error-vote-notloggedin",
-				"commentstreams-api-error-vote-novoteonreply",
-				"commentstreams-api-error-vote",
-				"commentstreams-api-error-watch-notloggedin",
-				"commentstreams-api-error-watch-nowatchreply",
-				"commentstreams-api-error-watch",
-				"commentstreams-api-error-unwatch-notloggedin",
-				"commentstreams-api-error-unwatch-nounwatchreply",
-				"commentstreams-api-error-unwatch",
-				"commentstreams-validation-error-nocommenttitle",
-				"commentstreams-validation-error-nocommenttext",
-				"commentstreams-buttontext-add",
-				"commentstreams-buttontext-reply",
-				"commentstreams-buttontooltip-add",
-				"commentstreams-buttontooltip-reply",
-				"commentstreams-buttontooltip-edit",
-				"commentstreams-buttontooltip-moderator-edit",
-				"commentstreams-buttontooltip-delete",
-				"commentstreams-buttontooltip-moderator-delete",
-				"commentstreams-buttontooltip-permalink",
-				"commentstreams-buttontooltip-collapse",
-				"commentstreams-buttontooltip-expand",
-				"commentstreams-buttontooltip-upvote",
-				"commentstreams-buttontooltip-downvote",
-				"commentstreams-buttontooltip-watch",
-				"commentstreams-buttontooltip-unwatch",
-				"commentstreams-buttontooltip-submit",
-				"commentstreams-buttontooltip-cancel",
-				"commentstreams-dialog-delete-message",
-				"commentstreams-dialog-anonymous-message",
-				"commentstreams-dialog-buttontext-ok",
-				"commentstreams-dialog-buttontext-cancel",
-				"commentstreams-dialog-buttontext-yes",
-				"commentstreams-dialog-buttontext-no",
-				"commentstreams-urldialog-instructions",
-				"commentstreams-datetext-postedon",
-				"commentstreams-datetext-lasteditedon",
-				"commentstreams-datetext-moderated",
-				"commentstreams-title-field-placeholder",
-				"commentstreams-body-field-placeholder",
-				"commentstreams-ve-conversion-error",
+				"discourseintegration-buttontext-askquestion",
+				"discourseintegration-buttontext-connecttocomment",
 
-				"commentstreams-buttontext-Neayi-askquestion",
-				"commentstreams-buttontext-Neayi-connecttocomment",
-				"commentstreams-buttontext-Neayi-edit",
-				"commentstreams-buttontext-Neayi-delete",
-				"commentstreams-buttontext-Neayi-permalink"
+				"discourseintegration-api-error-unwatch",
+				"discourseintegration-api-error-watch",
+				"discourseintegration-api-error-watch-notloggedin",
+				"discourseintegration-api-error-watch-no-discourse-user"
 			]
 		}
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "resources",
-		"remoteExtPath": "CommentStreams/resources"
+		"remoteExtPath": "DiscourseIntegration/resources"
 	},
 	"AutoloadNamespaces": {
-		"MediaWiki\\Extension\\CommentStreams\\": "includes/"
+		"MediaWiki\\Extension\\DiscourseIntegration\\": "includes/"
 	},
 	"AutoloadClasses": {
 		"DiscourseAPI": "discourse-api-php/lib/DiscourseAPI.php"
 	},
 	"APIModules": {
-		"cswatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSWatch",
-		"csunwatch": "MediaWiki\\Extension\\CommentStreams\\ApiCSUnwatch",
-		"csgettopicid": "MediaWiki\\Extension\\CommentStreams\\ApiCSGetTopicID"
+		"diwatch": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIWatch",
+		"diunwatch": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIUnwatch",
+		"digettopicid": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIGetTopicID"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::onParserSetup",
-		"BeforePageDisplay": "MediaWiki\\Extension\\CommentStreams\\CommentStreamsHooks::addCommentsAndInitializeJS"
+		"ParserFirstCallInit": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::onParserSetup",
+		"BeforePageDisplay": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::addCommentsAndInitializeJS"
 	},
 	"config": {
-		"CommentStreamsNamespaceIndex": 844,
-		"CommentStreamsAllowedNamespaces" : null,
-		"CommentStreamsUserRealNamePropertyName" : null,
+		"DiscourseIntegrationNamespaceIndex": 844,
+		"DiscourseIntegrationAllowedNamespaces" : null,
+		"DiscourseIntegrationUserRealNamePropertyName" : null,
 		"DiscourseAPIKey" : null,
 		"DiscourseHost" : null
 	}
