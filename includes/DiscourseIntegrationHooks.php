@@ -33,8 +33,7 @@ class DiscourseIntegrationHooks {
 	/**
 	 * Implements ParserFirstCallInit hook.
 	 * See https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
-	 * Adds discourse-integration, no-discourse-integration, and
-	 * discourse-integration-initially-collapsed magic words.
+	 * Adds discourse-integration, no-discourse-integration magic words.
 	 *
 	 * @param Parser $parser the parser
 	 * @return bool continue checking hooks
@@ -44,6 +43,9 @@ class DiscourseIntegrationHooks {
 			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::enableDiscourseIntegration' );
 		$parser->setHook( 'no-discourse-integration',
 			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::disableDiscourseIntegration' );
+		$parser->setHook( 'no-comment-streams',
+			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::disableDiscourseIntegration' );
+
 		return true;
 	}
 
