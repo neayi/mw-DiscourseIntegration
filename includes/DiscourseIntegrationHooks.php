@@ -31,22 +31,20 @@ use Skin;
 class DiscourseIntegrationHooks {
 
 	/**
-	 * Implements ParserFirstCallInit hook.
-	 * See https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
-	 * Adds discourse-integration, no-discourse-integration magic words.
+	 * Register parser hooks to add the piwigo keyword
 	 *
-	 * @param Parser $parser the parser
-	 * @return bool continue checking hooks
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
+	 * @see https://www.mediawiki.org/wiki/Manual:Parser_functions
+	 * @param Parser $parser
+	 * @throws \MWException
 	 */
-	public static function onParserSetup( Parser $parser ) {
-		$parser->setHook( 'discourse-integration',
-			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::enableDiscourseIntegration' );
-		$parser->setHook( 'no-discourse-integration',
-			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::disableDiscourseIntegration' );
-		$parser->setHook( 'no-comment-streams',
-			'MediaWiki\Extension\DiscourseIntegration\DiscourseIntegrationHooks::disableDiscourseIntegration' );
-
-		return true;
+	public function onParserFirstCallInit( $parser ) {
+		// <discourse-integration />
+		// <no-discourse-integration />
+		// <no-comment-streams />
+		$parser->setHook( 'discourse-integration', [ self::class, 'enableDiscourseIntegration' ] );
+		$parser->setHook( 'no-discourse-integration', [ self::class, 'disableDiscourseIntegration' ] );
+		$parser->setHook( 'no-comment-streams', [ self::class, 'disableDiscourseIntegration' ] );
 	}
 
 	/**

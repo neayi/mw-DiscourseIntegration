@@ -20,6 +20,9 @@
 			"i18n"
 		]
 	},
+	"ExtensionMessagesFiles": {
+		"DiscourseIntegrationMagic": "DiscourseIntegrationMagic.i18n.magic.php"
+	},
 	"ResourceModules": {
 		"ext.DiscourseIntegration": {
 			"styles": [
@@ -62,7 +65,7 @@
 		"digettopicid": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIGetTopicID"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::onParserSetup",
+		"ParserFirstCallInit": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::onParserFirstCallInit",
 		"BeforePageDisplay": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::addCommentsAndInitializeJS"
 	},
 	"config": {
