@@ -38,7 +38,7 @@ class DiscourseIntegrationHooks {
 	 * @param Parser $parser
 	 * @throws \MWException
 	 */
-	public function onParserFirstCallInit( $parser ) {
+	public static function onParserFirstCallInit( $parser ) {
 		// <discourse-integration />
 		// <no-discourse-integration />
 		// <no-comment-streams />
