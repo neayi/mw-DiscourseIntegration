@@ -25,6 +25,8 @@ namespace MediaWiki\Extension\DiscourseIntegration;
 
 use ApiBase;
 use ApiMessage;
+use ApiMain;
+use Wikimedia\ParamValidator\ParamValidator;
 
 abstract class ApiDIBase extends ApiBase {
 
@@ -46,8 +48,7 @@ abstract class ApiDIBase extends ApiBase {
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
-		$this->currentPage = $this->getTitleOrPageId( $params,
-			$this->edit ? 'frommasterdb' : 'fromdb' );
+		$this->currentPage = $this->getTitleOrPageId( $params );
 
 		$result = $this->executeBody();
 		if ( $result !== null ) {
@@ -66,12 +67,12 @@ abstract class ApiDIBase extends ApiBase {
 	public function getAllowedParams() {
 		return [
 			'pageid' => [
-				ApiBase::PARAM_TYPE => 'integer',
-				ApiBase::PARAM_REQUIRED => false
+				ParamValidator::PARAM_TYPE => 'integer',
+				ParamValidator::PARAM_REQUIRED => false
 			],
 			'title' => [
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => false
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false
 			]
 		];
 	}
