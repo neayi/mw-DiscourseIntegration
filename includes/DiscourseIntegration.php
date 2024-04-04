@@ -149,6 +149,6 @@ class DiscourseIntegration {
 		$params['DiscourseURL'] = $GLOBALS['wgDiscourseURL'];
 
 		$output->addJsConfigVars( 'DiscourseIntegration', $params );
-		$output->addModules( 'ext.DiscourseIntegration' );
+		$output->addModules( ['ext.DiscourseIntegration'] );
 	}
 }
