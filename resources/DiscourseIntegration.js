@@ -25,23 +25,27 @@ var DiscourseIntegration_controller = ( function () {
 
 	return {
 		isLoggedIn: false,
-		areNamespaceEnabled: false,
 
 		initialize: function () {
 
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
 			var config = mw.config.get('DiscourseIntegration');
-			this.areNamespaceEnabled = config.areNamespaceEnabled;
-			this.DiscourseURL = config.DiscourseURL;
-			this.setupDivs();
 
+			this.DiscourseURL = config.DiscourseURL;
+			
+			if ($('#di-disable-comments').length > 0)
+				return;
+
+			this.setupDivs();			
 		},
+
 		scrollToAnchor: function (id) {
 			var element = $('#' + id);
 			if (element.length) {
 				$('html,body').animate({ scrollTop: element.offset().top }, 'slow');
 			}
 		},
+		
 		setupDivs: function () {
 			var self = this;
 
@@ -49,6 +53,7 @@ var DiscourseIntegration_controller = ( function () {
 				var mainDiv = $('<div>').attr('class', 'di-comments').attr('id', 'di-comments');
 				mainDiv.insertAfter('#catlinks');
 			}
+
 			$('.di-comments').each(function () {
 				var commentDiv = $(this);
 

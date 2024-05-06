@@ -5,6 +5,9 @@ set_time_limit(0);
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\WikiPageFactory;
+use MediaWiki\User\UserFactory;
 
 /**
  * Maintenance script that creates discourse threads for each discussion started in CommentStream
@@ -16,6 +19,8 @@ class cs_2_discourse extends Maintenance {
     private $topicForPage = array();
     private $usersToSubscribe = array();
     private $discourseUsernames = array();
+	private $wikiPageFactory;
+	private $userFactory;
 
 	public function __construct() {
 		parent::__construct();
@@ -23,6 +28,10 @@ class cs_2_discourse extends Maintenance {
         $this->topicForPage = array();
         $this->usersToSubscribe = array();
         $this->discourseUsernames = array();
+        
+        $services = MediaWikiServices::getInstance();
+        $this->wikiPageFactory = $services->getWikiPageFactory();
+        $this->userFactory = $services->getUserFactory();
 
         $this->addOption( 'launch', 'Really launch the script', false, false );
     }
@@ -96,7 +105,7 @@ class cs_2_discourse extends Maintenance {
             // Create the new topic in discourse...!
 
             // First, get the page info:
-            $wikipage = WikiPage::newFromId( $pageId );
+            $wikipage = $this->wikiPageFactory->newFromID( $pageId );
             $wikiTitle = $wikipage->getTitle();
 
             $username = $this->getUserNameForWikiPage($wikipage);
@@ -133,10 +142,10 @@ class cs_2_discourse extends Maintenance {
         }
 
         // Create a reply for this comment/question:
-        $commentPage = WikiPage::newFromId( $commentPageId );
+        $commentPage = $this->wikiPageFactory->newFromID( $commentPageId );
 
         $content = $commentPage->getContent( RevisionRecord::FOR_PUBLIC ); // RevisionRecord::RAW );
-        $html = ContentHandler::getContentText( $content );
+        $html = ( $content instanceof TextContent ) ? $content->getText() : '';
 
         $html = preg_replace('@{{[^}]+}}@', '', $html);
 
@@ -181,10 +190,10 @@ class cs_2_discourse extends Maintenance {
         $api = $this->getDiscourseAPI();
 
         // Create a reply for this comment/question:
-        $commentPage = WikiPage::newFromId( $commentPageId );
+        $commentPage = $this->wikiPageFactory->newFromID( $commentPageId );
 
         $content = $commentPage->getContent( RevisionRecord::FOR_PUBLIC ); // RevisionRecord::RAW );
-        $html = ContentHandler::getContentText( $content );
+        $html = ( $content instanceof TextContent ) ? $content->getText() : '';
 
         $html = preg_replace('@{{[^}]+}}@', '', $html);
 
@@ -259,7 +268,7 @@ class cs_2_discourse extends Maintenance {
         if (empty($user))
         {
             $lastUserId = $wikipage->getUser();
-            $user = User::newFromId( $lastUserId );
+            $user = $this->userFactory->newFromId( $lastUserId );
 
             $userEmail = $user->getEmail();
 
@@ -274,7 +283,7 @@ class cs_2_discourse extends Maintenance {
                     $mail = $user->getEmail();
 
                     if (!empty($mail))
-                        $contributorsEmails[] = $email;
+                        $contributorsEmails[] = $mail;
                 }
 
                 $userEmail = end($contributorsEmails);
@@ -296,10 +305,10 @@ class cs_2_discourse extends Maintenance {
                 $username = 'astrid.robette';
             }
 
-            $this->discourseUsernames[$userEmail] = $userName;
+            $this->discourseUsernames[$userEmail] = $username;
         }
         else
-            $userName = $this->discourseUsernames[$userEmail];
+            $username = $this->discourseUsernames[$userEmail];
 
         // SELECT * FROM `users` WHERE `email` IN ('astrid.robette@neayi.com', 'b.estanguet@valdegascogne.coop',  'bertrand.gorge@neayi.com',  'delphine.da-costa@bio-occitanie.org',  'didier.fertil@m-g-p.fr',  'etadesmarais@hotmail.fr',  'hartmax@hotmail.fr',  'jd4s@orange.fr',  'maraichportecluse09@orange.fr',  'pieter@hortiproyect.eu',  'samuelfoubert@orange.fr',  'st.perrault2611@gmail.com',  'suzor@herault.chambagri.fr',  'v.soulere@hautes-pyrenees.chambagri.fr',  'zionamap@gmail.com')
 

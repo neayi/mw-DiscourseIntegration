@@ -28,13 +28,6 @@ class DiscourseIntegration {
 	// DiscourseIntegration singleton instance
 	private static $instance = null;
 
-	const COMMENTS_ENABLED = 1;
-	const COMMENTS_DISABLED = -1;
-	const COMMENTS_INHERITED = 0;
-
-	// no DiscourseIntegration flag
-	private $areCommentsEnabled = self::COMMENTS_INHERITED;
-
 	/**
 	 * create a DiscourseIntegration singleton instance
 	 *
@@ -48,27 +41,13 @@ class DiscourseIntegration {
 	}
 
 	/**
-	 * enables the display of comments on the current page
-	 */
-	public function enableCommentsOnPage() {
-		$this->areCommentsEnabled = self::COMMENTS_ENABLED;
-	}
-
-	/**
-	 * disables the display of comments on the current page
-	 */
-	public function disableCommentsOnPage() {
-		$this->areCommentsEnabled = self::COMMENTS_DISABLED;
-	}
-
-	/**
 	 * initializes the display of comments
 	 *
 	 * @param OutputPage $output OutputPage object
 	 */
 	public function init( $output ) {
-		if ( $this->checkDisplayComments( $output ) ) {
-
+		if ( $this->checkDisplayComments( $output ) )
+		{
 			$this->initJS( $output );
 		}
 	}
@@ -80,31 +59,13 @@ class DiscourseIntegration {
 	 * @return bool true if comments should be displayed on this page
 	 */
 	private function checkDisplayComments( $output ) {
-		// don't display comments on this page if they are explicitly disabled
-		if ( $this->areCommentsEnabled === self::COMMENTS_DISABLED ) {
-			return false;
-		}
 
 		// don't display comments on any page action other than view action
 		if ( \Action::getActionName( $output->getContext() ) !== "view" ) {
 			return false;
 		}
 
-		// if $wgDiscourseIntegrationAllowedNamespaces is not set, display comments
-		// in all content namespaces and if set to -1, don't display comments
-		$config = $output->getConfig();
-		$csAllowedNamespaces = $config->get( 'DiscourseIntegrationAllowedNamespaces' );
-		if ( $csAllowedNamespaces === null ) {
-			$csAllowedNamespaces = $config->get( 'ContentNamespaces' );
-			$this->areNamespaceEnabled = true;
-		} elseif ( $csAllowedNamespaces === self::COMMENTS_DISABLED ) {
-			return false;
-		} elseif ( !is_array( $csAllowedNamespaces ) ) {
-			$csAllowedNamespaces = [ $csAllowedNamespaces ];
-		}
-
 		$title = $output->getTitle();
-		$namespace = $title->getNamespace();
 
 		// don't display comments on the main page
 		if ( $title->isMainPage() ) {
@@ -118,20 +79,6 @@ class DiscourseIntegration {
 
 		// don't display comments on redirect pages
 		if ( $title->isRedirect() ) {
-			return false;
-		}
-
-		// display comments on this page if they are explicitly enabled
-		if ( $this->areCommentsEnabled === self::COMMENTS_ENABLED ) {
-			return true;
-		}
-
-		// don't display comments in a talk namespace
-		if ( $title->isTalkPage() ) {
-				return false;
-		} elseif ( !in_array( $namespace, $csAllowedNamespaces ) ) {
-			// only display comments in subject namespaces in the list of allowed
-			// namespaces
 			return false;
 		}
 

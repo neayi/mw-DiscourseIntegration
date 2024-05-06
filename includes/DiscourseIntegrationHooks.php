@@ -63,8 +63,6 @@ class DiscourseIntegrationHooks {
 		Parser $parser,
 		PPFrame $frame
 	) {
-		$discourseIntegration = DiscourseIntegration::singleton();
-		$discourseIntegration->enableCommentsOnPage();
 		if ( isset( $args['id'] ) ) {
 			$ret = '<div class="di-comments" id="di_' . md5( $args['id'] ) . '"></div>';
 		} elseif ( isset( $args['location'] ) && $args['location'] === 'footer' ) {
@@ -85,11 +83,13 @@ class DiscourseIntegrationHooks {
 	 * @param PPFrame $frame the parent frame
 	 * @return string to replace tag with
 	 */
-	public static function disableDiscourseIntegration( $input, array $args,
-		Parser $parser, PPFrame $frame ) {
-		$discourseIntegration = DiscourseIntegration::singleton();
-		$discourseIntegration->disableCommentsOnPage();
-		return "";
+	public static function disableDiscourseIntegration( 
+		$input, 
+		array $args,
+		Parser $parser, 
+		PPFrame $frame 
+	) {
+		return '<div id="di-disable-comments"></div>';
 	}
 
 	/**
