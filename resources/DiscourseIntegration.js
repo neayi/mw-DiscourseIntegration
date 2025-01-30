@@ -36,6 +36,10 @@ var DiscourseIntegration_controller = ( function () {
 			if ($('#di-disable-comments').length > 0)
 				return;
 
+			// Also don't load the comments on iframes. Period.
+			if (mw.config.get('wgCanonicalNamespace') == 'Iframe')
+				return;
+
 			this.setupDivs();			
 		},
 
