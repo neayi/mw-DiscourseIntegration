@@ -62,7 +62,8 @@
 	"APIModules": {
 		"diwatch": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIWatch",
 		"diunwatch": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIUnwatch",
-		"digettopicid": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIGetTopicID"
+		"digettopicid": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIGetTopicID",
+		"diaddmessage": "MediaWiki\\Extension\\DiscourseIntegration\\ApiDIAddMessage"
 	},
 	"Hooks": {
 		"ParserFirstCallInit": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::onParserFirstCallInit",
