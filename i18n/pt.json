@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Se gostou deste artigo, não se esqueça de o aplaudir clicando abaixo. <br>Para se manter informado sobre os desenvolvimentos, clique em \"Seguir\". <br>se quiser partilhar a sua experiência com a comunidade em torno deste tema, clique em \"Sim\".",
+    "discourseintegration-see-more": "Ver mais",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Um interessado|$1 interessado}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Uma pessoa em discussão|$1 pessoas em discussão}}",
+    "discourseintegration-followed": "Página seguida",
+    "discourseintegration-follow": "Seguir página",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 participação|$1 participação}}",
+    "discourseintegration-nk-doers": "$1k explorações",
+    "discourseintegration-done-it-confirmed": "Fazer !",
+    "discourseintegration-I-do-it": "Eu faço",
+    "discourseintegration-I-do-it-production": "Eu faço",
+    "discourseintegration-have-some-confirmed": "Eu tenho alguns!",
+    "discourseintegration-I-have-some": "tenho alguns",
+    "discourseintegration-have-it-confirmed": "Eu tenho isso!",
+    "discourseintegration-I-have-it": "eu tenho isso",
+    "discourseintegration-loading": "Carregando...",
+    "discourseintegration-map-departement": "<b>Departamento:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Comunidade:<\/b> $1",
+    "discourseintegration-read-more-button": "Leia mais",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discussão sobre este tópico ($1 mensagem)|Discussão sobre este tópico ($1 mensagens)}}",
+    "discourseintegration-applause-button": "Instrutivo",
+    "discourseintegration-ask-question": "Faça uma pergunta e compartilhe comentários:",
+    "discourseintegration-question_hint-1": "Onde encontramos...",
+    "discourseintegration-question_hint-2": "Isso é possível em...",
+    "discourseintegration-question_hint-3": "Isso é compatível com...",
+    "discourseintegration-infos": "Informações"
+}

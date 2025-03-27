@@ -1,34 +1,33 @@
 {
-	"@metadata": {
-		"authors": [
-			"Bertrand Gorge"
-		]
-	},
-	"discourseintegration-desc": "Permet de commenter les pages wiki avec Discourse",
-
-	"apihelp-diunwatch-description": "Ne plus surveiller un commentaire pour ne plus être notifié quand il reçoit des réponses",
-	"apihelp-diunwatch-pageid-example": "ne plus surveiller le commentaire de la page d’ID 3",
-	"apihelp-diunwatch-param-pageid": "ID de la page qui contient le commentaire à ne plus surveiller",
-	"apihelp-diunwatch-param-title": "titre de la page qui contient le commentaire à ne plus surveiller",
-	"apihelp-diunwatch-summary": "Ne plus surveiller un commentaire pour ne plus être notifié quand il reçoit des réponses",
-	"apihelp-diunwatch-title-example": "ne plus surveiller le commentaire de la page de titre ''DiscourseIntegration:3''",
-
-	"apihelp-diwatch-description": "Surveiller un commentaire à notifier quand il reçoit des réponses",
-	"apihelp-diwatch-pageid-example": "surveiller le commentaire de la page d’ID 3",
-	"apihelp-diwatch-param-pageid": "ID de la page qui contient le commentaire à surveiller",
-	"apihelp-diwatch-param-title": "titre de la page qui contient le commentaire à surveiller",
-	"apihelp-diwatch-summary": "Surveiller un commentaire à notifier quand il reçoit des réponses",
-	"apihelp-diwatch-title-example": "surveiller le commentaire de la page de titre ''DiscourseIntegration:3''",
-
-	"discourseintegration-api-error-watch-notloggedin": "Vous devez être connecté pour surveiller un commentaire.",
-	"discourseintegration-api-error-watch-nowatchreply": "Surveiller des réponses n’est pas autorisé.",
-	"discourseintegration-api-error-watch": "Erreur en surveillant un commentaire.",
-
-	"discourseintegration-api-error-unwatch": "Erreur en ne surveillant plus les commentaires.",
-
-	"discourseintegration-buttontext-askquestion": "Démarrer la discussion",
-	"discourseintegration-buttontext-connecttocomment": "Connectez-vous pour discuter sur ce sujet !"
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Si cet article vous a plu, n'oubliez pas de l'applaudir en cliquant ci-dessous.<br>Pour rester informé des évolutions qui lui seront apportées, cliquez sur \"Suivre\".<br>si vous voulez partager votre expérience avec la communauté autour de ce sujet, cliquez sur \"Je le fais\".",
+    "discourseintegration-see-more": "Voir plus",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Un interessé|$1 intéressés}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Une personne dans la discussion|$1 personnes dans la discussion}}",
+    "discourseintegration-followed": "Page suivie",
+    "discourseintegration-follow": "Suivre la page",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 exploitation|$1 exploitations}}",
+    "discourseintegration-nk-doers": "$1k exploitations",
+    "discourseintegration-done-it-confirmed": "Fait !",
+    "discourseintegration-I-do-it": "Je le fais",
+    "discourseintegration-I-do-it-production": "J'en fais",
+    "discourseintegration-have-some-confirmed": "J'en ai !",
+    "discourseintegration-I-have-some": "J'en ai",
+    "discourseintegration-have-it-confirmed": "Je l'ai !",
+    "discourseintegration-I-have-it": "Je l'ai",
+    "discourseintegration-loading": "Chargement...",
+    "discourseintegration-map-departement": "<b>Département :<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Communauté :<\/b> $1",
+    "discourseintegration-read-more-button": "Lire la suite",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discussion sur ce sujet ($1 message)|Discussion sur ce sujet ($1 messages)}}",
+    "discourseintegration-applause-button": "Instructif",
+    "discourseintegration-ask-question": "Poser une question, partager un retour :",
+    "discourseintegration-question_hint-1": "Où trouve-t-on ...",
+    "discourseintegration-question_hint-2": "Est-ce possible dans ...",
+    "discourseintegration-question_hint-3": "Est-ce compatible avec ...",
+    "discourseintegration-infos": "Infos"
 }
-
-
-

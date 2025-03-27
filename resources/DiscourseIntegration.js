@@ -27,6 +27,11 @@ var DiscourseIntegration_controller = ( function () {
 		isLoggedIn: false,
 
 		initialize: function () {
+			
+			var pageId = mw.config.get('wgArticleId');
+			if (pageId == 0)
+				return;
+
 
 			this.isLoggedIn = mw.config.get('wgUserName') !== null;
 			var config = mw.config.get('DiscourseIntegration');
@@ -53,130 +58,218 @@ var DiscourseIntegration_controller = ( function () {
 		setupDivs: function () {
 			var self = this;
 
-			if ($('#di-comments.di-comments').length === 0) {
-				var mainDiv = $('<div>').attr('class', 'di-comments').attr('id', 'di-comments');
-				mainDiv.insertAfter('#catlinks');
-			}
+			var pageId = mw.config.get('wgArticleId');
+			
+			let DiscourseURL = mw.config.get('DiscourseIntegration').DiscourseURL;
 
-			$('.di-comments').each(function () {
-				var commentDiv = $(this);
+			$( '.label-community-count' ).html(mw.msg('discourseintegration-ask-question'));
 
-				var footerDiv = $('<div>').attr('class', 'di-footer');
-				// For backwards compatibility. Please remove in ver 6.0
-				if (commentDiv.attr('id') === 'di-comments') {
-					footerDiv.attr('id', 'di-footer');
-				}
-				commentDiv.append(footerDiv);
+			// Look for existing messages for this topic:
+			var api = new mw.Api();
+			api.post( {
+				action: 'digettopicmessages',
+				token: mw.user.tokens.get( 'csrfToken' ),
+				pageid: pageId
+			} )
+			.done( function ( data ) {
+				var topic = data.digettopicmessages.topic;
 
-				if (self.isLoggedIn) {
-					var addButton = self.createNeayiAddButton();
+				if (topic?.post_stream?.posts?.length > 1)
+				{
+					console.log(topic);
+					let posts = topic.post_stream.posts;
+					posts.shift(); // Remove the first post, which is the topic itself
+					
+					posts = posts.filter(post => post.post_type == 1); // 1 = regular post, 2 = moderator post, 3 = small action
 
-					// For backwards compatibility. Please remove in ver 6.0
-					if (commentDiv.attr('id') === 'di-comments') {
-						addButton.attr('id', 'di-add-button');
-					}
+					self.updateDiscussionCountLabel(posts.length);
 
-					footerDiv.append(addButton);
-				}
+					posts.slice(-3).forEach(post => {
+						let postContent = post.cooked;
+						let userAvatar = post.avatar_template.replace('{size}', 50); // avatar_template = "/user_avatar/forum.dev.tripleperformance.fr/bertrand.gorge/{size}/25_2.png"
+						if (userAvatar.startsWith('/'))
+							userAvatar = DiscourseURL + userAvatar;
 
-				// Start Neayi : When the user is not connected, we show a button anyway
-				else {
-					var addButtonDiv = $('<div> ')
-						.addClass('di-add-div');
-
-					var addButton = $('<button>')
-						.attr({
-							type: 'button',
-							id: 'di-add-button',
-							title: mw.message('discourseintegration-buttontext-connecttocomment'),
-							'data-toggle': 'tooltip'
-						})
-						.addClass('di-add-button di-button rounded');
-
-					var addCommentFA = $('<i>')
-						.addClass('fas fa-comment');
-					addButton.append(addCommentFA);
-
-					var addLabel = $('<span>')
-						.text(mw.message('discourseintegration-buttontext-connecttocomment'))
-						.addClass('di-comment-button-label');
-					addButton.append(addLabel);
-
-					addButtonDiv.append(addButton);
-
-					footerDiv.append(addButtonDiv);
-
-					addButton.click(function () {
-						var wgPageName = mw.config.get('wgPageName');
-						window.location = mediaWiki.util.getUrl("Special:Connexion", { returnto: wgPageName });
+						self.addMessageToDiscussion(userAvatar, postContent);
 					});
 
+					self.replaceDiscussionFormWithSeeDiscussionButton(DiscourseURL +'/t/' + topic.slug);
+				}
+			} );
+
+			$(".di-ask-question").on('focus', function (e) {	
+				if (mw.user.isAnon()) {
+					$('#requiresLoginModal').modal('show')
+					return;
+				}
+				
+				$(this).addClass('di-asked-open');
+			});
+
+			$(".di-ask-question").on('focusout', function (e) {	
+				if ($(this).val() == '')
+					$(this).removeClass('di-asked-open');
+			});
+
+			$(".neayi-footer-button-discuss").on('click', function (e) {
+				e.preventDefault();
+
+				if (mw.user.isAnon()) {
+					$('#requiresLoginModal').modal('show')
+					return;
 				}
 
-				// Now add the discourse embed
-				commentDiv.append($(`<div id='discourse-comments'></div>`));
+				if (self.discourseTopicURL != undefined) {
+					location.href = self.discourseTopicURL;
+					return;
+				}
 
-				var pageId = mw.config.get('wgArticleId');
+				// Open the drawer and then focus on the input
+
+				// NB : this is some duplicate code from NeayiInteractions...
+				if (self.drawerHeightSet == undefined) {
+					// Get the height of the sticky title and of the footer buttons : 
+					let titleHeight = $('.title-sticky').outerHeight(true) + $('.footer-buttons-container').outerHeight(true);
+					let maxDrawerHeight = (window.innerHeight - titleHeight)  + 'px';
+
+					$(`<style>
+						.social-sticky .footer-drawer.opened  {
+							max-height: ${maxDrawerHeight};
+						}
+						</style>`).appendTo('head');
+
+					self.drawerHeightSet = true;
+				}
+
+				$(this).addClass( 'opened' );
+				$('.footer-drawer').addClass( 'opened' );
+				
+				$(".di-ask-question").focus();
+				$('.footer-drawer').scrollTop(0);
+			});
+
+			self.askQuestionHintsIndex = 0;			
+			self.askQuestionHints = [mw.msg('discourseintegration-question_hint-1'),
+									 mw.msg('discourseintegration-question_hint-2'),
+									 mw.msg('discourseintegration-question_hint-3')];
+			
+			self.changeAskQuestionHint();									 
+			setInterval(function() {
+				self.changeAskQuestionHint();
+			}, 10000);
+
+			$(".neayi-interaction-send").on('click', function (e) {
+				e.preventDefault();
+
+				let button = $(this);
+
+				let form = button.closest('form');
+				let question = form.find('.di-ask-question').val();
+
+				if (question.trim() == '') {
+					form.find('.di-ask-question').focus();
+					return;
+				}
+
+				let origHTML = button.html();
+				button.html('<img src="/skins/skin-neayi/images/3dots.gif" width="30"></img>');
+				$('.di-error').remove();
+
+				form.find(':input').prop("disabled", true);
+
 				var api = new mw.Api();
-
 				api.post( {
-					action: 'digettopicid',
-					pageid: pageId
+					action: 'diaddmessage',
+					token: mw.user.tokens.get( 'csrfToken' ),
+					pageid: pageId,
+					message: question
 				} )
+				.then( ( data ) => {},
+				       ( code, data ) => {
+					form.append($('<div class="di-error">').html(api.getErrorMessage( data )));
+					form.find(':input').prop("disabled", false);
+					button.html(origHTML);					
+				  } )
 				.done( function ( data ) {
-					var topicID = data.digettopicid.topicID;
+					var status = data.diaddmessage.status;
 
-					if (topicID > 0)
+					if (status == 'success')
 					{
-						window.DiscourseEmbed = {
-							discourseUrl: self.DiscourseURL + '/',
-							topicId: topicID,
-							discourseReferrerPolicy: 'strict-origin-when-cross-origin'
-						};
+						form.find(':input').prop("disabled", false);
+						button.html(origHTML);
 
-						(function () {
-							var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
-							d.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
-							(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
-						})();
+						let avatarURL = mw.config.get('NeayiNavbar').wgUserAvatarURL;
 
-						$(".di-comment-button-label").html("Continuer la discussion");
+						self.addMessageToDiscussion(avatarURL, question);
+						self.replaceDiscussionFormWithSeeDiscussionButton(DiscourseURL +'/t/' + data.diaddmessage.topicId + '/last');
+						self.updateDiscussionCountLabel(1);
+					}
+					else
+					{
+						form.append($('<div class="di-error">').html(data.diaddmessage.errors.join('<br>')));
+						form.find(':input').prop("disabled", false);
+						button.html(origHTML);
 					}
 				} );
 			});
 		},
+		
+		addMessageToDiscussion: function(avatarURL, message) {
+			let userAvatar = "<img src='" + avatarURL + "'>";
+			let postDiv = $(`<div class="di-message mx-3">
+								<div class="di-message-avatar">${userAvatar}</div>
+								<div class="di-message-content">${message}</div>
+							</div>`);
+			$('.di-messages').append(postDiv);
+		},
 
-		createNeayiAddButton: function () {
-			var self = this;
+		replaceDiscussionFormWithSeeDiscussionButton: function(url) {
 
-			var addButtonDiv = $('<div> ')
-				.addClass('di-add-div');
+			let self = this;
 
-			var targetURL = '/wiki/Special:RedirectToForum/page/' + mw.config.get('wgArticleId');
+			self.discourseTopicURL = url;
 
-			var addButton = $('<a>')
-						.attr({
-							'href': targetURL,
-							'target': '_blank',
-							'class': 'di-add-button',
-							'title': mw.message('discourseintegration-buttontext-askquestion'),
-							'data-toggle': 'tooltip'
-						})
-						.addClass('di-button rounded');
+			// Now hide the form
+			$('.di-ask-question').closest('form').hide();
 
-			var addCommentFA = $('<i>')
-				.addClass('fas fa-comment');
-			addButton.append(addCommentFA);
+			// Add a button bellow to go to the discussion
+			$('.di-messages').append($(`<div class="di-more di-message text-right mx-3">
+					<div class="di-message-avatar"><img style="visibility: hidden;"></div>
+					<div class="di-message-send-button"><a href="${url}" target="_blank" class="btn btn-light-green stretched-link"><span class="material-icons-outlined align-middle">forum</span> ${mw.msg('discourseintegration-read-more-button')}</a></div>
+				</div>`));
+		},
 
-			var addLabel = $('<span>')
-				.text(mw.message('discourseintegration-buttontext-askquestion'))
-				.addClass('di-comment-button-label');
-			addButton.append(addLabel);
+		updateDiscussionCountLabel: function(numberOfPostsInTopic) {
+			$('.label-community-count').html(mw.msg('discourseintegration-discussion-messages', numberOfPostsInTopic));			
+		},
 
-			addButtonDiv.append(addButton);
+		changeAskQuestionHint: function() {
+			let self = this;
+			
+			let placeholderElement = $(".di-ask-question");
 
-			return addButtonDiv;
+			if (placeholderElement.hasClass('di-asked-open'))
+				return;
+
+			if (!document.hasFocus())
+				return;
+
+			self.askQuestionHintsIndex = (self.askQuestionHintsIndex + 1) % self.askQuestionHints.length;
+			let text = self.askQuestionHints[self.askQuestionHintsIndex];
+			let index = 0;
+
+			placeholderElement.attr('placeholder', ''); // Clear the placeholder initially
+
+			let typewriterInterval = setInterval(() => {
+				if (index < text.length) {
+					placeholderElement.attr('placeholder', placeholderElement.attr('placeholder') + text.charAt(index));
+					index++;
+				} else {
+					clearInterval(typewriterInterval);
+				}
+			}, 100); // Adjust typing speed by changing the interval time
 		}
+
 
 	};
 }());

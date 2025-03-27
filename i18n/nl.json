@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Als je dit artikel leuk vond, vergeet dan niet om het toe te juichen door hieronder te klikken.<br>Om op de hoogte te blijven van de ontwikkelingen, klik je op \"Volgen\".<br>als je je ervaringen rond dit onderwerp wilt delen met de community, klik op \"Ik doe\".",
+    "discourseintegration-see-more": "Zie meer",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Eén geïnteresseerd|$1 geïnteresseerd}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Eén persoon in discussie|$1 mensen in discussie}}",
+    "discourseintegration-followed": "Pagina gevolgd",
+    "discourseintegration-follow": "Volg pagina",
+    "discourseintegration-n-doers": "{{MEERVOUD:$1|$1 bezit|$1 bezit}}",
+    "discourseintegration-nk-doers": "$1k boerderijen",
+    "discourseintegration-done-it-confirmed": "Doen !",
+    "discourseintegration-I-do-it": "Ik doe",
+    "discourseintegration-I-do-it-production": "Ik doe",
+    "discourseintegration-have-some-confirmed": "Ik heb er een paar!",
+    "discourseintegration-I-have-some": "Ik heb er een paar",
+    "discourseintegration-have-it-confirmed": "Ik heb het!",
+    "discourseintegration-I-have-it": "Ik heb het",
+    "discourseintegration-loading": "Laden...",
+    "discourseintegration-map-departement": "<b>Afdeling:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Gemeenschap:<\/b> $1",
+    "discourseintegration-read-more-button": "Lees meer",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discussie over dit onderwerp ($1 bericht)|Discussie over dit onderwerp ($1 bericht)}}",
+    "discourseintegration-applause-button": "Leerzaam",
+    "discourseintegration-ask-question": "Stel een vraag, deel feedback:",
+    "discourseintegration-question_hint-1": "Waar vinden wij...",
+    "discourseintegration-question_hint-2": "Is dit mogelijk bij...",
+    "discourseintegration-question_hint-3": "Is dit compatibel met...",
+    "discourseintegration-infos": "Info"
+}

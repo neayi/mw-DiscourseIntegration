@@ -1,31 +1,33 @@
 {
-	"@metadata": {
-		"authors": [
-			"Bertrand Gorge"
-		]
-	},
-	"discourseintegration-desc": "Allows commenting on wiki pages using Discourse",
-
-	"apihelp-diunwatch-description": "Unwatch a comment to no longer be notified when it receives replies",
-	"apihelp-diunwatch-pageid-example": "unwatch comment with page ID 3",
-	"apihelp-diunwatch-param-pageid": "page ID of the page which holds the comment to be unwatched",
-	"apihelp-diunwatch-param-title": "title of the page which holds the comment to be unwatched",
-	"apihelp-diunwatch-summary": "Unwatch a comment to no longer be notified when it receives replies",
-	"apihelp-diunwatch-title-example": "unwatch comment with page title DiscourseIntegration:3",
-
-	"apihelp-diwatch-description": "Watch a comment to be notified when it receives replies",
-	"apihelp-diwatch-pageid-example": "watch comment with page ID 3",
-	"apihelp-diwatch-param-pageid": "page ID of the page which holds the comment to be watched",
-	"apihelp-diwatch-param-title": "title of the page which holds the comment to be watched",
-	"apihelp-diwatch-summary": "Watch a comment to be notified when it receives replies",
-	"apihelp-diwatch-title-example": "watch comment with page title DiscourseIntegration:3",
-
-	"discourseintegration-api-error-watch-notloggedin": "You must be logged in to watch a comment.",
-	"discourseintegration-api-error-watch-nowatchreply": "Watching replies is not allowed.",
-	"discourseintegration-api-error-watch": "Error watching comment.",
-
-	"discourseintegration-api-error-unwatch": "Error unwatching comment.",
-
-	"discourseintegration-buttontext-askquestion": "Ask a question",
-	"discourseintegration-buttontext-connecttocomment": "Connect to ask a question"
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "If you liked this article, don't forget to applaud it by clicking below.<br>To stay informed of the developments that will be made to it, click on \"Follow\".<br>if you want to share your experience with the community around this topic, click \"I do it\".",
+    "discourseintegration-see-more": "See more",
+    "discourseintegration-interested-count": "{{PLURAL:$1|One interested|$1 interested}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|One person in the discussion|$1 people in the discussion}}",
+    "discourseintegration-followed": "Page followed",
+    "discourseintegration-follow": "Follow page",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 farm|$1 farms}}",
+    "discourseintegration-nk-doers": "$1k farms",
+    "discourseintegration-done-it-confirmed": "Done!",
+    "discourseintegration-I-do-it": "I do it",
+    "discourseintegration-I-do-it-production": "I do some",
+    "discourseintegration-have-some-confirmed": "I have some!",
+    "discourseintegration-I-have-some": "I have those",
+    "discourseintegration-have-it-confirmed": "I have it!",
+    "discourseintegration-I-have-it": "I have it",
+    "discourseintegration-loading": "Loading...",
+    "discourseintegration-map-departement": "<b>County:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Community:<\/b> $1",
+    "discourseintegration-read-more-button": "Read more",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discussion on this topic ($1 message)|Discussion on this topic ($1 messages)}}",
+    "discourseintegration-applause-button": "Instructive",
+    "discourseintegration-ask-question": "Ask a question, share feedback:",
+    "discourseintegration-question_hint-1": "Where do we find...",
+    "discourseintegration-question_hint-2": "Is this possible in...",
+    "discourseintegration-question_hint-3": "Is this compatible with...",
+    "discourseintegration-infos": "Info"
 }

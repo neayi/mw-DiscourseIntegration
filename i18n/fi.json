@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Jos pidit tästä artikkelista, älä unohda kehua sitä klikkaamalla alla.<br>Jos haluat pysyä ajan tasalla kehityksestä, napsauta \"Seuraa\".<br>Jos haluat jakaa kokemuksesi tämän aiheen ympärillä olevan yhteisön kanssa, napsauta \"Minä teen\".",
+    "discourseintegration-see-more": "Katso lisää",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Yksi kiinnostunut|$1 kiinnostunut}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Yksi henkilö keskustelussa|$1 henkilöä keskustelussa}}",
+    "discourseintegration-followed": "Sivu seurasi",
+    "discourseintegration-follow": "Seuraa sivua",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 omistus|$1 omistus}}",
+    "discourseintegration-nk-doers": "$1k maatilaa",
+    "discourseintegration-done-it-confirmed": "Tee!",
+    "discourseintegration-I-do-it": "Kyllä minä",
+    "discourseintegration-I-do-it-production": "Kyllä minä",
+    "discourseintegration-have-some-confirmed": "Minulla on joitain!",
+    "discourseintegration-I-have-some": "Minulla on joitakin",
+    "discourseintegration-have-it-confirmed": "Minulla on se!",
+    "discourseintegration-I-have-it": "Minulla on se",
+    "discourseintegration-loading": "Ladataan...",
+    "discourseintegration-map-departement": "<b>Osasto:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Yhteisö:<\/b> $1",
+    "discourseintegration-read-more-button": "Lue lisää",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Keskustelu tästä aiheesta ($1 viesti)|Keskustelu tästä aiheesta ($1 viestiä)}}",
+    "discourseintegration-applause-button": "Opettavaista",
+    "discourseintegration-ask-question": "Esitä kysymys, anna palautetta:",
+    "discourseintegration-question_hint-1": "Mistä löydämme...",
+    "discourseintegration-question_hint-2": "Onko tämä mahdollista...",
+    "discourseintegration-question_hint-3": "Onko tämä yhteensopiva...",
+    "discourseintegration-infos": "Tiedot"
+}

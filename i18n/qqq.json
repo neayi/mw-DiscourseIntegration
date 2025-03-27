@@ -1,31 +1,33 @@
 {
-	"@metadata": {
-		"authors": [
-			"Bertrand Gorge"
-		]
-	},
-	"discourseintegration-desc": "{{desc|name=DiscourseIntegration|url=https://www.mediawiki.org/wiki/Extension:DiscourseIntegration}}",
-
-	"apihelp-diunwatch-description": "{{doc-apihelp-description|diunwatch}}",
-	"apihelp-diunwatch-pageid-example": "{{doc-apihelp-example|diunwatch}}",
-	"apihelp-diunwatch-param-pageid": "{{doc-apihelp-param|diunwatch|pageid}}",
-	"apihelp-diunwatch-param-title": "{{doc-apihelp-param|diunwatch|title}}",
-	"apihelp-diunwatch-summary": "{{doc-apihelp-summary|diunwatch}}",
-	"apihelp-diunwatch-title-example": "{{doc-apihelp-example|diunwatch}}",
-
-	"apihelp-diwatch-description": "{{doc-apihelp-description|diwatch}}",
-	"apihelp-diwatch-pageid-example": "{{doc-apihelp-example|diwatch}}",
-	"apihelp-diwatch-param-pageid": "{{doc-apihelp-param|diwatch|pageid}}",
-	"apihelp-diwatch-param-title": "{{doc-apihelp-param|diwatch|title}}",
-	"apihelp-diwatch-summary": "{{doc-apihelp-summary|diwatch}}",
-	"apihelp-diwatch-title-example": "{{doc-apihelp-example|diwatch}}",
-
-	"discourseintegration-api-error-watch-notloggedin": "Error message.",
-	"discourseintegration-api-error-watch-nowatchreply": "Error message.",
-	"discourseintegration-api-error-watch": "Error message.",
-
-	"discourseintegration-api-error-unwatch": "Error message.",
-
-	"discourseintegration-buttontext-askquestion": "Ask a question",
-	"discourseintegration-buttontext-connecttocomment": "Connect to ask a question"
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Message to user at the bottom of each page",
+    "discourseintegration-see-more": "See more button",
+    "discourseintegration-interested-count": "Interested label",
+    "discourseintegration-community-count": "Community label",
+    "discourseintegration-followed": "Followed button caption",
+    "discourseintegration-follow": "Follow button caption",
+    "discourseintegration-n-doers": "Doers label",
+    "discourseintegration-nk-doers": "Doers label (thousands)",
+    "discourseintegration-done-it-confirmed": "Done it button - Done",
+    "discourseintegration-I-do-it": "Done it button - I do it",
+    "discourseintegration-I-do-it-production": "Done it button - I do some",
+    "discourseintegration-have-some-confirmed": "Done it button - I have some",
+    "discourseintegration-I-have-some": "Done it button - I have those",
+    "discourseintegration-have-it-confirmed": "Done it button - I have it !",
+    "discourseintegration-I-have-it": "Done it button - I have it",
+    "discourseintegration-loading": "Loading placeholder",
+    "discourseintegration-map-departement": "Label for the county in the map",
+    "discourseintegration-map-community-size": "Label for the size of the community in the map",
+    "discourseintegration-read-more-button": null,
+    "discourseintegration-discussion-messages": null,
+    "discourseintegration-applause-button": null,
+    "discourseintegration-ask-question": null,
+    "discourseintegration-question_hint-1": null,
+    "discourseintegration-question_hint-2": null,
+    "discourseintegration-question_hint-3": null,
+    "discourseintegration-infos": null
 }

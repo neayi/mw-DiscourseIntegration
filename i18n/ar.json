@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "إذا أعجبك هذا المقال، فلا تنسى الإشادة به بالضغط أدناه.<br>للبقاء على اطلاع بالتطورات التي ستطرأ عليه، انقر فوق \"متابعة\".<br>إذا كنت تريد مشاركة تجربتك مع المجتمع حول هذا الموضوع، انقر فوق \"أفعل ذلك\".",
+    "discourseintegration-see-more": "شاهد المزيد",
+    "discourseintegration-interested-count": "{{PLURAL:$1|شخص واحد مهتم|$1 مهتم}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|شخص واحد في المناقشة|$1 شخص في المناقشة}}",
+    "discourseintegration-followed": "تمت متابعة الصفحة",
+    "discourseintegration-follow": "متابعة الصفحة",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 مزرعة|$1 مزرعة}}",
+    "discourseintegration-nk-doers": "$1k مزرعة",
+    "discourseintegration-done-it-confirmed": "تم!",
+    "discourseintegration-I-do-it": "أفعل ذلك",
+    "discourseintegration-I-do-it-production": "أفعل بعض",
+    "discourseintegration-have-some-confirmed": "لدي بعض!",
+    "discourseintegration-I-have-some": "لدي تلك",
+    "discourseintegration-have-it-confirmed": "لدي ذلك!",
+    "discourseintegration-I-have-it": "لدي ذلك",
+    "discourseintegration-loading": "جاري التحميل...",
+    "discourseintegration-map-departement": "<b>المقاطعة:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>المجتمع:<\/b> $1",
+    "discourseintegration-read-more-button": "اقرأ المزيد",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|مناقشة حول هذا الموضوع ($1 رسالة)|مناقشة حول هذا الموضوع ($1 رسالة)}}",
+    "discourseintegration-applause-button": "مفيدة",
+    "discourseintegration-ask-question": "اطرح سؤالاً وشارك التعليقات:",
+    "discourseintegration-question_hint-1": "أين نجد...",
+    "discourseintegration-question_hint-2": "هل هذا ممكن في...",
+    "discourseintegration-question_hint-3": "هل هذا متوافق مع...",
+    "discourseintegration-infos": "معلومات"
+}

@@ -47,19 +47,6 @@ class ApiDIAddMessage extends ApiDIBase {
 
 		$apiResult = $this->getResult();
 
-		$response = $this->postMessage($message);
-		
-		$r['status'] = 'success';
-
-		if ($response !== true) {	
-			$r['status'] = 'error';
-			$r['errors'] = $response;
-		}
-
-		$apiResult->addValue( null, $this->getModuleName(), $r );
-	}
-
-	private function postMessage($message){
         $api = $this->getDiscourseAPI();
 
         $topicId = false;
@@ -72,32 +59,41 @@ class ApiDIAddMessage extends ApiDIBase {
 		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
 		$pageId = $wikiTitle->getArticleID();
 
-		wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
+		$topicId = $api->getTopicIdByExternalID($pageId);
 
-		// Create the topic now
-		$text = "Ce sujet de discussion accompagne la page :
+		if (!$topicId) {
+			wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
 
-$pageURL";
-
-		// create a topic
-		$topicId = $api->createTopicForEmbed2(
-			'Discussion - ' . $wikiTitle,
-			$text,
-			$GLOBALS['wgDiscourseDefaultCategoryId'],
-			$username,
-			$pageURL,
-			$pageId
-		);
-
-		if (empty($topicId))
-			throw new \MWException("Error Processing Request", 1);
+			// Create the topic now
+			$text = "Ce sujet de discussion accompagne la page :
+	
+	$pageURL";
+	
+			// create a topic
+			$topicId = $api->createTopicForEmbed2(
+				'Discussion - ' . $wikiTitle,
+				$text,
+				$GLOBALS['wgDiscourseDefaultCategoryId'],
+				$username,
+				$pageURL,
+				$pageId
+			);
+	
+			if (empty($topicId))
+				throw new \MWException("Error Processing Request", 1);	
+		}
 
 		$ret = $api->createPost($message, $topicId, $username);
 
-		if ($ret->apiresult->errors)
-			return $ret->apiresult->errors;
+		if ($ret->apiresult->errors){	
+			$r['status'] = 'error';
+			$r['errors'] = $ret->apiresult->errors;
+		} else {
+			$r['status'] = 'success';
+			$r['topicId'] = $topicId;	
+		}
 
-		return true;
+		$apiResult->addValue( null, $this->getModuleName(), $r );
 	}
 
 	/**
