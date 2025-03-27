@@ -107,7 +107,7 @@ abstract class ApiDIBase extends ApiBase {
 
 		$api = $this->getDiscourseAPI();
 
-		$r = $api->getPostByExternalID($external_id);
+		$r = $api->getTopicByExternalID($external_id);
 
 		if (isset($r->apiresult->topic_id))
 			return $r->apiresult->topic_id;
