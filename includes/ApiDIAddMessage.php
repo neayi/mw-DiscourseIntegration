@@ -140,8 +140,8 @@ class ApiDIAddMessage extends ApiDIBase {
 				ParamValidator::PARAM_REQUIRED => true
 			],
 			'message' => [
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true,
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
 			]
 		];
 	}
