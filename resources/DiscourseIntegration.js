@@ -89,6 +89,9 @@ var DiscourseIntegration_controller = ( function () {
 						if (userAvatar.startsWith('/'))
 							userAvatar = DiscourseURL + userAvatar;
 
+						// Fix insights URL from Discourse (http: needs to be https:):
+						userAvatar = userAvatar.replace('http://insights', 'https://insights');
+
 						self.addMessageToDiscussion(userAvatar, postContent);
 					});
 
