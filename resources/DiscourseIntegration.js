@@ -76,7 +76,6 @@ var DiscourseIntegration_controller = ( function () {
 
 				if (topic?.post_stream?.posts?.length > 1)
 				{
-					console.log(topic);
 					let posts = topic.post_stream.posts;
 					posts.shift(); // Remove the first post, which is the topic itself
 					
@@ -158,62 +157,82 @@ var DiscourseIntegration_controller = ( function () {
 				self.changeAskQuestionHint();
 			}, 10000);
 
+			$('.di-ask-question').keypress(function (event) {                                 
+				var keyCode = (event.which ? event.which : event.keyCode);          
+				
+				// manage ctrl-enter
+				if (keyCode === 10 || keyCode == 13 && event.ctrlKey) {
+					let textearea = $(this);
+					let form = textearea.closest('form');
+	
+					self.sendMessage(form);
+					return false;
+				}
+	
+				return true;
+			});
+
 			$(".neayi-interaction-send").on('click', function (e) {
 				e.preventDefault();
 
 				let button = $(this);
-
 				let form = button.closest('form');
-				let question = form.find('.di-ask-question').val();
 
-				if (question.trim() == '') {
-					form.find('.di-ask-question').focus();
-					return;
-				}
-
-				let origHTML = button.html();
-				button.html('<img src="/skins/skin-neayi/images/3dots.gif" width="30"></img>');
-				$('.di-error').remove();
-
-				form.find(':input').prop("disabled", true);
-
-				var api = new mw.Api();
-				api.post( {
-					action: 'diaddmessage',
-					token: mw.user.tokens.get( 'csrfToken' ),
-					pageid: pageId,
-					message: question
-				} )
-				.then( ( data ) => {},
-				       ( code, data ) => {
-					form.append($('<div class="di-error">').html(api.getErrorMessage( data )));
-					form.find(':input').prop("disabled", false);
-					button.html(origHTML);					
-				  } )
-				.done( function ( data ) {
-					var status = data.diaddmessage.status;
-
-					if (status == 'success')
-					{
-						form.find(':input').prop("disabled", false);
-						button.html(origHTML);
-
-						let avatarURL = mw.config.get('NeayiNavbar').wgUserAvatarURL;
-
-						self.addMessageToDiscussion(avatarURL, question);
-						self.replaceDiscussionFormWithSeeDiscussionButton(DiscourseURL +'/t/' + data.diaddmessage.topicId + '/last');
-						self.updateDiscussionCountLabel(1);
-					}
-					else
-					{
-						form.append($('<div class="di-error">').html(data.diaddmessage.errors.join('<br>')));
-						form.find(':input').prop("disabled", false);
-						button.html(origHTML);
-					}
-				} );
+				self.sendMessage(form);
 			});
 		},
 		
+		sendMessage: function(form) {
+			var self = this;
+
+			var pageId = mw.config.get('wgArticleId');
+			let DiscourseURL = mw.config.get('DiscourseIntegration').DiscourseURL;
+
+			let question = form.find('.di-ask-question').val();
+
+			if (question.trim() == '') {
+				form.find('.di-ask-question').focus();
+				return;
+			}
+
+			let button = form.find('.neayi-interaction-send');
+
+			let origHTML = button.html();
+			button.html('<img src="/skins/skin-neayi/images/3dots.gif" width="30"></img>');
+			$('.di-error').remove();
+
+			form.find(':input').prop("disabled", true);
+
+			var api = new mw.Api();
+			api.post( {
+				action: 'diaddmessage',
+				token: mw.user.tokens.get( 'csrfToken' ),
+				pageid: pageId,
+				message: question
+			} )
+			.done( function ( data ) {
+				var status = data.diaddmessage.status;
+
+				if (status == 'success')
+				{
+					form.find(':input').prop("disabled", false);
+					button.html(origHTML);
+
+					let avatarURL = mw.config.get('NeayiNavbar').wgUserAvatarURL;
+
+					self.addMessageToDiscussion(avatarURL, question);
+					self.replaceDiscussionFormWithSeeDiscussionButton(DiscourseURL +'/t/' + data.diaddmessage.topicId + '/last');
+					self.updateDiscussionCountLabel(1);
+				}
+				else
+				{
+					form.append($('<div class="di-error">').html(data.diaddmessage.errors.join(' - ')));
+					form.find(':input').prop("disabled", false);
+					button.html(origHTML);
+				}
+			} );
+		},
+
 		addMessageToDiscussion: function(avatarURL, message) {
 			let userAvatar = "<img src='" + avatarURL + "'>";
 			let postDiv = $(`<div class="di-message mx-3">

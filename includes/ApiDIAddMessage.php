@@ -45,11 +45,7 @@ class ApiDIAddMessage extends ApiDIBase {
 		$params = $this->extractRequestParams();
 		$message = $params['message'];
 
-		$apiResult = $this->getResult();
-
         $api = $this->getDiscourseAPI();
-
-        $topicId = false;
 
 		// First, get the page info:
 		$wikiTitle = $this->currentPage->getTitle();
@@ -83,8 +79,8 @@ class ApiDIAddMessage extends ApiDIBase {
 				throw new \MWException("Error Processing Request", 1);	
 		}
 
+		$r = [];
 		$ret = $api->createPost($message, $topicId, $username);
-
 		if ($ret->apiresult->errors){	
 			$r['status'] = 'error';
 			$r['errors'] = $ret->apiresult->errors;
@@ -93,6 +89,7 @@ class ApiDIAddMessage extends ApiDIBase {
 			$r['topicId'] = $topicId;	
 		}
 
+		$apiResult = $this->getResult();
 		$apiResult->addValue( null, $this->getModuleName(), $r );
 	}
 
