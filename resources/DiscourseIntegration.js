@@ -64,6 +64,9 @@ var DiscourseIntegration_controller = ( function () {
 
 			$( '.label-community-count' ).html(mw.msg('discourseintegration-ask-question'));
 
+			$( '.neayi-footer-button-discuss' ).removeClass('d-none');
+			$( '.interaction-discussions' ).removeClass('d-none');
+
 			// Look for existing messages for this topic:
 			var api = new mw.Api();
 			api.post( {
