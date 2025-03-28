@@ -45,24 +45,7 @@ class ApiDIAddMessage extends ApiDIBase {
 		$params = $this->extractRequestParams();
 		$message = $params['message'];
 
-		$apiResult = $this->getResult();
-
-		$response = $this->postMessage($message);
-		
-		$r['status'] = 'success';
-
-		if ($response !== true) {	
-			$r['status'] = 'error';
-			$r['errors'] = $response;
-		}
-
-		$apiResult->addValue( null, $this->getModuleName(), $r );
-	}
-
-	private function postMessage($message){
         $api = $this->getDiscourseAPI();
-
-        $topicId = false;
 
 		// First, get the page info:
 		$wikiTitle = $this->currentPage->getTitle();
@@ -72,32 +55,42 @@ class ApiDIAddMessage extends ApiDIBase {
 		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
 		$pageId = $wikiTitle->getArticleID();
 
-		wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
+		$topicId = $api->getTopicIdByExternalID($pageId);
 
-		// Create the topic now
-		$text = "Ce sujet de discussion accompagne la page :
+		if (!$topicId) {
+			wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
 
-$pageURL";
+			// Create the topic now
+			$text = "Ce sujet de discussion accompagne la page :
+	
+	$pageURL";
+	
+			// create a topic
+			$topicId = $api->createTopicForEmbed2(
+				'Discussion - ' . $wikiTitle,
+				$text,
+				$GLOBALS['wgDiscourseDefaultCategoryId'],
+				$username,
+				$pageURL,
+				$pageId
+			);
+	
+			if (empty($topicId))
+				throw new \MWException("Error Processing Request", 1);	
+		}
 
-		// create a topic
-		$topicId = $api->createTopicForEmbed2(
-			'Discussion - ' . $wikiTitle,
-			$text,
-			$GLOBALS['wgDiscourseDefaultCategoryId'],
-			$username,
-			$pageURL,
-			$pageId
-		);
-
-		if (empty($topicId))
-			throw new \MWException("Error Processing Request", 1);
-
+		$r = [];
 		$ret = $api->createPost($message, $topicId, $username);
+		if ($ret->apiresult->errors){	
+			$r['status'] = 'error';
+			$r['errors'] = $ret->apiresult->errors;
+		} else {
+			$r['status'] = 'success';
+			$r['topicId'] = $topicId;	
+		}
 
-		if ($ret->apiresult->errors)
-			return $ret->apiresult->errors;
-
-		return true;
+		$apiResult = $this->getResult();
+		$apiResult->addValue( null, $this->getModuleName(), $r );
 	}
 
 	/**
@@ -144,8 +137,8 @@ $pageURL";
 				ParamValidator::PARAM_REQUIRED => true
 			],
 			'message' => [
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true,
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
 			]
 		];
 	}

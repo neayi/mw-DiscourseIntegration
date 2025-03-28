@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Ha tetszett a cikk, ne felejtse el megtapsolni az alábbi gombra kattintva.<br>Ha szeretne értesülni a fejleményekről, kattintson a \"Követés\" gombra.<br>Ha meg szeretné osztani tapasztalatait a témával kapcsolatos közösséggel, kattintson az \"Igen\" gombra.",
+    "discourseintegration-see-more": "Lásd még",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Egy érdeklődő|$1 érdekelt}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Egy személy a beszélgetésben|$1 személy a beszélgetésben}}",
+    "discourseintegration-followed": "Oldal követte",
+    "discourseintegration-follow": "Kövesse az oldalt",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 részesedés|$1 befektetés}}",
+    "discourseintegration-nk-doers": "$1k gazdaság",
+    "discourseintegration-done-it-confirmed": "Tedd !",
+    "discourseintegration-I-do-it": "én igen",
+    "discourseintegration-I-do-it-production": "én igen",
+    "discourseintegration-have-some-confirmed": "nekem van néhány!",
+    "discourseintegration-I-have-some": "nekem van néhány",
+    "discourseintegration-have-it-confirmed": "megvan!",
+    "discourseintegration-I-have-it": "megvan",
+    "discourseintegration-loading": "Terhelés...",
+    "discourseintegration-map-departement": "<b>Osztály:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Közösség:<\/b> $1",
+    "discourseintegration-read-more-button": "Olvass tovább",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Vita erről a témáról ($1 üzenet)|Vita erről a témáról ($1 üzenet)}}",
+    "discourseintegration-applause-button": "Tanulságos",
+    "discourseintegration-ask-question": "Tegyen fel kérdést, ossza meg visszajelzését:",
+    "discourseintegration-question_hint-1": "Hol találjuk...",
+    "discourseintegration-question_hint-2": "Lehetséges ez a...",
+    "discourseintegration-question_hint-3": "Ez kompatibilis a...",
+    "discourseintegration-infos": "Info"
+}

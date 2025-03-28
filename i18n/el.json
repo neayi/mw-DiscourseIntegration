@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Αν σας άρεσε αυτό το άρθρο, μην ξεχάσετε να το επικροτήσετε κάνοντας κλικ παρακάτω.<br>Για να είστε ενημερωμένοι για τις εξελίξεις, κάντε κλικ στο \"Ακολουθήστε\".<br>εάν θέλετε να μοιραστείτε την εμπειρία σας με την κοινότητα σχετικά με αυτό το θέμα, κάντε κλικ στο \"Κάνω\".",
+    "discourseintegration-see-more": "Δείτε περισσότερα",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Ένας που ενδιαφέρεται|$1 ενδιαφέρεται}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Ένα άτομο σε συζήτηση|$1 άτομα σε συζήτηση}}",
+    "discourseintegration-followed": "Ακολούθησε η σελίδα",
+    "discourseintegration-follow": "Ακολουθήστε τη σελίδα",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 εκμετάλλευση|$1 εκμεταλλεύσεις}}",
+    "discourseintegration-nk-doers": "$1k χιλιάδες εκμεταλλεύσεις",
+    "discourseintegration-done-it-confirmed": "Κάντε !",
+    "discourseintegration-I-do-it": "το κάνω",
+    "discourseintegration-I-do-it-production": "το κάνω",
+    "discourseintegration-have-some-confirmed": "Έχω μερικά!",
+    "discourseintegration-I-have-some": "Έχω μερικά",
+    "discourseintegration-have-it-confirmed": "το έχω!",
+    "discourseintegration-I-have-it": "το έχω",
+    "discourseintegration-loading": "Φόρτωση...",
+    "discourseintegration-map-departement": "<b>Τμήμα:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Κοινότητα:<\/b> $1",
+    "discourseintegration-read-more-button": "Διαβάστε περισσότερα",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Συζήτηση για αυτό το θέμα ($1 μήνυμα)|Συζήτηση για αυτό το θέμα ($1 μηνύματα)}}",
+    "discourseintegration-applause-button": "Διδακτικός",
+    "discourseintegration-ask-question": "Κάντε μια ερώτηση, μοιραστείτε τα σχόλιά σας:",
+    "discourseintegration-question_hint-1": "Που βρίσκουμε...",
+    "discourseintegration-question_hint-2": "Είναι δυνατόν αυτό σε...",
+    "discourseintegration-question_hint-3": "Είναι συμβατό με...",
+    "discourseintegration-infos": "Πληροφορίες"
+}

@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Si te gustó este artículo, no olvides aplaudirlo haciendo clic a continuación.<br>Para mantenerte informado de las novedades, haz clic en \"Seguir\".<br>si quieres compartir tu experiencia con la comunidad en torno a este tema, haga clic en \"Acepto\".",
+    "discourseintegration-see-more": "Ver más",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Un interesado|$1 interesado}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Una persona en discusión|$1 personas en discusión}}",
+    "discourseintegration-followed": "Página seguida",
+    "discourseintegration-follow": "Seguir página",
+    "discourseintegration-n-doers": "{{PLURAL:$1|$1 participación|$1 participación}}",
+    "discourseintegration-nk-doers": "$1k granjas",
+    "discourseintegration-done-it-confirmed": "Hacer !",
+    "discourseintegration-I-do-it": "sí",
+    "discourseintegration-I-do-it-production": "sí",
+    "discourseintegration-have-some-confirmed": "¡Tengo algunos!",
+    "discourseintegration-I-have-some": "tengo algunos",
+    "discourseintegration-have-it-confirmed": "¡Lo tengo!",
+    "discourseintegration-I-have-it": "lo tengo",
+    "discourseintegration-loading": "Cargando...",
+    "discourseintegration-map-departement": "<b>Departamento:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Comunidad:<\/b> $1",
+    "discourseintegration-read-more-button": "Leer más",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discusión sobre este tema ($1 mensaje)|Discusión sobre este tema ($1 mensajes)}}",
+    "discourseintegration-applause-button": "Instructivo",
+    "discourseintegration-ask-question": "Haga una pregunta, comparta comentarios:",
+    "discourseintegration-question_hint-1": "¿Dónde encontramos...?",
+    "discourseintegration-question_hint-2": "¿Es esto posible en...",
+    "discourseintegration-question_hint-3": "¿Es compatible con...?",
+    "discourseintegration-infos": "Información"
+}

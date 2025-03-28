@@ -40,7 +40,12 @@ class ApiDIGetTopicID extends ApiDIBase {
 	 */
 	protected function executeBody() {
 
-		$topicId = $this->getTopicIdForPageId();
+		$wikiTitle = $this->currentPage->getTitle();
+		$external_id = $wikiTitle->getArticleID();
+
+		$api = $this->getDiscourseAPI();
+
+		$topicId = $api->getTopicIdByExternalID($external_id);
 
 		$apiResult = $this->getResult();
 		$r['topicID'] = $topicId;

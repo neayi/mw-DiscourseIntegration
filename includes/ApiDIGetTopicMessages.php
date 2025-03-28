@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2016 The MITRE Corporation
+ * Copyright (c) 2017 The MITRE Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,29 +23,53 @@
 
 namespace MediaWiki\Extension\DiscourseIntegration;
 
-use OutputPage;
-use Parser;
-use PPFrame;
-use Skin;
-
-class DiscourseIntegrationHooks {
+class ApiDIGetTopicMessages extends ApiDIBase {
 
 	/**
-	 * Implements BeforePageDisplay hook.
-	 * See https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
-	 * Gets comments for page and initializes variables to be passed to JavaScript.
-	 *
-	 * @param OutputPage $output OutputPage object
-	 * @param Skin $skin Skin object that will be used to generate the page
-	 * @return bool continue checking hooks
+	 * @param ApiMain $main main module
+	 * @param string $action name of this module
 	 */
-	public static function addCommentsAndInitializeJS(
-		OutputPage $output,
-		Skin $skin
-	) {
-		$discourseIntegration = DiscourseIntegration::singleton();
-		$discourseIntegration->init( $output );
-		return true;
+	public function __construct( $main, $action ) {
+		parent::__construct( $main, $action, true );
 	}
 
+	/**
+	 * the real body of the execute function
+	 *
+	 * @return result of API request
+	 */
+	protected function executeBody() {
+		$wikiTitle = $this->currentPage->getTitle();
+		$external_id = $wikiTitle->getArticleID();
+
+		$api = $this->getDiscourseAPI();
+
+		$res = $api->getTopicByExternalID($external_id);
+
+		$apiResult = $this->getResult();
+		if (!empty($res->apiresult))
+			$r['topic'] = $res->apiresult;
+		else 
+			$r['topic'] = [];
+		
+		$apiResult->addValue( null, $this->getModuleName(), $r );
+	}
+
+
+	/**
+	 * @return array examples of the use of this API module
+	 */
+	public function getExamplesMessages() {
+		return [
+			'action=' . $this->getModuleName() . '&pageid=3' =>
+			'apihelp-' . $this->getModuleName() . '-pageid-example'
+		];
+	}
+
+	/**
+	 * @return string indicates that this API module does not require a CSRF toekn
+	 */
+	public function needsToken() {
+		return false;
+	}
 }

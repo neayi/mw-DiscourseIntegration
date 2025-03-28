@@ -1,0 +1,33 @@
+{
+    "@metadata": {
+            "authors": [
+                "Bertrand Gorge"
+            ]
+        },
+    "discourseintegration-footer-text": "Se ti è piaciuto questo articolo, non dimenticare di applaudirlo cliccando qui sotto.<br>Per rimanere informato sugli sviluppi, clicca su \"Segui\".<br>se vuoi condividere la tua esperienza con la community su questo argomento, clicca su \"Sì\".",
+    "discourseintegration-see-more": "Vedi di più",
+    "discourseintegration-interested-count": "{{PLURAL:$1|Uno interessato|$1 interessato}}",
+    "discourseintegration-community-count": "{{PLURAL:$1|Una persona in discussione|$1 persone in discussione}}",
+    "discourseintegration-followed": "Seguì la pagina",
+    "discourseintegration-follow": "Segui la pagina",
+    "discourseintegration-n-doers": "{{PLURAL:$1|Possesso di $1|Possesso di $1}}",
+    "discourseintegration-nk-doers": "$1k aziende agricole",
+    "discourseintegration-done-it-confirmed": "Fare !",
+    "discourseintegration-I-do-it": "Io faccio",
+    "discourseintegration-I-do-it-production": "Io faccio",
+    "discourseintegration-have-some-confirmed": "Ne ho alcuni!",
+    "discourseintegration-I-have-some": "Ne ho alcuni",
+    "discourseintegration-have-it-confirmed": "Ce l'ho!",
+    "discourseintegration-I-have-it": "Ce l'ho",
+    "discourseintegration-loading": "Caricamento...",
+    "discourseintegration-map-departement": "<b>Dipartimento:<\/b> $1",
+    "discourseintegration-map-community-size": "<b>Comunità:<\/b> $1",
+    "discourseintegration-read-more-button": "Per saperne di più",
+    "discourseintegration-discussion-messages": "{{PLURAL:$1|Discussione su questo argomento ($1 messaggio)|Discussione su questo argomento ($1 messaggio)}}",
+    "discourseintegration-applause-button": "Istruttivo",
+    "discourseintegration-ask-question": "Fai una domanda, condividi feedback:",
+    "discourseintegration-question_hint-1": "Dove troviamo...",
+    "discourseintegration-question_hint-2": "E' possibile in...",
+    "discourseintegration-question_hint-3": "È compatibile con...",
+    "discourseintegration-infos": "Informazioni"
+}

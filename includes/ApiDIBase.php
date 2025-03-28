@@ -103,12 +103,11 @@ abstract class ApiDIBase extends ApiBase {
 	protected function getTopicIdForPageId()
 	{
 		$wikiTitle = $this->currentPage->getTitle();
-
-		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
+		$external_id = $wikiTitle->getArticleID();
 
 		$api = $this->getDiscourseAPI();
 
-		$r = $api->getPostsByEmbeddedURL($pageURL);
+		$r = $api->getTopicByExternalID($external_id);
 
 		if (isset($r->apiresult->topic_id))
 			return $r->apiresult->topic_id;
