@@ -64,7 +64,7 @@ var DiscourseIntegration_controller = ( function () {
 
 			$( '.label-community-count' ).html(mw.msg('discourseintegration-ask-question'));
 
-			$( '.neayi-footer-button-discuss' ).removeClass('d-none');
+			$( '.footer-discuss-button' ).removeClass('d-none');
 			$( '.interaction-discussions' ).removeClass('d-none');
 
 			// Look for existing messages for this topic:
@@ -129,28 +129,40 @@ var DiscourseIntegration_controller = ( function () {
 					return;
 				}
 
-				// Open the drawer and then focus on the input
+				// If we are on desktop we scroll up to the discussion and focus it. On mobile we
+				// open the drawer:
+				if ($('.footer-more-button').css('display') == 'none') {
 
-				// NB : this is some duplicate code from NeayiInteractions...
-				if (self.drawerHeightSet == undefined) {
-					// Get the height of the sticky title and of the footer buttons : 
-					let titleHeight = $('.title-sticky').outerHeight(true) + $('.footer-buttons-container').outerHeight(true);
-					let maxDrawerHeight = (window.innerHeight - titleHeight)  + 'px';
+					$('html').animate({
+						scrollTop: 0
+					}, 500, function() {
+						$(".interaction-bloc .di-ask-question").focus();
+					});
 
-					$(`<style>
-						.social-sticky .footer-drawer.opened  {
-							max-height: ${maxDrawerHeight};
-						}
-						</style>`).appendTo('head');
+				} else {
+					// Open the drawer and then focus on the input
 
-					self.drawerHeightSet = true;
+					// NB : this is some duplicate code from NeayiInteractions...
+					if (self.drawerHeightSet == undefined) {
+						// Get the height of the sticky title and of the footer buttons : 
+						let titleHeight = $('.title-sticky').outerHeight(true) + $('.footer-buttons-container').outerHeight(true);
+						let maxDrawerHeight = (window.innerHeight - titleHeight)  + 'px';
+
+						$(`<style>
+							.social-sticky .footer-drawer.opened  {
+								max-height: ${maxDrawerHeight};
+							}
+							</style>`).appendTo('head');
+
+						self.drawerHeightSet = true;
+					}
+
+					$(this).addClass( 'opened' );
+					$('.footer-drawer').addClass( 'opened' );
+					
+					$(".footer-drawer .di-ask-question").focus();
+					$('.footer-drawer').scrollTop(0);
 				}
-
-				$(this).addClass( 'opened' );
-				$('.footer-drawer').addClass( 'opened' );
-				
-				$(".di-ask-question").focus();
-				$('.footer-drawer').scrollTop(0);
 			});
 
 			self.askQuestionHintsIndex = 0;			
