@@ -142,23 +142,9 @@ var DiscourseIntegration_controller = ( function () {
 				} else {
 					// Open the drawer and then focus on the input
 
-					// NB : this is some duplicate code from NeayiInteractions...
-					if (self.drawerHeightSet == undefined) {
-						// Get the height of the sticky title and of the footer buttons : 
-						let titleHeight = $('.title-sticky').outerHeight(true) + $('.footer-buttons-container').outerHeight(true);
-						let maxDrawerHeight = (window.innerHeight - titleHeight)  + 'px';
-
-						$(`<style>
-							.social-sticky .footer-drawer.opened  {
-								max-height: ${maxDrawerHeight};
-							}
-							</style>`).appendTo('head');
-
-						self.drawerHeightSet = true;
+					if (! $('.footer-drawer').hasClass( 'opened' )) {
+						$('.neayi-footer-button-more').trigger("click");
 					}
-
-					$(this).addClass( 'opened' );
-					$('.footer-drawer').addClass( 'opened' );
 					
 					$(".footer-drawer .di-ask-question").focus();
 					$('.footer-drawer').scrollTop(0);
