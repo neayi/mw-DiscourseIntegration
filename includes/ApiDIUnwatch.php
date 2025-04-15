@@ -41,8 +41,16 @@ class ApiDIUnwatch extends ApiDIBase {
 	protected function executeBody() {
 
 		$username = $this->getCurrentlyLoggedInDiscourseUserName();
+		$wikiTitle = $this->currentPage->getTitle();
 
 		$api = $this->getDiscourseAPI();
+
+		if ($this->isTag()) {
+			$tag = (string)$wikiTitle;
+
+			$this->createTagForPage($tag, $wikiTitle->getArticleID());
+			$api->unwatchTag($tag, $username);
+		}
 
 		$topicId = $this->getTopicIdForPageId();
 

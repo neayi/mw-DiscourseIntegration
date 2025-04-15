@@ -26,6 +26,14 @@ namespace MediaWiki\Extension\DiscourseIntegration;
 use ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 
+use SMW\DIWikiPage;
+use SMW\DIProperty;
+use SMW\StoreFactory;
+use SMWQuery;
+use SMW\Query\Language\SomeProperty;
+use SMW\Query\Language\ValueDescription;
+
+
 class ApiDIAddMessage extends ApiDIBase {
 
 	/**
@@ -52,7 +60,6 @@ class ApiDIAddMessage extends ApiDIBase {
 
 		$username = $this->getCurrentlyLoggedInUser();
 
-		$pageURL = $wikiTitle->getFullURL('', false, 'https://');
 		$pageId = $wikiTitle->getArticleID();
 
 		$topicId = $api->getTopicIdByExternalID($pageId);
@@ -60,16 +67,19 @@ class ApiDIAddMessage extends ApiDIBase {
 		if (!$topicId) {
 			wfDebugLog( 'DiscourseIntegration', "Creating topic for : $wikiTitle");
 
+			// Get the tags associated with the page
+			$tags = $this->getTagsForPage($wikiTitle);
+
 			// Create the topic now
-			$text = "Ce sujet de discussion accompagne la page :
-	
-	$pageURL";
+			$pageURL = $wikiTitle->getFullURL('', false, 'https://');
+			$text = "Ce sujet de discussion accompagne la page :\n\n\n$pageURL";
 	
 			// create a topic
 			$topicId = $api->createTopicForEmbed2(
 				'Discussion - ' . $wikiTitle,
 				$text,
 				$GLOBALS['wgDiscourseDefaultCategoryId'],
+				$tags,
 				$username,
 				$pageURL,
 				$pageId
@@ -77,6 +87,11 @@ class ApiDIAddMessage extends ApiDIBase {
 	
 			if (empty($topicId))
 				throw new \MWException("Error Processing Request", 1);	
+
+			if ($topicId->apiresult->errors)
+				throw new \MWException("Error Processing Request " . print_r($topicId, true), 1);
+
+			$this->addInsightsFollower($pageId, $topicId);
 		}
 
 		$r = [];
@@ -161,5 +176,56 @@ class ApiDIAddMessage extends ApiDIBase {
 	 */
 	public function needsToken() {
 		return 'csrf';
+	}
+
+	function addInsightsFollower($pageId, $topicId)
+	{
+		$usernames = $this->getFollowingUsersForArticle($pageId);
+
+		$api = $this->getDiscourseAPI();
+		foreach ($usernames as $username)
+		{
+			$api->watchTopic($topicId, $username);
+		}
+	}
+
+	/**
+	 * Get the tags associated with a page
+	 *
+	 * @param Title $title
+	 * @return array of tags
+	 */
+	function getTagsForPage($title) {
+				
+		$smwStore = StoreFactory::getStore();
+
+		$property = DIProperty::newFromUserLabel('A un mot-clé', true); // inverse property
+		$value = DIWikiPage::newFromTitle( $title );
+		$description = new SomeProperty(
+			$property,
+			new ValueDescription($value)
+		);
+
+		$query = new \SMWQuery($description);
+		$query->setLimit(100); // Adjust as needed
+
+		// Use SMW Query API to execute the query
+		$queryResult = $smwStore->getQueryResult( $query );
+		
+		$tags = [];
+
+		foreach ($queryResult->getResults() as $result) {
+			$relatedTitle = $result->getTitle();
+			$tag = (String)$relatedTitle;
+			$articleId = $relatedTitle->getArticleID();
+
+			// Only add tags that are valid titles
+			if ($articleId > 0) {
+				$tags[] = $tag;
+				$this->createTagForPage($tag, $articleId);
+			}
+		}
+
+		return $tags;
 	}
 }

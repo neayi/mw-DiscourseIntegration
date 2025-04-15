@@ -28,6 +28,13 @@ use ApiMessage;
 use ApiMain;
 use Wikimedia\ParamValidator\ParamValidator;
 
+use SMW\DIWikiPage;
+use SMW\DIProperty;
+use SMW\StoreFactory;
+use SMWQuery;
+use SMW\Query\Language\SomeProperty;
+use SMW\Query\Language\ValueDescription;
+
 abstract class ApiDIBase extends ApiBase {
 
 	private $edit;
@@ -109,8 +116,8 @@ abstract class ApiDIBase extends ApiBase {
 
 		$r = $api->getTopicByExternalID($external_id);
 
-		if (isset($r->apiresult->topic_id))
-			return $r->apiresult->topic_id;
+		if (isset($r->apiresult->id))
+			return $r->apiresult->id;
 
 		return false;
 	}
@@ -179,4 +186,107 @@ abstract class ApiDIBase extends ApiBase {
 									'https', '', '', false);
 		}
 	}
+
+	/** 
+	 * Checks if the current page is a tag
+	 * @return bool true if the current page is a tag
+	 */
+	protected function isTag() {
+		$title = $this->currentPage->getTitle();
+		
+		$smwStore = StoreFactory::getStore();
+
+		$property = DIProperty::newFromUserLabel('A un mot-clé');
+		$value = DIWikiPage::newFromTitle( $title );
+		$description = new SomeProperty(
+			$property,
+			new ValueDescription($value)
+		);
+
+		$query = new \SMWQuery($description);
+		$query->setLimit(1);
+
+		// Use SMW Query API to execute the query
+		$queryResult = $smwStore->getQueryResult( $query );
+		
+		return $queryResult->getCount() > 0;
+	}
+
+
+	/**
+	 * Create a tag.
+	 * If the tag exists, do nothing
+	 * If the tag doesn't exist yet, create the tag, then enroll following users to the new tag
+	 */
+	protected function createTagForPage($tag, $articleId) {
+		$api = $this->getDiscourseAPI();
+		
+		if ($api->tagExists($tag))
+			return;
+
+		$api->createTag($tag, $GLOBALS['wgDiscourseDefaultTagGroupId']);
+
+		$usernames = $this->getFollowingUsersForArticle($articleId);
+
+		foreach ($usernames as $username)
+			$api->watchTag($tag, $username);
+
+		return true;
+	}
+
+	/**
+	 * Ask insights to know the usernames that follow a given article
+	 * Returns an array of strings (usernames)
+	 */
+	protected function getFollowingUsersForArticle($articleId) {
+        // Ask insights about who decided to follow the page and subscribe them too:
+        $insightsURL = $GLOBALS['wgInsightsRootAPIURL']; // http://insights/';
+		
+		// Get the current wiki language code
+		$wikiLanguage = $GLOBALS['wiki_language']; // Defined in LocalSettings.php
+		if (empty($wikiLanguage))
+			$wikiLanguage = 'fr'; // Default to French
+
+		$url = $insightsURL . "api/page/$articleId/followers?type=follow&wiki=" . $wikiLanguage;
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$body = curl_exec($ch);
+
+		$curl_errno = curl_errno($ch);
+		$curl_error = curl_error($ch);
+
+		if ($curl_errno > 0) {
+			throw new \MWException("cURL Error ($curl_errno): $curl_error", 1);
+		}
+
+		$rc = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		$resObj = new \stdClass();
+		$resObj->http_code = $rc;
+		$resObj->apiresult = json_decode($body);
+
+		if (empty($resObj->apiresult) || !isset($resObj->apiresult->data))
+		{
+			throw new \MWException("Error Processing Request " . print_r($resObj, true), 1);
+		}
+
+		$usernames = [];
+		foreach ($resObj->apiresult->data as $aFollower)
+		{
+			if (empty($aFollower->user->discourse_username))
+			{
+				wfDebugLog( 'DiscourseIntegration', "Empty follower : " . print_r($aFollower, true) . "\n");
+				continue;
+			}
+
+			$usernames[] = $aFollower->user->discourse_username;
+		}		
+
+		return $usernames;
+	}
+
 }

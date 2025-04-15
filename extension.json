@@ -12,9 +12,6 @@
 	"requires": {
 		"MediaWiki": ">= 1.37.0"
 	},
-	"SpecialPages": {
-		"RedirectToForum": "MediaWiki\\Extension\\DiscourseIntegration\\RedirectToForum"
-	},
 	"MessagesDirs": {
 		"DiscourseIntegration": [
 			"i18n"

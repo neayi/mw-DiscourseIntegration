@@ -1,7 +1,8 @@
 {
     "intelephense.environment.includePaths": [
         "../../includes",
-        "../../maintenance/includes"
+        "../../maintenance/includes",
+        "../SemanticMediawiki"
     ],
     "todo-tree.tree.scanMode": "workspace"
 }

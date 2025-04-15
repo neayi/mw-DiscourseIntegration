@@ -41,8 +41,16 @@ class ApiDIWatch extends ApiDIBase {
 	protected function executeBody() {
 
 		$username = $this->getCurrentlyLoggedInDiscourseUserName();
+		$wikiTitle = $this->currentPage->getTitle();
 
 		$api = $this->getDiscourseAPI();
+
+		if ($this->isTag()) {
+			$tag = (string)$wikiTitle;
+
+			$this->createTagForPage($tag, $wikiTitle->getArticleID());
+			$api->watchTag($tag, $username);
+		}
 
 		$topicId = $this->getTopicIdForPageId();
 
@@ -75,4 +83,7 @@ class ApiDIWatch extends ApiDIBase {
 	public function needsToken() {
 		return 'csrf';
 	}
+
+
+	
 }
