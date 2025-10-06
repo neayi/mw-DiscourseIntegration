@@ -6,11 +6,11 @@
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:DiscourseIntegration",
 	"descriptionmsg": "discourseintegration-desc",
-	"manifest_version": 1,
+	"manifest_version": 2,
 	"type": "parserhook",
 	"license-name": "MIT",
 	"requires": {
-		"MediaWiki": ">= 1.37.0"
+		"MediaWiki": ">= 1.39.0"
 	},
 	"MessagesDirs": {
 		"DiscourseIntegration": [
@@ -64,7 +64,7 @@
 				"discourseintegration-question_hint-1",
 				"discourseintegration-question_hint-2",
 				"discourseintegration-question_hint-3",
-				"discourseintegration-infos"				
+				"discourseintegration-infos"
 			]
 		}
 	},
@@ -89,10 +89,10 @@
 		"BeforePageDisplay": "MediaWiki\\Extension\\DiscourseIntegration\\DiscourseIntegrationHooks::addCommentsAndInitializeJS"
 	},
 	"config": {
-		"DiscourseIntegrationNamespaceIndex": 844,
-		"DiscourseIntegrationAllowedNamespaces" : null,
-		"DiscourseIntegrationUserRealNamePropertyName" : null,
-		"DiscourseAPIKey" : null,
-		"DiscourseHost" : null
+		"DiscourseIntegrationNamespaceIndex": {"value": 844},
+		"DiscourseIntegrationAllowedNamespaces" : {"value": null},
+		"DiscourseIntegrationUserRealNamePropertyName" : {"value": null},
+		"DiscourseAPIKey" : {"value": null},
+		"DiscourseHost" : {"value": null}
 	}
 }
