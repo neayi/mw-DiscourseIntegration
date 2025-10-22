@@ -30,7 +30,7 @@ class ApiDIGetTopicID extends ApiDIBase {
 	 * @param string $action name of this module
 	 */
 	public function __construct( $main, $action ) {
-		parent::__construct( $main, $action, true );
+		parent::__construct( $main, $action, false );
 	}
 
 	/**

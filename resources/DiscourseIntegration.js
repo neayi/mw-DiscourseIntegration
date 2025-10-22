@@ -69,9 +69,8 @@ var DiscourseIntegration_controller = ( function () {
 
 			// Look for existing messages for this topic:
 			var api = new mw.Api();
-			api.post( {
+			api.get( {
 				action: 'digettopicmessages',
-				token: mw.user.tokens.get( 'csrfToken' ),
 				pageid: pageId
 			} )
 			.done( function ( data ) {
