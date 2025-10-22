@@ -181,16 +181,8 @@ abstract class ApiDIBase extends ApiBase {
 
 		wfDebugLog('DiscourseIntegration', 'Initializing DiscourseAPI with host: ' . $GLOBALS['wgDiscourseHost']);
 
-		if ($GLOBALS['env'] == 'dev')
-		{
-			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
-									'http', '', '', true);
-		}
-		else
-		{
-			return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'],
-									'https', '', '', false);
-		}
+		// Use http even in production since we are behind traefik
+		return new \DiscourseAPI($GLOBALS['wgDiscourseHost'], $GLOBALS['wgDiscourseAPIKey'], 'http', '', '', true);
 	}
 
 	/** 
