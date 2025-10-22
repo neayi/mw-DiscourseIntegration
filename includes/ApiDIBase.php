@@ -172,8 +172,14 @@ abstract class ApiDIBase extends ApiBase {
 
 	protected function getDiscourseAPI()
 	{
-		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
+		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) ) {
+			wfDebugLog('DiscourseIntegration', 'Missing Discourse configuration: APIKey=' . 
+				(empty($GLOBALS['wgDiscourseAPIKey']) ? 'MISSING' : 'SET') . 
+				', Host=' . (empty($GLOBALS['wgDiscourseHost']) ? 'MISSING' : 'SET'));
 			$this->dieCustomUsageMessage('discourseintegration-api-error-missing-config');
+		}
+
+		wfDebugLog('DiscourseIntegration', 'Initializing DiscourseAPI with host: ' . $GLOBALS['wgDiscourseHost']);
 
 		if ($GLOBALS['env'] == 'dev')
 		{

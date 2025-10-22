@@ -43,14 +43,40 @@ class ApiDIGetTopicMessages extends ApiDIBase {
 		$external_id = $wikiTitle->getArticleID();
 
 		$api = $this->getDiscourseAPI();
-
-		$res = $api->getTopicByExternalID($external_id);
-
 		$apiResult = $this->getResult();
-		if (!empty($res->apiresult))
-			$r['topic'] = $res->apiresult;
-		else 
+		$r = [];
+		
+		try {
+			$res = $api->getTopicByExternalID($external_id);
+			
+			
+			// Check if we got a valid response
+			if (!empty($res->apiresult) && !isset($res->apiresult->errors)) {
+				$r['topic'] = $res->apiresult;
+			} else {
+				// Topic doesn't exist or there was an error - return empty topic
+				// Log the response for debugging if it's not a simple 404
+				if (!empty($res->http_code) && $res->http_code !== 404) {
+					wfDebugLog('DiscourseIntegration', 
+						'Unexpected HTTP response in digettopicmessages: ' . $res->http_code . 
+						', external_id: ' . $external_id .
+						', response: ' . print_r($res, true)
+					);
+				}
+				$r['topic'] = [];
+			}
+			
+		} catch (\Exception $e) {
+			// Log the error for debugging in production
+			wfDebugLog('DiscourseIntegration', 
+				'Exception in digettopicmessages: ' . $e->getMessage() . 
+				', external_id: ' . $external_id .
+				', trace: ' . $e->getTraceAsString()
+			);
+			
+			// Return empty topic instead of throwing exception
 			$r['topic'] = [];
+		}
 		
 		$apiResult->addValue( null, $this->getModuleName(), $r );
 	}
