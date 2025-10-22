@@ -29,5 +29,11 @@
     "discourseintegration-question_hint-1": "Where do we find...",
     "discourseintegration-question_hint-2": "Is this possible in...",
     "discourseintegration-question_hint-3": "Is this compatible with...",
-    "discourseintegration-infos": "Info"
+    "discourseintegration-infos": "Info",
+    "discourseintegration-api-error-create-topic": "Failed to create topic on Discourse",
+    "discourseintegration-api-error-create-topic-details": "Failed to create topic on Discourse with detailed error information",
+    "discourseintegration-api-error-not-logged-in": "Please log in before using this feature",
+    "discourseintegration-api-error-missing-config": "Please configure wgDiscourseAPIKey and wgDiscourseHost",
+    "discourseintegration-api-error-curl": "Network error occurred while communicating with Discourse",
+    "discourseintegration-api-error-insights-request": "Error communicating with Insights API"
 }

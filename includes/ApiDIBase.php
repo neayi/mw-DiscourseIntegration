@@ -167,13 +167,13 @@ abstract class ApiDIBase extends ApiBase {
 	 */
 	protected function dieCustomUsageMessage( $message_name ) {
 		$error_message = wfMessage( $message_name );
-		$this->dieWithError($error_message);
+		$this->dieWithError( $error_message );
 	}
 
 	protected function getDiscourseAPI()
 	{
 		if ( empty($GLOBALS['wgDiscourseAPIKey']) || empty($GLOBALS['wgDiscourseHost']) )
-			throw new \MWException("\nPlease define \$wgDiscourseAPIKey and \$wgDiscourseHost\n", 1);
+			$this->dieCustomUsageMessage('discourseintegration-api-error-missing-config');
 
 		if ($GLOBALS['env'] == 'dev')
 		{
@@ -259,7 +259,7 @@ abstract class ApiDIBase extends ApiBase {
 		$curl_error = curl_error($ch);
 
 		if ($curl_errno > 0) {
-			throw new \MWException("cURL Error ($curl_errno): $curl_error", 1);
+			$this->dieCustomUsageMessage('discourseintegration-api-error-curl');
 		}
 
 		$rc = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -271,7 +271,7 @@ abstract class ApiDIBase extends ApiBase {
 
 		if (empty($resObj->apiresult) || !isset($resObj->apiresult->data))
 		{
-			throw new \MWException("Error Processing Request " . print_r($resObj, true), 1);
+			$this->dieCustomUsageMessage('discourseintegration-api-error-insights-request');
 		}
 
 		$usernames = [];

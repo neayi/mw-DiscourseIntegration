@@ -29,5 +29,11 @@
     "discourseintegration-question_hint-1": null,
     "discourseintegration-question_hint-2": null,
     "discourseintegration-question_hint-3": null,
-    "discourseintegration-infos": null
+    "discourseintegration-infos": null,
+    "discourseintegration-api-error-create-topic": "Error message when failing to create a topic on Discourse",
+    "discourseintegration-api-error-create-topic-details": "Error message when failing to create a topic on Discourse with additional details",
+    "discourseintegration-api-error-not-logged-in": "Error message when user tries to use API without being logged in",
+    "discourseintegration-api-error-missing-config": "Error message when Discourse API configuration is missing",
+    "discourseintegration-api-error-curl": "Error message for network/cURL errors when communicating with Discourse",
+    "discourseintegration-api-error-insights-request": "Error message when Insights API request fails"
 }

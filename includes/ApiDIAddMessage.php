@@ -86,10 +86,10 @@ class ApiDIAddMessage extends ApiDIBase {
 			);
 	
 			if (empty($topicId))
-				throw new \MWException("Error Processing Request", 1);	
+				$this->dieCustomUsageMessage('discourseintegration-api-error-create-topic');	
 
 			if ($topicId->apiresult->errors)
-				throw new \MWException("Error Processing Request " . print_r($topicId, true), 1);
+				$this->dieCustomUsageMessage('discourseintegration-api-error-create-topic-details');
 
 			$this->addInsightsFollower($pageId, $topicId);
 		}
@@ -136,7 +136,7 @@ class ApiDIAddMessage extends ApiDIBase {
 	{
 		$user = $this->getUser();
 		if ( $user->isAnon() ) {
-			throw new \MWException("\nPlease connect before using this page\n", 1);
+			$this->dieCustomUsageMessage('discourseintegration-api-error-not-logged-in');
 		}
 
 		$userEmail = $user->getEmail();
